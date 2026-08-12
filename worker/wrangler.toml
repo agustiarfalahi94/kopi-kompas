@@ -16,10 +16,13 @@ compatibility_date = "2026-08-01"
 binding = "RATE_LIMIT"
 id = "e442b227afa64ce0998353fa48e928fa"
 
-# Pinned, never an alias. gemini-2.5-flash is listed by ListModels but refuses
-# new API keys ("no longer available to new users"), so this had to move up.
-# Keep it a concrete version: every stored score records the model that
-# produced it, and `gemini-flash-latest` would keep writing one name while the
-# model underneath changed.
+# Two models, pinned, never an alias. Parsing is mechanical extraction and the
+# lite model does it well; scoring applies a rubric and wants the fuller one.
+# The free tier meters each model separately, so the split also doubles the
+# daily allowance rather than spending one pool on both endpoints.
+#
+# gemini-2.5-flash is still listed by ListModels but refuses new API keys, and
+# gemini-3.6-flash's free allowance turned out to be ~20 requests a day.
 [vars]
-GEMINI_MODEL = "gemini-3.6-flash"
+GEMINI_PARSE_MODEL = "gemini-3.5-flash-lite"
+GEMINI_SCORE_MODEL = "gemini-3.5-flash"

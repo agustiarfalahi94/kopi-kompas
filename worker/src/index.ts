@@ -11,7 +11,8 @@ import { checkRateLimit, type CounterStore } from './ratelimit';
 
 export interface Env {
   GEMINI_API_KEY: string;
-  GEMINI_MODEL?: string;
+  GEMINI_PARSE_MODEL?: string;
+  GEMINI_SCORE_MODEL?: string;
   RATE_LIMIT: CounterStore;
 }
 
@@ -22,12 +23,17 @@ export interface Deps {
 
 const MAX_TEXT = 2000;
 
-// Pinned on purpose, never an alias like `gemini-flash-latest`. Every score
-// the app stores records the model that produced it, so an old score stays
-// interpretable; a floating alias would keep writing one name while the model
-// underneath changed, defeating exactly the provenance that column exists for.
-// Override per-environment with the GEMINI_MODEL var.
-const DEFAULT_MODEL = 'gemini-3.6-flash';
+// Two models on purpose. Parsing is mechanical extraction and a lite model
+// does it well; scoring applies a rubric and wants the fuller model. The free
+// tier meters each model separately, so splitting the two endpoints also
+// doubles the daily allowance instead of spending one pool on both.
+//
+// Both pinned, never an alias like `gemini-flash-latest`. Every score records
+// the model that produced it, so an old score stays interpretable; an alias
+// would keep writing one name while the model underneath changed, defeating
+// exactly the provenance that column exists for.
+const DEFAULT_PARSE_MODEL = 'gemini-3.5-flash-lite';
+const DEFAULT_SCORE_MODEL = 'gemini-3.5-flash';
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -83,7 +89,7 @@ async function handleParse(
 
   const result = await callGemini<any>({
     apiKey: env.GEMINI_API_KEY,
-    model: env.GEMINI_MODEL ?? DEFAULT_MODEL,
+    model: env.GEMINI_PARSE_MODEL ?? DEFAULT_PARSE_MODEL,
     systemInstruction: parseInstruction(toLocale(payload.locale)),
     userText: text,
     responseSchema: buildParseResponseSchema(),
@@ -125,7 +131,7 @@ async function handleScore(
     return error(422, `${method} is not scored`);
   }
 
-  const model = env.GEMINI_MODEL ?? DEFAULT_MODEL;
+  const model = env.GEMINI_SCORE_MODEL ?? DEFAULT_SCORE_MODEL;
   const result = await callGemini<any>({
     apiKey: env.GEMINI_API_KEY,
     model,
