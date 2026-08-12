@@ -33,6 +33,7 @@ dev_dependencies:
   # Runs real SQLite on the test runner, so every query is covered headless
   # with no emulator.
   sqflite_common_ffi: ^2.3.4
+  image: ^4.9.1
 
 flutter:
   uses-material-design: true
