@@ -16,13 +16,18 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final db = await BrewDatabase.open();
   final schema = await BrewSchema.load();
+  final settings = SettingsStore();
+  // Set before the first frame, so no screen ever renders in the wrong
+  // language and then swaps.
+  AppStrings.language = await settings.language();
+
   final client = KopiClient(installId: await loadInstallId());
 
   final plugin = PluginNotifications(FlutterLocalNotificationsPlugin());
   await plugin.init();
   final reminder = ReminderService(
     db: db,
-    settings: SettingsStore(),
+    settings: settings,
     notifications: plugin,
   );
   await reminder.ensurePermission();

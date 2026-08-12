@@ -61,6 +61,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) setState(() => _enabled = value);
   }
 
+  Future<void> _setLanguage(String code) async {
+    await _settings.setLanguage(code);
+    AppStrings.language = code;
+    // Rebuild the whole tree: labels come from the schema and the strings
+    // file, and both read the language at build time.
+    if (mounted) setState(() {});
+  }
+
   Future<void> _pickTime() async {
     final picked = await showTimePicker(context: context, initialTime: _time);
     if (picked == null) return;
@@ -96,6 +104,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             onTap: _pickTime,
           ),
+        const Divider(),
+        ListTile(
+          leading: const Icon(Icons.language),
+          title: Text(AppStrings.languageTitle),
+          trailing: SegmentedButton<String>(
+            segments: const [
+              ButtonSegment(value: 'en', label: Text('EN')),
+              ButtonSegment(value: 'id', label: Text('ID')),
+            ],
+            selected: {AppStrings.language},
+            onSelectionChanged: (v) => _setLanguage(v.first),
+          ),
+        ),
         const Divider(),
         ListTile(
           leading: const Icon(Icons.delete_outline),
