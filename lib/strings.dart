@@ -42,6 +42,7 @@ class AppStrings {
   static String get yes => 'Yes';
   static String get no => 'No';
   static String get fullLogTitle => 'Full log';
+  static String get editTitle => 'Edit';
   static String get scoreLabel => 'Score';
   static String get settingsTitle => 'Settings';
   static String get deletedTitle => 'Deleted entries';

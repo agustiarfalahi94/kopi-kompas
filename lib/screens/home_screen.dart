@@ -5,6 +5,7 @@ import '../models/brew_entry.dart';
 import '../services/brew_database.dart';
 import '../services/kopi_client.dart';
 import '../strings.dart';
+import 'edit_entry_screen.dart';
 import 'entry_detail_screen.dart';
 import 'full_log_screen.dart';
 import 'new_entry_screen.dart';
@@ -94,8 +95,41 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => EntryDetailScreen(
           schema: widget.schema,
           entry: e,
-          onEdit: () {},
-          onRescore: () {},
+          onEdit: () async {
+            final changed = await navigator.push<bool>(
+              MaterialPageRoute(
+                builder: (_) => EditEntryScreen(
+                  db: widget.db,
+                  schema: widget.schema,
+                  client: widget.client,
+                  entry: e,
+                ),
+              ),
+            );
+            if (changed == true) navigator.pop();
+          },
+          onRescore: () async {
+            final result = await widget.client.score(e);
+            if (result case ScoreOk(
+              :final score,
+              :final reasons,
+              :final rubric,
+              :final model,
+            )) {
+              await widget.db.update(
+                e.copyWith(
+                  overallScore: score,
+                  scoreReasons: reasons,
+                  scoreStatus: ScoreStatus.scored,
+                  scoreRubric: rubric,
+                  scoreModel: model,
+                  scoredAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                ),
+              );
+              navigator.pop();
+            }
+          },
           onRate: (stars) async {
             await widget.db.update(
               e.copyWith(myRating: stars, updatedAt: DateTime.now()),
