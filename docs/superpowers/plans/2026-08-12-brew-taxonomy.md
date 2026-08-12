@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace the eight flat brew methods with fourteen methods in five categories, add the new shared and per-method fields, move the rubric to `r2`, and capture your own 1–5 rating on the score reveal — migrating existing entries rather than losing them.
+**Goal:** Replace the eight flat brew methods with sixteen methods in five categories, add the new shared and per-method fields, move the rubric to `r2`, and capture your own 1–5 rating on the score reveal — migrating existing entries rather than losing them.
 
 **Architecture:** `schema/brew_schema.json` grows a `categories` block and a `date` field type; variants stay *fields* (`shotStyle`, `brewer`) rather than becoming methods, so one field set and one rubric serve a whole family. The Worker gains a rubric per scored method. The app gains a category-grouped picker, seven new core columns, and a database migration. Nothing else about the flow changes.
 
@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- **Fourteen methods, five categories**, exactly as section 2a of the design spec lists them. Do not invent methods.
+- **Sixteen methods, five categories**, exactly as section 2a of the design spec lists them. Do not invent methods.
 - **Variants are fields.** `espresso.shotStyle` ∈ {ristretto, normale, lungo}; `coneDripper.brewer` ∈ {v60, origami, kono}; `flatBottomDripper.brewer` ∈ {kalitaWave, staggX, orea, april}; `smartDripper.brewer` ∈ {clever, switch}. They shift rubric targets; they never duplicate a field set.
 - **Kopi luwak and wet-hulled are `process` values**, never methods.
 - **Scored: `espresso`, `coneDripper`, `flatBottomDripper`, `chemex`, `batchBrewer`, `aeropress`.** Everything else is `notApplicable` and never calls `/score`.
@@ -54,7 +54,7 @@ Entry detail screen · full log · deleted-entries page · settings · daily rem
 - Test: `worker/test/schema.test.ts`, `worker/test/gemini_schema.test.ts`
 
 **Interfaces:**
-- Produces: `categories: Record<string, {label, methods: BrewMethod[]}>`, `CATEGORIES: string[]`, `categoryOf(method): string`, and a widened `BrewMethod` union of the fourteen ids.
+- Produces: `categories: Record<string, {label, methods: BrewMethod[]}>`, `CATEGORIES: string[]`, `categoryOf(method): string`, and a widened `BrewMethod` union of the sixteen ids.
 
 - [ ] **Step 1: Write the schema**
 
@@ -117,8 +117,8 @@ unless noted, and `waterTempC` is always `water`. `required` here means
 Extend `worker/test/schema.test.ts`:
 
 ```ts
-it('groups fourteen methods into five categories', () => {
-  expect(METHODS).toHaveLength(14);
+it('groups sixteen methods into five categories', () => {
+  expect(METHODS).toHaveLength(16);
   expect(CATEGORIES).toEqual([
     'espresso', 'filter', 'immersion', 'hybrid', 'indonesian',
   ]);
@@ -211,7 +211,7 @@ Extend `geminiType` with `case 'date': return { type: 'string', format: 'date' }
 ```bash
 cd worker && npx vitest run && npx tsc --noEmit
 git add schema/brew_schema.json worker/src/schema.ts worker/test/
-git commit -m "feat(schema): fourteen methods in five categories
+git commit -m "feat(schema): sixteen methods in five categories
 
 Variants stay fields: shotStyle moves the espresso ratio target and
 brewer moves the dripper targets, so one field set and one rubric serve
@@ -353,7 +353,7 @@ p '{"text":"kopi saring, 25g, air 250ml, gula, disaring dua kali","locale":"id",
 **Interfaces:**
 - Produces: `FieldType.date`; `class CategorySpec { String id; String label; List<String> methodIds; }`; `List<CategorySpec> get categories`; `CategorySpec categoryOf(String methodId)`.
 
-- [ ] **Step 1: Write the failing tests** — mirror Task 1's Worker tests in Dart: fourteen methods, five categories, every method in exactly one, scored list, `shotStyle`/`brewer` present as fields, `v60` absent as a method, `process` carrying `luwak` and `wet-hulled`, `roastDate` parsing as `FieldType.date`, and categories preserving file order.
+- [ ] **Step 1: Write the failing tests** — mirror Task 1's Worker tests in Dart: sixteen methods, five categories, every method in exactly one, scored list, `shotStyle`/`brewer` present as fields, `v60` absent as a method, `process` carrying `luwak` and `wet-hulled`, `roastDate` parsing as `FieldType.date`, and categories preserving file order.
 - [ ] **Step 2: Implement** — add the `date` case to `_fieldType`, parse `categories`, and expose `categoryOf`. A method in no category throws, matching the Worker.
 - [ ] **Step 3:** `flutter test test/brew_schema_test.dart` then `./tool/check.sh`, and commit.
 
@@ -484,7 +484,7 @@ testWidgets('Save works with the entire form untouched', (tester) async {
   // and the time is still a valid entry.
 });
 
-testWidgets('filling by hand offers five categories and fourteen methods',
+testWidgets('filling by hand offers five categories and sixteen methods',
     (tester) async { … });
 ```
 
@@ -498,7 +498,7 @@ One `ExpansionTile` per group, `coffee` and `brew` `initiallyExpanded`, the othe
 
 - [ ] **Step 4: Replace `_byHand()`'s silent guess with the category picker**
 
-It currently defaults to `schema.methodIds.first`, which across fourteen methods is a wrong answer dressed as a choice. Grouped `ListView` over `schema.categories`.
+It currently defaults to `schema.methodIds.first`, which across sixteen methods is a wrong answer dressed as a choice. Grouped `ListView` over `schema.categories`.
 
 - [ ] **Step 5: Call `rememberSticky` after a successful save**
 
@@ -589,7 +589,7 @@ testWidgets('a rating already set renders as filled stars', (tester) async {
 - [ ] **Step 3:** Log a V60 by free text; confirm it resolves to cone dripper / brewer V60.
 - [ ] **Step 4:** Log a ristretto; confirm `shotStyle` is set and the score reasons judge the ratio against the *ristretto* band, not 1:2.
 - [ ] **Step 5:** Log a kopi saring in Indonesian; confirm it parses and shows "Not scored".
-- [ ] **Step 6:** Use the by-hand picker; confirm all five categories and fourteen methods appear.
+- [ ] **Step 6:** Use the by-hand picker; confirm all five categories and sixteen methods appear.
 - [ ] **Step 7:** Rate a brew 4 stars; reopen the app and confirm it persisted.
 - [ ] **Step 8:** Commit the result, pasting what actually happened.
 
@@ -598,7 +598,7 @@ testWidgets('a rating already set renders as filled stars', (tester) async {
 ## Definition of done
 
 - `./tool/check.sh` prints PASS, output pasted.
-- Fourteen methods in five categories, everywhere: schema, Worker, app.
+- Sixteen methods in five categories, everywhere: schema, Worker, app.
 - No method named `v60`, `ristretto`, `lungo` or `kopiLuwak` exists.
 - Every response carries `rubric: "r2"`; every pre-existing row still reads `r1`.
 - The Phase 2 entries survive the upgrade on the real device.

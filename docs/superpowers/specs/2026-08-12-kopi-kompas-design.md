@@ -71,7 +71,7 @@ year.
 ## 2. Data model
 
 Core fields are columns, because they are what you filter and sort by.
-Method-specific fields are a JSON blob, because there are fourteen different
+Method-specific fields are a JSON blob, because there are sixteen different
 shapes and a column per field would be a sparse table nobody could query.
 
 ```
@@ -123,7 +123,7 @@ disagrees with itself.
 
 ## 2a. Brew taxonomy
 
-Fourteen methods in five categories. Categories exist for navigation and to
+Sixteen methods in five categories. Categories exist for navigation and to
 group rubrics; a method belongs to exactly one.
 
 ```
@@ -224,7 +224,7 @@ missing one, because a missing one gets asked about.
 ## 4. One schema, three consumers
 
 `schema/brew_schema.json` at the repository root is the single source of truth
-for the categories, the fourteen methods and their field shapes. It is read
+for the categories, the sixteen methods and their field shapes. It is read
 by:
 
 1. **The Worker**, to build Gemini's `responseSchema`.

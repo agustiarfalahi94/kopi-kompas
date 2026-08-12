@@ -1,15 +1,25 @@
 import raw from '../../schema/brew_schema.json';
 
 export type BrewMethod =
-  | 'espresso' | 'v60' | 'aeropress' | 'frenchPress'
-  | 'kopiTubruk' | 'kopiJoss' | 'kopiTalua' | 'kopiKhop';
+  | 'espresso'
+  | 'coneDripper' | 'flatBottomDripper' | 'chemex' | 'batchBrewer'
+  | 'frenchPress' | 'coldBrew' | 'turkishIbrik'
+  | 'aeropress' | 'smartDripper' | 'siphon'
+  | 'kopiTubruk' | 'kopiSaring' | 'kopiJoss' | 'kopiTalua' | 'kopiKhop';
 
-export type FieldType = 'number' | 'integer' | 'string' | 'boolean' | 'enum';
+export type FieldType =
+  | 'number' | 'integer' | 'string' | 'boolean' | 'enum' | 'date';
+
+/// Which section of the form a field belongs to.
+export type FieldGroup = 'coffee' | 'grind' | 'brew' | 'water';
 
 export interface FieldSpec {
   type: FieldType;
+  group: FieldGroup;
   unit?: string;
   values?: string[];
+  /// Shown expanded, above the fold. **Not** compulsory — nothing blocks
+  /// saving an entry, however empty.
   required: boolean;
   label: { en: string; id: string };
 }
@@ -20,8 +30,14 @@ export interface MethodSpec {
   fields: Record<string, FieldSpec>;
 }
 
+export interface CategorySpec {
+  label: { en: string; id: string };
+  methods: BrewMethod[];
+}
+
 export interface BrewSchema {
   schemaVersion: string;
+  categories: Record<string, CategorySpec>;
   core: Record<string, FieldSpec>;
   methods: Record<BrewMethod, MethodSpec>;
 }
@@ -34,6 +50,19 @@ export const SCORED_METHODS = METHODS.filter(
   (m) => brewSchema.methods[m].scored,
 );
 
+export const CATEGORIES = Object.keys(brewSchema.categories);
+
+/// The category a method belongs to. Throws rather than returning a default:
+/// a method in no category is a schema bug, and silently bucketing it would
+/// hide that from the picker.
+export function categoryOf(method: BrewMethod): string {
+  const hit = CATEGORIES.find((c) =>
+    brewSchema.categories[c]!.methods.includes(method),
+  );
+  if (!hit) throw new Error(`${method} is in no category`);
+  return hit;
+}
+
 export function isBrewMethod(value: unknown): value is BrewMethod {
   return typeof value === 'string' && (METHODS as string[]).includes(value);
 }
@@ -44,6 +73,7 @@ function geminiType(spec: FieldSpec): Record<string, unknown> {
     case 'number':  return { type: 'number' };
     case 'boolean': return { type: 'boolean' };
     case 'enum':    return { type: 'string', enum: spec.values ?? [] };
+    case 'date':    return { type: 'string', format: 'date' };
     case 'string':  return { type: 'string' };
   }
 }

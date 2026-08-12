@@ -4,10 +4,16 @@ import { buildParseResponseSchema, stripForeignFields } from '../src/schema';
 describe('buildParseResponseSchema', () => {
   const schema = buildParseResponseSchema() as any;
 
-  it('constrains brewMethod to the eight known methods', () => {
+  it('constrains brewMethod to the sixteen known methods', () => {
     expect(schema.properties.brewMethod.enum).toContain('espresso');
+    expect(schema.properties.brewMethod.enum).toContain('coneDripper');
     expect(schema.properties.brewMethod.enum).toContain('kopiKhop');
-    expect(schema.properties.brewMethod.enum).toHaveLength(8);
+    expect(schema.properties.brewMethod.enum).toHaveLength(16);
+  });
+
+  it('maps a date field to a date-formatted string', () => {
+    expect(schema.properties.roastDate.type).toBe('string');
+    expect(schema.properties.roastDate.format).toBe('date');
   });
 
   // Both of the next two exist because of a real failure against the live
@@ -49,7 +55,7 @@ describe('buildParseResponseSchema', () => {
   it('unions every method field into methodData', () => {
     const md = schema.properties.methodData.properties;
     expect(md.yieldGrams.type).toBe('number');       // espresso
-    expect(md.bloomTimeSeconds.type).toBe('number'); // v60
+    expect(md.bloomTimeSeconds.type).toBe('number'); // coneDripper
     expect(md.eggYolkUsed.type).toBe('boolean');     // kopiTalua
     expect(md.puckPrepWdt.type).toBe('boolean');
   });
