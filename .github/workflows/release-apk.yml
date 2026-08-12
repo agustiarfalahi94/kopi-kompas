@@ -1,0 +1,137 @@
+# Verifies the app and the Worker, and on a v* tag builds a signed APK and
+# attaches it to the GitHub Release.
+#
+# Triggered by:
+#   - pull requests to develop or main -> verify only
+#   - pushing a v* tag                 -> verify, sign, attach to the release
+#   - workflow_dispatch                -> manual test build, no release
+#
+# Secrets (Settings > Secrets and variables > Actions), the same four as
+# tiny-tapsters, because the release keystore is shared:
+#   KEYSTORE_BASE64 - base64 of android/app/release-keystore.jks
+#   STORE_PASSWORD  - keystore password (from android/key.properties)
+#   KEY_PASSWORD    - key password
+#   KEY_ALIAS       - key alias
+#
+# Variable (not a secret):
+#   KOPI_ENDPOINT   - the Cloudflare Worker URL. A URL in an APK is not a
+#                     secret; the Gemini key it stands in front of is, which
+#                     is why that key lives in Cloudflare and never here.
+name: Release APK
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.6'
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Verify the app
+        run: |
+          flutter pub get
+          flutter analyze
+          dart format --set-exit-if-changed lib/ test/
+          flutter test
+
+      - name: Verify the Worker
+        working-directory: worker
+        run: |
+          npm ci
+          npx tsc --noEmit
+          npx vitest run
+
+      # The key must never be in the repository, in a commit, or in the APK.
+      # This fails the build rather than letting a leak ship.
+      - name: Check no Gemini key is committed
+        run: |
+          if git grep -InE 'AIza[0-9A-Za-z_-]{30,}' -- . ; then
+            echo "::error::a Gemini API key appears to be committed"
+            exit 1
+          fi
+          echo "no API key found in tracked files"
+
+  release:
+    needs: verify
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.6'
+
+      - name: Restore signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::KEYSTORE_BASE64 is not set. See README.md — the \
+              release keystore is shared with tiny-tapsters."
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > android/app/release-keystore.jks
+          printf 'storePassword=%s\nkeyPassword=%s\nkeyAlias=%s\nstoreFile=release-keystore.jks\n' \
+            "$STORE_PASSWORD" "$KEY_PASSWORD" "$KEY_ALIAS" > android/key.properties
+
+      # Split per ABI: a fat APK is ~50 MB, of which ~48 MB is three
+      # architectures of the Flutter engine. The arm64 build a modern phone
+      # actually needs is under 18 MB.
+      - name: Build the signed APKs
+        env:
+          KOPI_ENDPOINT: ${{ vars.KOPI_ENDPOINT }}
+        run: |
+          flutter pub get
+          flutter build apk --release --split-per-abi \
+            --dart-define=KOPI_ENDPOINT=$KOPI_ENDPOINT
+
+      - name: Name the APKs
+        run: |
+          name="${GITHUB_REF_NAME//\//-}"
+          cd build/app/outputs/flutter-apk
+          for f in app-*-release.apk; do
+            abi="${f#app-}"; abi="${abi%-release.apk}"
+            cp "$f" "kopi-kompas-${name}-${abi}.apk"
+          done
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: kopi-kompas-apk
+          path: build/app/outputs/flutter-apk/kopi-kompas-*.apk
+          if-no-files-found: error
+
+      - name: Attach the APKs to the release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: build/app/outputs/flutter-apk/kopi-kompas-*.apk
