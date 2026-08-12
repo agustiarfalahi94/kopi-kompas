@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../models/brew_entry.dart';
+import '../strings.dart' show AppStrings;
 
 /// The deployed Worker. A URL, not a secret — the Gemini key never leaves
 /// Cloudflare, so shipping this inside the APK gives nothing away.
@@ -65,10 +66,12 @@ class KopiClient {
 
   static const _timeout = Duration(seconds: 45);
 
-  Future<ParseResult> parse(String text, {String locale = 'en'}) async {
+  /// Defaults to the language the app is in, so an Indonesian brew gets the
+  /// Worker's Indonesian prompt and Indonesian reasons back.
+  Future<ParseResult> parse(String text, {String? locale}) async {
     final r = await _post('/parse', {
       'text': text,
-      'locale': locale,
+      'locale': locale ?? AppStrings.language,
       'installId': installId,
     });
     return switch (r) {
@@ -98,7 +101,7 @@ class KopiClient {
     );
   }
 
-  Future<ScoreResult> score(BrewEntry entry, {String locale = 'en'}) async {
+  Future<ScoreResult> score(BrewEntry entry, {String? locale}) async {
     final r = await _post('/score', {
       'entry': {
         'brewMethod': entry.brewMethod,
@@ -109,7 +112,7 @@ class KopiClient {
         'notes': entry.notes,
         'methodData': entry.methodData,
       },
-      'locale': locale,
+      'locale': locale ?? AppStrings.language,
       'installId': installId,
     });
     return switch (r) {

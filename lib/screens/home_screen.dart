@@ -4,6 +4,7 @@ import '../data/brew_schema.dart';
 import '../models/brew_entry.dart';
 import '../services/brew_database.dart';
 import '../services/kopi_client.dart';
+import '../services/reminder_service.dart';
 import '../strings.dart';
 import 'edit_entry_screen.dart';
 import 'entry_detail_screen.dart';
@@ -53,11 +54,13 @@ class HomeScreen extends StatefulWidget {
     required this.db,
     required this.schema,
     required this.client,
+    required this.reminder,
   });
 
   final BrewDatabase db;
   final BrewSchema schema;
   final KopiClient client;
+  final ReminderService reminder;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -66,7 +69,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<BrewEntry>> _entries = widget.db.liveEntries();
 
-  void _reload() => setState(() => _entries = widget.db.liveEntries());
+  void _reload() {
+    setState(() => _entries = widget.db.liveEntries());
+    // Anything that changes today's entries changes when the next nudge is
+    // due, so this runs after every save, delete, restore and edit.
+    widget.reminder.reschedule();
+  }
 
   Future<void> _newEntry() async {
     await Navigator.of(context).push<bool>(
@@ -159,8 +167,13 @@ class _HomeScreenState extends State<HomeScreen> {
         IconButton(
           tooltip: AppStrings.settingsTitle,
           icon: const Icon(Icons.settings_outlined),
-          onPressed: () =>
-              _open(SettingsScreen(db: widget.db, schema: widget.schema)),
+          onPressed: () => _open(
+            SettingsScreen(
+              db: widget.db,
+              schema: widget.schema,
+              reminder: widget.reminder,
+            ),
+          ),
         ),
       ],
     ),

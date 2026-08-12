@@ -2,6 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
 
+import '../strings.dart' show AppStrings;
+
+/// Picks the label for the language currently selected.
+///
+/// The schema carries both, so a translation cannot go missing for a field
+/// the way it could for a hand-maintained list.
+String _label(Map<String, dynamic> j) =>
+    (j[AppStrings.language] ?? j['en']) as String;
+
 enum FieldType { number, integer, string, boolean, enumerated, date }
 
 FieldType _fieldType(String raw) => switch (raw) {
@@ -59,8 +68,7 @@ class FieldSpec {
     unit: j['unit'] as String?,
     values: ((j['values'] as List?) ?? const []).cast<String>(),
     required: j['required'] as bool,
-    // Phase 4 switches this to the active locale's label.
-    label: (j['label'] as Map<String, dynamic>)['en'] as String,
+    label: _label(j['label'] as Map<String, dynamic>),
   );
 }
 
@@ -141,7 +149,7 @@ class BrewSchema {
       categories.add(
         CategorySpec(
           id: id,
-          label: (c['label'] as Map<String, dynamic>)['en'] as String,
+          label: _label(c['label'] as Map<String, dynamic>),
           methodIds: (c['methods'] as List).cast<String>(),
         ),
       );
@@ -162,7 +170,7 @@ class BrewSchema {
       methods[id] = MethodSpec(
         id: id,
         scored: m['scored'] as bool,
-        label: (m['label'] as Map<String, dynamic>)['en'] as String,
+        label: _label(m['label'] as Map<String, dynamic>),
         fields: fields,
       );
     });
