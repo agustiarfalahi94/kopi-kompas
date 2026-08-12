@@ -2,8 +2,8 @@
 
 A personal coffee-brewing logbook for Android. You describe a brew in your own
 words, an AI turns it into structured fields, the app asks about anything it
-could not find, and every shot is scored by rules that live in the app and can
-be read out loud.
+could not find, and the finished entry is scored out of 100 against a written
+rubric — with the reasons shown next to the number.
 
 This document is the design agreed before any code existed. It records the
 decisions and, more importantly, why the rejected options were rejected.
@@ -416,13 +416,41 @@ the package id keeps the apps distinct. `android/key.properties` and
 `android/app/release-keystore.jks` are git-ignored and must never be
 committed.
 
-## 12. Documentation
+## 12. Branding
+
+The mark is coffee beans arranged as an eight-point compass rose — the name,
+drawn. Master artwork lives at `assets/branding/kopi-kompas-logo.png`
+(2000×2000, RGB, no alpha), with an alternate at `-alt.png`.
+
+**The master is build-time only and must never be listed in `pubspec.yaml`.**
+Nothing derived from it belongs in git either, beyond the generated icon
+resources themselves. This mirrors Tiny Tapsters, where a 1 MB master shipped
+inside the APK for several releases before anyone noticed.
+
+Two constraints on anything derived from it:
+
+- **Launcher icons use the compass mark alone.** The wordmark occupies the
+  bottom third of the master and is illegible at 48 dp. The mark is cropped
+  and padded to sit inside the adaptive-icon safe zone — the centre 66 of 108
+  units — with the tan as the background layer and the compass as the
+  foreground, so the system can mask it to any shape without clipping a point
+  off the star.
+- **The stray superscript "R" above "Kompas" is a generation artifact**, not a
+  trademark claim. The master keeps it; everything derived crops it out. Worth
+  regenerating the source eventually.
+
+The palette is taken from the logo and drives both themes: tan `#DDBC8E`, mid
+brown `#9A6B4A`, dark brown `#5A3825`, bean `#2E1A0F`. The full log's muted
+archive treatment (section 8) is a desaturated variant of the same ramp rather
+than a separate palette.
+
+## 13. Documentation
 
 `README.md`, `AGENTS.md` and `CLAUDE.md` (the last two kept in sync, enforced
 by `docs_test.dart`), `CHANGELOG.md`, `worker/README.md` for one-time Worker
 setup, and this specs directory.
 
-## 13. Out of scope for v1
+## 14. Out of scope for v1
 
 Charts, trends and statistics · cloud sync, accounts, multi-user · scoring for
 `frenchPress` and the four Indonesian methods · bulk rescore after a rubric
