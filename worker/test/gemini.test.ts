@@ -3,7 +3,7 @@ import { callGemini } from '../src/gemini';
 
 const base = {
   apiKey: 'test-key',
-  model: 'gemini-2.5-flash',
+  model: 'gemini-3.6-flash',
   systemInstruction: 'be exact',
   userText: 'an americano',
   responseSchema: { type: 'object' },

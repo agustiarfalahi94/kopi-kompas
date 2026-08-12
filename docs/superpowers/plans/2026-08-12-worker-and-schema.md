@@ -6,13 +6,13 @@
 
 **Architecture:** `schema/brew_schema.json` at the repository root is the single source of truth for all eight brew methods; the Worker reads it to build Gemini's `responseSchema`, and the Flutter app will read the same file in Phase 2 to build its follow-up form. The Worker owns both prompts — the app sends only free text or a completed entry, never a prompt — because an app that could supply prompts would turn the endpoint into a free Gemini proxy for anyone who read the URL out of the APK. Handlers are pure functions over an injected `fetch` and clock, so every path is testable without network or a deployed Worker.
 
-**Tech Stack:** TypeScript · Cloudflare Workers · wrangler 4 · Workers KV (rate limiting) · vitest · Gemini 2.5 Flash
+**Tech Stack:** TypeScript · Cloudflare Workers · wrangler 4 · Workers KV (rate limiting) · vitest · Gemini 3.6 Flash
 
 ## Global Constraints
 
 - **The Gemini key is a Worker secret. It never appears in the repository, in any test, in any commit, or in the APK.** Tests stub the Gemini call; they never make a real one.
 - Endpoint contract, exactly as specified: `POST /parse`, `POST /score`, with `400` for an unparseable request, `429` for rate limited, `502` for Gemini unreachable or non-JSON.
-- Model: `gemini-2.5-flash`. Both calls set `responseMimeType: "application/json"` and an explicit `responseSchema`.
+- Model: `gemini-3.6-flash`. Both calls set `responseMimeType: "application/json"` and an explicit `responseSchema`.
 - Scoring temperature is `0`. Parsing temperature is `0`.
 - Scored methods are **espresso, v60, aeropress** only. The other five are `notApplicable` and `/score` rejects them rather than inventing a number.
 - The rubric is versioned. `r1` is defined in this plan; every score response carries `rubric` and `model` so the app can store them.
@@ -560,7 +560,7 @@ import { callGemini } from '../src/gemini';
 
 const base = {
   apiKey: 'test-key',
-  model: 'gemini-2.5-flash',
+  model: 'gemini-3.6-flash',
   systemInstruction: 'be exact',
   userText: 'an americano',
   responseSchema: { type: 'object' },
@@ -1395,7 +1395,7 @@ export interface Deps {
 }
 
 const MAX_TEXT = 2000;
-const DEFAULT_MODEL = 'gemini-2.5-flash';
+const DEFAULT_MODEL = 'gemini-3.6-flash';
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -1578,7 +1578,7 @@ describe('POST /score', () => {
     expect(body.score).toBe(88);
     expect(body.reasons).toEqual(['Ratio 2.0:1 — on target']);
     expect(body.rubric).toBe('r1');
-    expect(body.model).toBe('gemini-2.5-flash');
+    expect(body.model).toBe('gemini-3.6-flash');
   });
 
   it('sends the rubric for the entry\'s own method', async () => {

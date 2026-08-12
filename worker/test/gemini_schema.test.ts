@@ -10,8 +10,33 @@ describe('buildParseResponseSchema', () => {
     expect(schema.properties.brewMethod.enum).toHaveLength(8);
   });
 
-  it('requires brewMethod and nothing else', () => {
-    expect(schema.required).toEqual(['brewMethod']);
+  // Both of the next two exist because of a real failure against the live
+  // API. With only brewMethod required, the constrained decoder satisfied the
+  // minimum and stopped after three fields. Without `nullable`, a string
+  // field the model wanted to leave empty could not be null, so it emitted an
+  // adjacent property name instead — real responses contained
+  // {"beanOrigin":"doseGrams"} and {"grindSize":"roastLevel"}.
+  it('requires every property, so the decoder cannot stop early', () => {
+    expect(schema.required).toContain('brewMethod');
+    expect(schema.required).toContain('doseGrams');
+    expect(schema.required).toContain('methodData');
+    expect(schema.required.sort())
+      .toEqual(Object.keys(schema.properties).sort());
+  });
+
+  it('marks every field except brewMethod nullable', () => {
+    expect(schema.properties.brewMethod.nullable).toBeUndefined();
+    expect(schema.properties.beanOrigin.nullable).toBe(true);
+    expect(schema.properties.doseGrams.nullable).toBe(true);
+    expect(schema.properties.roastLevel.nullable).toBe(true);
+    expect(schema.properties.methodData.nullable).toBe(true);
+  });
+
+  it('makes methodData fields required and nullable too', () => {
+    const md = schema.properties.methodData;
+    expect(md.required.sort()).toEqual(Object.keys(md.properties).sort());
+    expect(md.properties.yieldGrams.nullable).toBe(true);
+    expect(md.properties.puckPrepWdt.nullable).toBe(true);
   });
 
   it('exposes core fields at the top level', () => {
@@ -34,9 +59,6 @@ describe('buildParseResponseSchema', () => {
       .toBe('integer');
   });
 
-  it('never marks a methodData field required', () => {
-    expect(schema.properties.methodData.required).toBeUndefined();
-  });
 });
 
 describe('stripForeignFields', () => {

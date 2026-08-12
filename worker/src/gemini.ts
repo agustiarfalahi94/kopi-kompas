@@ -46,7 +46,15 @@ export async function callGemini<T>(
     return { ok: false, status: 429, detail: 'gemini quota' };
   }
   if (!response.ok) {
-    return { ok: false, status: 502, detail: `gemini ${response.status}` };
+    // The upstream message is worth keeping: "model not found" and "billing
+    // required" are the same status here and very different problems. Gemini
+    // never echoes the key back, so this leaks nothing.
+    const body = await response.text().catch(() => '');
+    return {
+      ok: false,
+      status: 502,
+      detail: `gemini ${response.status}: ${body.slice(0, 400)}`,
+    };
   }
 
   let envelope: any;

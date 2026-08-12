@@ -48,10 +48,24 @@ function geminiType(spec: FieldSpec): Record<string, unknown> {
   }
 }
 
+// Two properties of this schema are load-bearing, and both were learned from
+// the live API rather than the docs.
+//
+// `nullable: true` — without it a string field the model wants to leave empty
+// cannot be null, and the constrained decoder must emit *some* string. Real
+// responses came back with {"beanOrigin":"doseGrams"} and
+// {"grindSize":"roastLevel"}: it was filling string fields with adjacent
+// property names out of the schema.
+//
+// `required: <every key>` — with only brewMethod required, the decoder
+// satisfied the minimum and stopped after three fields, dropping a dose and a
+// pour count that were plainly stated in the text. Requiring everything and
+// allowing null forces a complete object; nulls are stripped in
+// stripForeignFields afterwards, so the app still only sees real values.
 export function buildParseResponseSchema(): Record<string, unknown> {
   const core: Record<string, unknown> = {};
   for (const [name, spec] of Object.entries(brewSchema.core)) {
-    core[name] = geminiType(spec);
+    core[name] = { ...geminiType(spec), nullable: true };
   }
 
   const methodData: Record<string, unknown> = {};
@@ -59,18 +73,25 @@ export function buildParseResponseSchema(): Record<string, unknown> {
     for (const [name, spec] of Object.entries(
       brewSchema.methods[method].fields,
     )) {
-      methodData[name] = geminiType(spec);
+      methodData[name] = { ...geminiType(spec), nullable: true };
     }
   }
 
+  const properties = {
+    brewMethod: { type: 'string', enum: METHODS },
+    ...core,
+    methodData: {
+      type: 'object',
+      properties: methodData,
+      required: Object.keys(methodData),
+      nullable: true,
+    },
+  };
+
   return {
     type: 'object',
-    properties: {
-      brewMethod: { type: 'string', enum: METHODS },
-      ...core,
-      methodData: { type: 'object', properties: methodData },
-    },
-    required: ['brewMethod'],
+    properties,
+    required: Object.keys(properties),
   };
 }
 

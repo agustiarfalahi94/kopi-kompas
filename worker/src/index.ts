@@ -21,7 +21,13 @@ export interface Deps {
 }
 
 const MAX_TEXT = 2000;
-const DEFAULT_MODEL = 'gemini-2.5-flash';
+
+// Pinned on purpose, never an alias like `gemini-flash-latest`. Every score
+// the app stores records the model that produced it, so an old score stays
+// interpretable; a floating alias would keep writing one name while the model
+// underneath changed, defeating exactly the provenance that column exists for.
+// Override per-environment with the GEMINI_MODEL var.
+const DEFAULT_MODEL = 'gemini-3.6-flash';
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
