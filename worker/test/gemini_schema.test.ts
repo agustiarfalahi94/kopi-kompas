@@ -42,7 +42,7 @@ describe('buildParseResponseSchema', () => {
   it('exposes core fields at the top level', () => {
     expect(schema.properties.doseGrams.type).toBe('number');
     expect(schema.properties.roastLevel.enum).toEqual([
-      'light', 'medium', 'medium-dark', 'dark',
+      'light', 'medium-light', 'medium', 'medium-dark', 'dark',
     ]);
   });
 

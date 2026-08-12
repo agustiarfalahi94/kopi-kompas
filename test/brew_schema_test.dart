@@ -54,7 +54,13 @@ void main() {
   test('carries enum values for roast level', () {
     final roast = schema.core.firstWhere((f) => f.name == 'roastLevel');
     expect(roast.type, FieldType.enumerated);
-    expect(roast.values, ['light', 'medium', 'medium-dark', 'dark']);
+    expect(roast.values, [
+      'light',
+      'medium-light',
+      'medium',
+      'medium-dark',
+      'dark',
+    ]);
   });
 
   test('preserves field order, which the form renders in', () {

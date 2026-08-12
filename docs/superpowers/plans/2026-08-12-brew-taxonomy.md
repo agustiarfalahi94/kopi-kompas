@@ -15,7 +15,10 @@
 - **Kopi luwak and wet-hulled are `process` values**, never methods.
 - **Scored: `espresso`, `coneDripper`, `flatBottomDripper`, `chemex`, `batchBrewer`, `aeropress`.** Everything else is `notApplicable` and never calls `/score`.
 - **`RUBRIC_VERSION` becomes `r2`.** Non-negotiable: basket size, pre-infusion, pressure, agitation and drawdown all change the verdict, and pour-over targets now vary by brewer. Existing `r1` rows keep their number and their `r1` label.
-- **`required` stays scarce.** Only bean origin, roast level, dose, and each method's genuine essentials. Everything else is parsed when mentioned and never asked. A form that interrogates you after every shot is a form you stop using.
+- **Every field is shown; nothing is compulsory.** The form renders all of a method's fields, pre-filled from the parse and from sticky defaults, and **Save works with any number of them blank**. `required` no longer means "must answer" — it means **"show expanded, above the fold"**. A field never shown is a field nobody knows exists, which is how `grinder` would have stayed empty forever.
+- **Fields carry a `group`**: `coffee` · `grind` · `brew` · `water`. Coffee and brew render expanded; grind and water collapse to a header with a count.
+- **Sticky defaults** for `grinder`, `machine`, `basketType`, `waterType`: remembered from the last entry, pre-filled, always overridable — and always overwritten by the free text when it says something different.
+- `roastLevel` includes **`medium-light`** (already shipped ahead of this plan).
 - **No data loss.** Existing `v60` rows migrate to `coneDripper` with `brewer: v60`. The migration is tested against a v1 database.
 - `./tool/check.sh` must pass before every commit; paste its output.
 - Branch `feature/brew-taxonomy` off `develop`.
@@ -147,14 +150,31 @@ it('treats luwak as a bean process, not a method', () => {
   expect(brewSchema.core.process.values).toContain('wet-hulled');
 });
 
-it('keeps required scarce enough that the form stays short', () => {
-  // A form asking more than six questions after a parse is one you stop
-  // using. This is the guard on that.
-  for (const m of METHODS) {
-    const req = Object.values(brewSchema.methods[m].fields)
-      .filter((f) => f.required).length;
-    expect(req, `${m} asks for ${req} fields`).toBeLessThanOrEqual(7);
+it('gives every field a group, so the form can section it', () => {
+  const groups = ['coffee', 'grind', 'brew', 'water'];
+  const all = [
+    ...Object.entries(brewSchema.core),
+    ...METHODS.flatMap((m) => Object.entries(brewSchema.methods[m].fields)),
+  ];
+  for (const [name, spec] of all) {
+    expect(groups, name).toContain(spec.group);
   }
+});
+
+it('keeps the expanded-by-default set small', () => {
+  // required now means "shown above the fold", not "must answer". If a
+  // method opens with more than seven rows the form stops being skimmable.
+  for (const m of METHODS) {
+    const open = Object.values(brewSchema.methods[m].fields)
+      .filter((f) => f.required).length;
+    expect(open, `${m} opens with ${open} rows`).toBeLessThanOrEqual(7);
+  }
+});
+
+it('offers medium-light, between light and medium', () => {
+  expect(brewSchema.core.roastLevel.values).toEqual([
+    'light', 'medium-light', 'medium', 'medium-dark', 'dark',
+  ]);
 });
 ```
 
@@ -392,17 +412,94 @@ test('myRating round-trips and is bounded 1-5', () {
 
 ---
 
-### Task 6: The manual picker and the follow-up form
+### Task 6: The full form, the groups, and the picker
 
 **Files:**
-- Modify: `lib/screens/new_entry_screen.dart`, `lib/strings.dart`
-- Test: `test/new_entry_flow_test.dart`
+- Modify: `lib/widgets/follow_up_form.dart`, `lib/screens/new_entry_screen.dart`, `lib/strings.dart`
+- Create: `lib/services/sticky_defaults.dart`
+- Test: `test/follow_up_form_test.dart`, `test/new_entry_flow_test.dart`, `test/sticky_defaults_test.dart`
 
-`_byHand()` currently defaults to `schema.methodIds.first`, which with fourteen methods is a silent wrong guess. It must show a **category-grouped picker** instead.
+This is the biggest behavioural change in the plan. `missingFields` is replaced by `formFields`, which returns **every** field for the method, carrying its current value and where that value came from.
 
-- [ ] **Step 1: Write the failing tests** — filling by hand shows five category headings and fourteen methods; picking one sets `_brewMethod`; `buildEntry` routes `shotStyle` and `brewer` into `methodData`; the new core fields (`roaster`, `process`, `roastDate`, `grinder`, `grindSetting`, `waterType`) route into core, not `methodData`.
-- [ ] **Step 2: Implement** the picker as an `ExpansionPanelList` or grouped `ListView` over `schema.categories`, and extend `buildEntry`'s `coreNames` set — it already reads from the schema, so it needs no change if the new fields are in `core`. **Verify that with a test rather than assuming.**
-- [ ] **Step 3:** `./tool/check.sh` and commit.
+**Interfaces:**
+- `enum FieldSource { parsed, sticky, empty }`
+- `class FormField { FieldSpec spec; Object? value; FieldSource source; }`
+- `List<FormField> formFields(BrewSchema, String method, Map core, Map methodData, Map stickyDefaults)`
+- `Map<String, List<FormField>> groupedFields(List<FormField>)` — keyed `coffee`/`grind`/`brew`/`water`, in that order
+- `lib/services/sticky_defaults.dart`: `Future<Map<String,Object?>> loadStickyDefaults()`, `Future<void> rememberSticky(BrewEntry)` over `shared_preferences`, covering `grinder`, `machine`, `basketType`, `waterType` only.
+
+- [ ] **Step 1: Write the failing tests**
+
+```dart
+test('formFields returns every field, not only the missing ones', () {
+  final f = formFields(schema, 'espresso',
+      {'doseGrams': 18}, {'yieldGrams': 36}, {});
+  final names = f.map((x) => x.spec.name);
+  expect(names, contains('doseGrams'));      // parsed
+  expect(names, contains('basketSizeGrams')); // never mentioned
+  expect(names, contains('preInfusionSeconds'));
+  expect(f.length, greaterThan(15));
+});
+
+test('marks where each value came from', () {
+  final f = formFields(schema, 'espresso',
+      {'doseGrams': 18}, {}, {'grinder': 'Niche'});
+  FormField at(String n) => f.firstWhere((x) => x.spec.name == n);
+  expect(at('doseGrams').source, FieldSource.parsed);
+  expect(at('grinder').source, FieldSource.sticky);
+  expect(at('grinder').value, 'Niche');
+  expect(at('pressureBars').source, FieldSource.empty);
+});
+
+test('a parsed value beats a sticky default', () {
+  // Saying "on the ek43 today" must win over the remembered grinder.
+  final f = formFields(schema, 'espresso',
+      {'grinder': 'EK43'}, {}, {'grinder': 'Niche'});
+  final g = f.firstWhere((x) => x.spec.name == 'grinder');
+  expect(g.value, 'EK43');
+  expect(g.source, FieldSource.parsed);
+});
+
+test('groups render coffee, grind, brew, water in that order', () {
+  final g = groupedFields(formFields(schema, 'espresso', {}, {}, {}));
+  expect(g.keys.toList(), ['coffee', 'grind', 'brew', 'water']);
+});
+
+test('rememberSticky stores only the four sticky fields', () async {
+  await rememberSticky(entryWith(grinder: 'Niche', beanOrigin: 'Honduras'));
+  final d = await loadStickyDefaults();
+  expect(d['grinder'], 'Niche');
+  expect(d.containsKey('beanOrigin'), isFalse); // origin changes every bag
+});
+```
+
+And in `new_entry_flow_test.dart`:
+
+```dart
+testWidgets('Save works with the entire form untouched', (tester) async {
+  // The point of the whole change: an entry that records only the method
+  // and the time is still a valid entry.
+});
+
+testWidgets('filling by hand offers five categories and fourteen methods',
+    (tester) async { … });
+```
+
+- [ ] **Step 2: Implement `formFields`, `groupedFields` and sticky defaults**
+
+Precedence is parsed → sticky → empty, and it must be exactly that order: the free text is the most recent statement of fact and always wins.
+
+- [ ] **Step 3: Rebuild `FollowUpForm` as a grouped, fully-optional form**
+
+One `ExpansionTile` per group, `coffee` and `brew` `initiallyExpanded`, the others showing a count in the header. Rows whose value came from the parse are visually distinct from empty ones, so a glance confirms what the AI got right. **No validation, no required markers, no disabled Save.**
+
+- [ ] **Step 4: Replace `_byHand()`'s silent guess with the category picker**
+
+It currently defaults to `schema.methodIds.first`, which across fourteen methods is a wrong answer dressed as a choice. Grouped `ListView` over `schema.categories`.
+
+- [ ] **Step 5: Call `rememberSticky` after a successful save**
+
+- [ ] **Step 6:** `./tool/check.sh` and commit.
 
 ---
 

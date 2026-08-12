@@ -2,7 +2,7 @@
   "schemaVersion": "s1",
   "core": {
     "beanOrigin":  { "type": "string", "required": true,  "label": { "en": "Bean origin", "id": "Asal biji" } },
-    "roastLevel":  { "type": "enum", "values": ["light", "medium", "medium-dark", "dark"], "required": true, "label": { "en": "Roast level", "id": "Tingkat sangrai" } },
+    "roastLevel":  { "type": "enum", "values": ["light", "medium-light", "medium", "medium-dark", "dark"], "required": true, "label": { "en": "Roast level", "id": "Tingkat sangrai" } },
     "doseGrams":   { "type": "number", "unit": "g", "required": true, "label": { "en": "Dose", "id": "Dosis" } },
     "grindSize":   { "type": "string", "required": false, "label": { "en": "Grind size", "id": "Kehalusan giling" } },
     "notes":       { "type": "string", "required": false, "label": { "en": "Notes", "id": "Catatan" } }
