@@ -1,9 +1,12 @@
 import {
   brewSchema, buildParseResponseSchema, isBrewMethod, stripForeignFields,
-  type BrewMethod,
+  SCORED_METHODS, type BrewMethod,
 } from './schema';
 import { callGemini } from './gemini';
-import { parseInstruction, type Locale } from './prompts';
+import {
+  RUBRIC_VERSION, buildScoreResponseSchema, parseInstruction,
+  scoreInstruction, type Locale,
+} from './prompts';
 import { checkRateLimit, type CounterStore } from './ratelimit';
 
 export interface Env {
@@ -60,7 +63,7 @@ export async function handleRequest(
   if (!limit.allowed) return error(429, 'daily limit reached');
 
   if (path === '/parse') return handleParse(payload, env, deps);
-  return error(404, 'not found');
+  return handleScore(payload, env, deps);
 }
 
 async function handleParse(
@@ -97,6 +100,54 @@ async function handleParse(
   out.methodData = stripForeignFields(method, raw.methodData ?? {});
 
   return json(out);
+}
+
+async function handleScore(
+  payload: any,
+  env: Env,
+  deps: Deps,
+): Promise<Response> {
+  const entry = payload?.entry;
+  if (typeof entry !== 'object' || entry === null) {
+    return error(400, 'entry is required');
+  }
+  if (!isBrewMethod(entry.brewMethod)) {
+    return error(400, 'entry.brewMethod is not a known method');
+  }
+  const method: BrewMethod = entry.brewMethod;
+  if (!SCORED_METHODS.includes(method)) {
+    return error(422, `${method} is not scored`);
+  }
+
+  const model = env.GEMINI_MODEL ?? DEFAULT_MODEL;
+  const result = await callGemini<any>({
+    apiKey: env.GEMINI_API_KEY,
+    model,
+    systemInstruction: scoreInstruction(method, toLocale(payload.locale)),
+    userText: JSON.stringify(entry),
+    responseSchema: buildScoreResponseSchema(),
+    fetchImpl: deps.fetchImpl,
+  });
+
+  if (!result.ok) return error(result.status, result.detail);
+
+  const score = result.value?.score;
+  if (
+    typeof score !== 'number' || !Number.isInteger(score) ||
+    score < 0 || score > 100
+  ) {
+    return error(502, 'model returned a score outside 0-100');
+  }
+
+  const rawReasons = result.value?.reasons;
+  if (!Array.isArray(rawReasons)) {
+    return error(502, 'model returned no reasons');
+  }
+  const reasons = rawReasons.filter(
+    (r: unknown): r is string => typeof r === 'string' && r.length > 0,
+  );
+
+  return json({ score, reasons, rubric: RUBRIC_VERSION, model });
 }
 
 export default {
