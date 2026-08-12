@@ -179,6 +179,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
               children: [
                 Expanded(
                   child: BrewForm(
+                    schema: widget.schema,
                     fields: formFields(
                       widget.schema,
                       widget.entry.brewMethod,

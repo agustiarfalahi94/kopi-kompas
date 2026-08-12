@@ -123,9 +123,19 @@ class MethodSpec with Labelled {
 /// edit to that file plus a rubric in the Worker, and the follow-up form
 /// picks it up for free.
 class BrewSchema {
-  BrewSchema._(this._categories, this._core, this._methods);
+  BrewSchema._(this._categories, this._core, this._methods, this._valueLabels);
 
   final List<CategorySpec> _categories;
+  final Map<String, Map<String, String>> _valueLabels;
+
+  /// The human name for an enum value, in the current language.
+  ///
+  /// Dropdowns used to render the raw id, so a form offered "kalitaWave" and
+  /// "wet-hulled" and neither changed with the language.
+  String valueLabel(String value) =>
+      _valueLabels[value]?[AppStrings.language] ??
+      _valueLabels[value]?['en'] ??
+      value;
   final List<FieldSpec> _core;
   final Map<String, MethodSpec> _methods;
 
@@ -196,6 +206,11 @@ class BrewSchema {
       );
     });
 
-    return BrewSchema._(categories, core, methods);
+    final valueLabels = <String, Map<String, String>>{};
+    (root['valueLabels'] as Map<String, dynamic>? ?? {}).forEach((k, v) {
+      valueLabels[k] = (v as Map<String, dynamic>).cast<String, String>();
+    });
+
+    return BrewSchema._(categories, core, methods, valueLabels);
   }
 }

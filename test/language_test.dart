@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kopi_kompas/data/brew_guide.dart';
 import 'package:kopi_kompas/data/brew_schema.dart';
 import 'package:kopi_kompas/strings.dart';
 
@@ -63,4 +64,78 @@ void main() {
   });
 
   tearDown(() => AppStrings.language = 'en');
+
+  test('every guide is written in both languages', () {
+    // The bug this catches actually shipped: the headings switched to
+    // Indonesian and the guide text stayed English, because only the
+    // headings went through AppStrings.
+    final guides = BrewGuides.parse(
+      File('assets/guides.json').readAsStringSync(),
+    );
+    final schema = BrewSchema.parse(
+      File('schema/brew_schema.json').readAsStringSync(),
+    );
+
+    for (final id in schema.methodIds) {
+      final g = guides.forMethod(id)!;
+
+      AppStrings.language = 'en';
+      final en = [
+        g.what,
+        ...g.steps,
+        ...g.notes,
+        for (final f in g.faults) ...[f.symptom, f.cause],
+        for (final t in g.gear) ...[t.tier, t.what],
+      ];
+
+      AppStrings.language = 'id';
+      final id_ = [
+        g.what,
+        ...g.steps,
+        ...g.notes,
+        for (final f in g.faults) ...[f.symptom, f.cause],
+        for (final t in g.gear) ...[t.tier, t.what],
+      ];
+
+      expect(id_.length, en.length, reason: id);
+      for (var i = 0; i < en.length; i++) {
+        expect(id_[i], isNotEmpty, reason: '$id piece $i is empty');
+        expect(id_[i], isNot(en[i]), reason: '$id piece $i not translated');
+      }
+    }
+  });
+
+  test('every enum value has a label in both languages', () {
+    // Dropdowns used to render the raw id, so a form offered "kalitaWave"
+    // and "wet-hulled" and neither changed with the language.
+    final schema = BrewSchema.parse(
+      File('schema/brew_schema.json').readAsStringSync(),
+    );
+    final values = <String>{
+      for (final f in schema.core)
+        if (f.type == FieldType.enumerated) ...f.values,
+      for (final m in schema.methodIds)
+        for (final f in schema.method(m).fields)
+          if (f.type == FieldType.enumerated) ...f.values,
+    };
+    expect(values, isNotEmpty);
+    for (final v in values) {
+      AppStrings.language = 'en';
+      final en = schema.valueLabel(v);
+      AppStrings.language = 'id';
+      final id = schema.valueLabel(v);
+      expect(en, isNot(v), reason: '$v has no human label');
+      expect(id, isNotEmpty, reason: '$v has no Indonesian label');
+    }
+  });
+
+  test('grind advice follows the language', () {
+    final schema = BrewSchema.parse(
+      File('schema/brew_schema.json').readAsStringSync(),
+    );
+    AppStrings.language = 'en';
+    expect(schema.method('espresso').targets!.grind, contains('table salt'));
+    AppStrings.language = 'id';
+    expect(schema.method('espresso').targets!.grind, contains('garam meja'));
+  });
 }

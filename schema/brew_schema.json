@@ -1,5 +1,127 @@
 {
   "schemaVersion": "s2",
+  "valueLabels": {
+    "light": {
+      "en": "Light",
+      "id": "Terang"
+    },
+    "medium-light": {
+      "en": "Medium-light",
+      "id": "Medium terang"
+    },
+    "medium": {
+      "en": "Medium",
+      "id": "Medium"
+    },
+    "medium-dark": {
+      "en": "Medium-dark",
+      "id": "Medium gelap"
+    },
+    "dark": {
+      "en": "Dark",
+      "id": "Gelap"
+    },
+    "washed": {
+      "en": "Washed",
+      "id": "Full wash"
+    },
+    "natural": {
+      "en": "Natural",
+      "id": "Natural"
+    },
+    "honey": {
+      "en": "Honey",
+      "id": "Honey"
+    },
+    "anaerobic": {
+      "en": "Anaerobic",
+      "id": "Anaerobik"
+    },
+    "wet-hulled": {
+      "en": "Wet-hulled",
+      "id": "Giling basah"
+    },
+    "luwak": {
+      "en": "Luwak",
+      "id": "Luwak"
+    },
+    "filtered": {
+      "en": "Filtered",
+      "id": "Air saring"
+    },
+    "bottled": {
+      "en": "Bottled",
+      "id": "Air kemasan"
+    },
+    "tap": {
+      "en": "Tap",
+      "id": "Air keran"
+    },
+    "mineral": {
+      "en": "Mineral",
+      "id": "Air mineral"
+    },
+    "ristretto": {
+      "en": "Ristretto",
+      "id": "Ristretto"
+    },
+    "normale": {
+      "en": "Normale",
+      "id": "Normale"
+    },
+    "lungo": {
+      "en": "Lungo",
+      "id": "Lungo"
+    },
+    "v60": {
+      "en": "V60",
+      "id": "V60"
+    },
+    "origami": {
+      "en": "Origami",
+      "id": "Origami"
+    },
+    "kono": {
+      "en": "Kono",
+      "id": "Kono"
+    },
+    "kalitaWave": {
+      "en": "Kalita Wave",
+      "id": "Kalita Wave"
+    },
+    "staggX": {
+      "en": "Stagg [X]",
+      "id": "Stagg [X]"
+    },
+    "orea": {
+      "en": "Orea",
+      "id": "Orea"
+    },
+    "april": {
+      "en": "April",
+      "id": "April"
+    },
+    "clever": {
+      "en": "Clever Dripper",
+      "id": "Clever Dripper"
+    },
+    "switch": {
+      "en": "Hario Switch",
+      "id": "Hario Switch"
+    },
+    "none": {
+      "en": "None",
+      "id": "Tidak ada"
+    },
+    "swirl": {
+      "en": "Swirl",
+      "id": "Putar"
+    },
+    "stir": {
+      "en": "Stir",
+      "id": "Aduk"
+    }
+  },
   "categories": {
     "espresso": {
       "label": {
@@ -331,7 +453,10 @@
           90,
           96
         ],
-        "grind": "fine, like table salt"
+        "grind": {
+          "en": "fine, like table salt",
+          "id": "halus, seperti garam meja"
+        }
       }
     },
     "coneDripper": {
@@ -470,7 +595,10 @@
           92,
           96
         ],
-        "grind": "medium-fine, like sea salt"
+        "grind": {
+          "en": "medium-fine, like sea salt",
+          "id": "medium halus, seperti garam laut"
+        }
       }
     },
     "flatBottomDripper": {
@@ -610,7 +738,10 @@
           92,
           96
         ],
-        "grind": "medium"
+        "grind": {
+          "en": "medium",
+          "id": "medium"
+        }
       }
     },
     "chemex": {
@@ -735,7 +866,10 @@
           92,
           96
         ],
-        "grind": "medium-coarse — the thick filter needs it"
+        "grind": {
+          "en": "medium-coarse — the thick filter needs it",
+          "id": "medium kasar — filter tebalnya butuh itu"
+        }
       }
     },
     "batchBrewer": {
@@ -816,7 +950,10 @@
           92,
           96
         ],
-        "grind": "medium"
+        "grind": {
+          "en": "medium",
+          "id": "medium"
+        }
       }
     },
     "frenchPress": {
@@ -888,7 +1025,10 @@
           92,
           96
         ],
-        "grind": "coarse, like breadcrumbs"
+        "grind": {
+          "en": "coarse, like breadcrumbs",
+          "id": "kasar, seperti remah roti"
+        }
       }
     },
     "coldBrew": {
@@ -959,7 +1099,10 @@
           18,
           24
         ],
-        "grind": "coarse"
+        "grind": {
+          "en": "coarse",
+          "id": "kasar"
+        }
       }
     },
     "turkishIbrik": {
@@ -1021,7 +1164,10 @@
           95,
           100
         ],
-        "grind": "powder — finer than espresso"
+        "grind": {
+          "en": "powder — finer than espresso",
+          "id": "sehalus tepung — lebih halus dari espresso"
+        }
       }
     },
     "aeropress": {
@@ -1126,7 +1272,10 @@
           80,
           92
         ],
-        "grind": "medium-fine"
+        "grind": {
+          "en": "medium-fine",
+          "id": "medium halus"
+        }
       }
     },
     "smartDripper": {
@@ -1221,7 +1370,10 @@
           92,
           96
         ],
-        "grind": "medium"
+        "grind": {
+          "en": "medium",
+          "id": "medium"
+        }
       }
     },
     "siphon": {
@@ -1302,7 +1454,10 @@
           90,
           94
         ],
-        "grind": "medium"
+        "grind": {
+          "en": "medium",
+          "id": "medium"
+        }
       }
     },
     "kopiTubruk": {
@@ -1374,7 +1529,10 @@
           90,
           96
         ],
-        "grind": "fine to medium"
+        "grind": {
+          "en": "fine to medium",
+          "id": "halus sampai medium"
+        }
       }
     },
     "kopiSaring": {
@@ -1436,7 +1594,10 @@
           90,
           96
         ],
-        "grind": "fine"
+        "grind": {
+          "en": "fine",
+          "id": "halus"
+        }
       }
     },
     "kopiJoss": {
@@ -1498,7 +1659,10 @@
           90,
           96
         ],
-        "grind": "fine"
+        "grind": {
+          "en": "fine",
+          "id": "halus"
+        }
       }
     },
     "kopiTalua": {
@@ -1570,7 +1734,10 @@
           90,
           96
         ],
-        "grind": "fine"
+        "grind": {
+          "en": "fine",
+          "id": "halus"
+        }
       }
     },
     "kopiKhop": {
@@ -1633,7 +1800,10 @@
           90,
           96
         ],
-        "grind": "fine"
+        "grind": {
+          "en": "fine",
+          "id": "halus"
+        }
       }
     }
   }

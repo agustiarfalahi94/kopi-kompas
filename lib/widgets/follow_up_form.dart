@@ -70,9 +70,15 @@ Map<FieldGroup, List<BrewFormField>> groupedFields(List<BrewFormField> fields) {
 /// The whole form: every field, grouped, and **nothing compulsory**. Leave all
 /// of it untouched and the entry still saves.
 class BrewForm extends StatefulWidget {
-  const BrewForm({super.key, required this.fields, required this.onChanged});
+  const BrewForm({
+    super.key,
+    required this.fields,
+    required this.onChanged,
+    required this.schema,
+  });
 
   final List<BrewFormField> fields;
+  final BrewSchema schema;
   final ValueChanged<Map<String, Object?>> onChanged;
 
   @override

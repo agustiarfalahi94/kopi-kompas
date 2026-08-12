@@ -318,6 +318,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
       ),
       Expanded(
         child: BrewForm(
+          schema: widget.schema,
           fields: formFields(
             widget.schema,
             _brewMethod,

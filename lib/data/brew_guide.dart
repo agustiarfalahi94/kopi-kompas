@@ -2,6 +2,26 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
 
+import '../strings.dart' show AppStrings;
+
+/// A string carried in both languages, resolved when it is read.
+///
+/// Resolving at parse time would freeze the guides in whichever language
+/// happened to be set when the file loaded. That is exactly the bug that
+/// shipped once already, in a different shape: the headings switched to
+/// Indonesian and the guide text stayed English.
+class Localised {
+  const Localised(this._values);
+  final Map<String, String> _values;
+
+  factory Localised.fromJson(Map<String, dynamic> j) =>
+      Localised(j.map((k, v) => MapEntry(k, v as String)));
+
+  String get text => _values[AppStrings.language] ?? _values['en']!;
+  @override
+  String toString() => text;
+}
+
 /// A range with a unit, rendered as "1.8–2.2" or "25–32 s".
 class TargetRange {
   const TargetRange(this.low, this.high, [this.unit]);
@@ -25,13 +45,14 @@ class BrewTargets {
     required this.ratio,
     required this.time,
     required this.temp,
-    required this.grind,
-  });
+    required Localised grind,
+  }) : _grind = grind;
 
   final TargetRange ratio;
   final TargetRange time;
   final TargetRange temp;
-  final String grind;
+  final Localised _grind;
+  String get grind => _grind.text;
 
   factory BrewTargets.fromJson(Map<String, dynamic> j) {
     List<num> r(String k) => (j[k] as List).cast<num>();
@@ -44,39 +65,49 @@ class BrewTargets {
           ? TargetRange(secs[0] ~/ 3600, secs[1] ~/ 3600, 'h')
           : TargetRange(secs[0], secs[1], 's'),
       temp: TargetRange(r('tempC')[0], r('tempC')[1], '°C'),
-      grind: j['grind'] as String,
+      grind: Localised.fromJson(j['grind'] as Map<String, dynamic>),
     );
   }
 }
 
 class BrewFault {
-  const BrewFault(this.symptom, this.cause);
-  final String symptom;
-  final String cause;
+  const BrewFault(this._symptom, this._cause);
+  final Localised _symptom;
+  final Localised _cause;
+  String get symptom => _symptom.text;
+  String get cause => _cause.text;
 }
 
 class GearTier {
-  const GearTier(this.tier, this.what);
-  final String tier;
-  final String what;
+  const GearTier(this._tier, this._what);
+  final Localised _tier;
+  final Localised _what;
+  String get tier => _tier.text;
+  String get what => _what.text;
 }
 
 class BrewGuide {
   const BrewGuide({
     required this.methodId,
-    required this.what,
-    required this.steps,
+    required Localised what,
+    required List<Localised> steps,
     required this.faults,
     required this.gear,
-    required this.notes,
-  });
+    required List<Localised> notes,
+  }) : _what = what,
+       _steps = steps,
+       _notes = notes;
 
   final String methodId;
-  final String what;
-  final List<String> steps;
+  final Localised _what;
+  final List<Localised> _steps;
   final List<BrewFault> faults;
   final List<GearTier> gear;
-  final List<String> notes;
+  final List<Localised> _notes;
+
+  String get what => _what.text;
+  List<String> get steps => [for (final s in _steps) s.text];
+  List<String> get notes => [for (final n in _notes) n.text];
 }
 
 /// Every guide, keyed by method id.
@@ -96,25 +127,24 @@ class BrewGuides {
     final guides = <String, BrewGuide>{};
     (root['guides'] as Map<String, dynamic>).forEach((id, raw) {
       final g = raw as Map<String, dynamic>;
+      Localised loc(Object? v) => Localised.fromJson(v as Map<String, dynamic>);
+
       guides[id] = BrewGuide(
         methodId: id,
-        what: g['what'] as String,
-        steps: (g['steps'] as List).cast<String>(),
+        what: loc(g['what']),
+        steps: [for (final s in g['steps'] as List) loc(s)],
         faults: [
           for (final f in g['faults'] as List)
             BrewFault(
-              (f as Map<String, dynamic>)['symptom'] as String,
-              f['cause'] as String,
+              loc((f as Map<String, dynamic>)['symptom']),
+              loc(f['cause']),
             ),
         ],
         gear: [
           for (final t in g['gear'] as List)
-            GearTier(
-              (t as Map<String, dynamic>)['tier'] as String,
-              t['what'] as String,
-            ),
+            GearTier(loc((t as Map<String, dynamic>)['tier']), loc(t['what'])),
         ],
-        notes: (g['notes'] as List).cast<String>(),
+        notes: [for (final n in g['notes'] as List) loc(n)],
       );
     });
     return BrewGuides._(guides);
