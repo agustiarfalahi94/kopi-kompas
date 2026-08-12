@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "s1",
+  "core": {
+    "beanOrigin":  { "type": "string", "required": true,  "label": { "en": "Bean origin", "id": "Asal biji" } },
+    "roastLevel":  { "type": "enum", "values": ["light", "medium", "medium-dark", "dark"], "required": true, "label": { "en": "Roast level", "id": "Tingkat sangrai" } },
+    "doseGrams":   { "type": "number", "unit": "g", "required": true, "label": { "en": "Dose", "id": "Dosis" } },
+    "grindSize":   { "type": "string", "required": false, "label": { "en": "Grind size", "id": "Kehalusan giling" } },
+    "notes":       { "type": "string", "required": false, "label": { "en": "Notes", "id": "Catatan" } }
+  },
+  "methods": {
+    "espresso": {
+      "scored": true,
+      "label": { "en": "Espresso", "id": "Espresso" },
+      "fields": {
+        "yieldGrams":            { "type": "number", "unit": "g", "required": true,  "label": { "en": "Yield", "id": "Hasil" } },
+        "brewTimeSeconds":       { "type": "number", "unit": "s", "required": true,  "label": { "en": "Brew time", "id": "Waktu ekstraksi" } },
+        "puckPrepWdt":           { "type": "boolean", "required": true,  "label": { "en": "WDT", "id": "WDT" } },
+        "puckPrepDistribution":  { "type": "boolean", "required": true,  "label": { "en": "Distribution", "id": "Distribusi" } },
+        "puckPrepTamp":          { "type": "boolean", "required": true,  "label": { "en": "Tamp", "id": "Tamping" } },
+        "machine":               { "type": "string", "required": true,  "label": { "en": "Machine", "id": "Mesin" } },
+        "basketType":            { "type": "string", "required": false, "label": { "en": "Basket", "id": "Basket" } },
+        "waterTempC":            { "type": "number", "unit": "°C", "required": false, "label": { "en": "Water temperature", "id": "Suhu air" } }
+      }
+    },
+    "v60": {
+      "scored": true,
+      "label": { "en": "V60", "id": "V60" },
+      "fields": {
+        "waterGrams":            { "type": "number", "unit": "g", "required": true,  "label": { "en": "Water", "id": "Air" } },
+        "ratio":                 { "type": "number", "required": false, "label": { "en": "Ratio (1:x)", "id": "Rasio (1:x)" } },
+        "bloomTimeSeconds":      { "type": "number", "unit": "s", "required": true,  "label": { "en": "Bloom time", "id": "Waktu bloom" } },
+        "bloomWaterGrams":       { "type": "number", "unit": "g", "required": true,  "label": { "en": "Bloom water", "id": "Air bloom" } },
+        "pourCount":             { "type": "integer", "required": true,  "label": { "en": "Number of pours", "id": "Jumlah tuangan" } },
+        "totalBrewTimeSeconds":  { "type": "number", "unit": "s", "required": true,  "label": { "en": "Total brew time", "id": "Total waktu seduh" } },
+        "waterTempC":            { "type": "number", "unit": "°C", "required": true,  "label": { "en": "Water temperature", "id": "Suhu air" } },
+        "filterType":            { "type": "string", "required": false, "label": { "en": "Filter", "id": "Filter" } }
+      }
+    },
+    "aeropress": {
+      "scored": true,
+      "label": { "en": "Aeropress", "id": "Aeropress" },
+      "fields": {
+        "waterGrams":         { "type": "number", "unit": "g", "required": true,  "label": { "en": "Water", "id": "Air" } },
+        "ratio":              { "type": "number", "required": false, "label": { "en": "Ratio (1:x)", "id": "Rasio (1:x)" } },
+        "steepTimeSeconds":   { "type": "number", "unit": "s", "required": true,  "label": { "en": "Steep time", "id": "Waktu rendam" } },
+        "inverted":           { "type": "boolean", "required": true,  "label": { "en": "Inverted", "id": "Terbalik" } },
+        "plungeTimeSeconds":  { "type": "number", "unit": "s", "required": true,  "label": { "en": "Plunge time", "id": "Waktu tekan" } },
+        "waterTempC":         { "type": "number", "unit": "°C", "required": true,  "label": { "en": "Water temperature", "id": "Suhu air" } }
+      }
+    },
+    "frenchPress": {
+      "scored": false,
+      "label": { "en": "French press", "id": "French press" },
+      "fields": {
+        "waterGrams":         { "type": "number", "unit": "g", "required": true,  "label": { "en": "Water", "id": "Air" } },
+        "ratio":              { "type": "number", "required": false, "label": { "en": "Ratio (1:x)", "id": "Rasio (1:x)" } },
+        "steepTimeMinutes":   { "type": "number", "unit": "min", "required": true, "label": { "en": "Steep time", "id": "Waktu rendam" } },
+        "waterTempC":         { "type": "number", "unit": "°C", "required": true, "label": { "en": "Water temperature", "id": "Suhu air" } },
+        "plungeStyle":        { "type": "string", "required": false, "label": { "en": "Plunge style", "id": "Cara menekan" } }
+      }
+    },
+    "kopiTubruk": {
+      "scored": false,
+      "label": { "en": "Kopi tubruk", "id": "Kopi tubruk" },
+      "fields": {
+        "waterGrams":       { "type": "number", "unit": "g", "required": true,  "label": { "en": "Water", "id": "Air" } },
+        "waterTempC":       { "type": "number", "unit": "°C", "required": false, "label": { "en": "Water temperature", "id": "Suhu air" } },
+        "steepTimeMinutes": { "type": "number", "unit": "min", "required": true, "label": { "en": "Steep time", "id": "Waktu rendam" } },
+        "sugarAdded":       { "type": "boolean", "required": true,  "label": { "en": "Sugar added", "id": "Pakai gula" } },
+        "settled":          { "type": "boolean", "required": false, "label": { "en": "Grounds settled", "id": "Ampas mengendap" } }
+      }
+    },
+    "kopiJoss": {
+      "scored": false,
+      "label": { "en": "Kopi joss", "id": "Kopi joss" },
+      "fields": {
+        "waterGrams":    { "type": "number", "unit": "g", "required": true,  "label": { "en": "Water", "id": "Air" } },
+        "waterTempC":    { "type": "number", "unit": "°C", "required": false, "label": { "en": "Water temperature", "id": "Suhu air" } },
+        "charcoalUsed":  { "type": "boolean", "required": true,  "label": { "en": "Charcoal used", "id": "Pakai arang" } },
+        "sugarAdded":    { "type": "boolean", "required": true,  "label": { "en": "Sugar added", "id": "Pakai gula" } }
+      }
+    },
+    "kopiTalua": {
+      "scored": false,
+      "label": { "en": "Kopi talua", "id": "Kopi talua" },
+      "fields": {
+        "waterGrams":               { "type": "number", "unit": "g", "required": true,  "label": { "en": "Water", "id": "Air" } },
+        "eggYolkUsed":              { "type": "boolean", "required": true,  "label": { "en": "Egg yolk used", "id": "Pakai kuning telur" } },
+        "sugarGrams":               { "type": "number", "unit": "g", "required": false, "label": { "en": "Sugar", "id": "Gula" } },
+        "whippedDurationSeconds":   { "type": "number", "unit": "s", "required": true,  "label": { "en": "Whipping time", "id": "Waktu kocok" } },
+        "spicesAdded":              { "type": "string", "required": false, "label": { "en": "Spices", "id": "Rempah" } }
+      }
+    },
+    "kopiKhop": {
+      "scored": false,
+      "label": { "en": "Kopi khop", "id": "Kopi khop" },
+      "fields": {
+        "waterGrams":          { "type": "number", "unit": "g", "required": true,  "label": { "en": "Water", "id": "Air" } },
+        "waterTempC":          { "type": "number", "unit": "°C", "required": false, "label": { "en": "Water temperature", "id": "Suhu air" } },
+        "sugarAdded":          { "type": "boolean", "required": true,  "label": { "en": "Sugar added", "id": "Pakai gula" } },
+        "flipDurationMinutes": { "type": "number", "unit": "min", "required": true, "label": { "en": "Time inverted", "id": "Lama dibalik" } }
+      }
+    }
+  }
+}

@@ -1,0 +1,172 @@
+import {
+  brewSchema, buildParseResponseSchema, isBrewMethod, stripForeignFields,
+  SCORED_METHODS, type BrewMethod,
+} from './schema';
+import { callGemini } from './gemini';
+import {
+  RUBRIC_VERSION, buildScoreResponseSchema, parseInstruction,
+  scoreInstruction, type Locale,
+} from './prompts';
+import { checkRateLimit, type CounterStore } from './ratelimit';
+
+export interface Env {
+  GEMINI_API_KEY: string;
+  GEMINI_PARSE_MODEL?: string;
+  GEMINI_SCORE_MODEL?: string;
+  RATE_LIMIT: CounterStore;
+}
+
+export interface Deps {
+  fetchImpl: typeof fetch;
+  now: () => number;
+}
+
+const MAX_TEXT = 2000;
+
+// Two models on purpose. Parsing is mechanical extraction and a lite model
+// does it well; scoring applies a rubric and wants the fuller model. The free
+// tier meters each model separately, so splitting the two endpoints also
+// doubles the daily allowance instead of spending one pool on both.
+//
+// Both pinned, never an alias like `gemini-flash-latest`. Every score records
+// the model that produced it, so an old score stays interpretable; an alias
+// would keep writing one name while the model underneath changed, defeating
+// exactly the provenance that column exists for.
+const DEFAULT_PARSE_MODEL = 'gemini-3.5-flash-lite';
+const DEFAULT_SCORE_MODEL = 'gemini-3.5-flash';
+
+function json(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'content-type': 'application/json' },
+  });
+}
+
+function error(status: number, message: string): Response {
+  return json({ error: message }, status);
+}
+
+function toLocale(value: unknown): Locale {
+  return value === 'id' ? 'id' : 'en';
+}
+
+export async function handleRequest(
+  req: Request,
+  env: Env,
+  deps: Deps,
+): Promise<Response> {
+  const path = new URL(req.url).pathname;
+  if (path !== '/parse' && path !== '/score') return error(404, 'not found');
+  if (req.method !== 'POST') return error(405, 'method not allowed');
+
+  let payload: any;
+  try {
+    payload = await req.json();
+  } catch {
+    return error(400, 'body must be json');
+  }
+
+  const installId = payload?.installId;
+  if (typeof installId !== 'string' || installId.length === 0) {
+    return error(400, 'installId is required');
+  }
+
+  const limit = await checkRateLimit(env.RATE_LIMIT, installId, deps.now());
+  if (!limit.allowed) return error(429, 'daily limit reached');
+
+  if (path === '/parse') return handleParse(payload, env, deps);
+  return handleScore(payload, env, deps);
+}
+
+async function handleParse(
+  payload: any,
+  env: Env,
+  deps: Deps,
+): Promise<Response> {
+  const text = typeof payload?.text === 'string' ? payload.text.trim() : '';
+  if (text.length === 0) return error(400, 'text is required');
+  if (text.length > MAX_TEXT) return error(400, 'text is too long');
+
+  const result = await callGemini<any>({
+    apiKey: env.GEMINI_API_KEY,
+    model: env.GEMINI_PARSE_MODEL ?? DEFAULT_PARSE_MODEL,
+    systemInstruction: parseInstruction(toLocale(payload.locale)),
+    userText: text,
+    responseSchema: buildParseResponseSchema(),
+    fetchImpl: deps.fetchImpl,
+  });
+
+  if (!result.ok) return error(result.status, result.detail);
+
+  const raw = result.value ?? {};
+  if (!isBrewMethod(raw.brewMethod)) {
+    return error(502, 'model returned an unknown brew method');
+  }
+  const method: BrewMethod = raw.brewMethod;
+
+  const out: Record<string, unknown> = { brewMethod: method };
+  for (const name of Object.keys(brewSchema.core)) {
+    const value = raw[name];
+    if (value !== null && value !== undefined) out[name] = value;
+  }
+  out.methodData = stripForeignFields(method, raw.methodData ?? {});
+
+  return json(out);
+}
+
+async function handleScore(
+  payload: any,
+  env: Env,
+  deps: Deps,
+): Promise<Response> {
+  const entry = payload?.entry;
+  if (typeof entry !== 'object' || entry === null) {
+    return error(400, 'entry is required');
+  }
+  if (!isBrewMethod(entry.brewMethod)) {
+    return error(400, 'entry.brewMethod is not a known method');
+  }
+  const method: BrewMethod = entry.brewMethod;
+  if (!SCORED_METHODS.includes(method)) {
+    return error(422, `${method} is not scored`);
+  }
+
+  const model = env.GEMINI_SCORE_MODEL ?? DEFAULT_SCORE_MODEL;
+  const result = await callGemini<any>({
+    apiKey: env.GEMINI_API_KEY,
+    model,
+    systemInstruction: scoreInstruction(method, toLocale(payload.locale)),
+    userText: JSON.stringify(entry),
+    responseSchema: buildScoreResponseSchema(),
+    fetchImpl: deps.fetchImpl,
+  });
+
+  if (!result.ok) return error(result.status, result.detail);
+
+  const score = result.value?.score;
+  if (
+    typeof score !== 'number' || !Number.isInteger(score) ||
+    score < 0 || score > 100
+  ) {
+    return error(502, 'model returned a score outside 0-100');
+  }
+
+  const rawReasons = result.value?.reasons;
+  if (!Array.isArray(rawReasons)) {
+    return error(502, 'model returned no reasons');
+  }
+  const reasons = rawReasons.filter(
+    (r: unknown): r is string => typeof r === 'string' && r.length > 0,
+  );
+
+  return json({ score, reasons, rubric: RUBRIC_VERSION, model });
+}
+
+export default {
+  fetch(req: Request, env: Env): Promise<Response> {
+    return handleRequest(req, env, {
+      fetchImpl: globalThis.fetch.bind(globalThis),
+      now: () => Date.now(),
+    });
+  },
+};

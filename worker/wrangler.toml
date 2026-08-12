@@ -1,0 +1,28 @@
+name = "kopi-kompas"
+main = "src/index.ts"
+compatibility_date = "2026-08-01"
+
+# The Gemini key is NEVER written here — this file is committed.
+# Set it with:   npx wrangler secret put GEMINI_API_KEY
+# Check it with: npx wrangler secret list
+
+# A daily cap per install id, not a per-minute burst limit. The Worker URL
+# ships inside the APK, so anyone who unzips it has the endpoint; they cannot
+# reach the key, but they can spend the Gemini free-tier quota through it.
+# That quota is counted per day, so the ceiling is too. Cloudflare's built-in
+# ratelimit binding (which Pollie uses) only offers 10s and 60s windows and
+# cannot express this. The namespace id is an identifier, not a secret.
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "e442b227afa64ce0998353fa48e928fa"
+
+# Two models, pinned, never an alias. Parsing is mechanical extraction and the
+# lite model does it well; scoring applies a rubric and wants the fuller one.
+# The free tier meters each model separately, so the split also doubles the
+# daily allowance rather than spending one pool on both endpoints.
+#
+# gemini-2.5-flash is still listed by ListModels but refuses new API keys, and
+# gemini-3.6-flash's free allowance turned out to be ~20 requests a day.
+[vars]
+GEMINI_PARSE_MODEL = "gemini-3.5-flash-lite"
+GEMINI_SCORE_MODEL = "gemini-3.5-flash"

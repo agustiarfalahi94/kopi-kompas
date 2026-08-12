@@ -141,7 +141,7 @@ POST /score
   { "entry": { ...all core and method fields... },
     "locale": "en" | "id", "installId": "<uuid>" }
   → 200 { "score": 82, "reasons": [...], "rubric": "r1",
-          "model": "gemini-2.5-flash" }
+          "model": "gemini-3.6-flash" }
 
 both → 400 unparseable request
        429 rate limited
@@ -151,7 +151,7 @@ both → 400 unparseable request
 `/score` is called only for espresso, V60 and Aeropress; the app does not
 spend a request on a method it will display as unscored.
 
-The Worker calls Gemini 2.5 Flash with `responseMimeType: "application/json"`
+The Worker calls Gemini 3.6 Flash with `responseMimeType: "application/json"`
 and an explicit `responseSchema`, so JSON shape is enforced by the API rather
 than requested politely in a prompt. It rate-limits per `installId` — a uuid
 generated on first launch, stored locally, meaningless off-device — to bound
