@@ -71,8 +71,8 @@ year.
 ## 2. Data model
 
 Core fields are columns, because they are what you filter and sort by.
-Method-specific fields are a JSON blob, because there are eight different
-shapes and a column per field would be a sparse table with sixty columns.
+Method-specific fields are a JSON blob, because there are fourteen different
+shapes and a column per field would be a sparse table nobody could query.
 
 ```
 brews
@@ -117,10 +117,55 @@ This originally read "local time with its offset", which Dart cannot do: a
 model converts any UTC value to local before writing, and `hasBrewOn` buckets
 on the first ten characters of the stored string.
 
-**Methods**: `espresso`, `v60`, `aeropress`, `frenchPress`, `kopiTubruk`,
-`kopiJoss`, `kopiTalua`, `kopiKhop`. Their field shapes are in
-`schema/brew_schema.json` (section 4), not duplicated here — a schema written
-in two places is a schema that disagrees with itself.
+Methods and their field shapes live in `schema/brew_schema.json` (sections
+2a and 4), not here — a schema written in two places is a schema that
+disagrees with itself.
+
+## 2a. Brew taxonomy
+
+Fourteen methods in five categories. Categories exist for navigation and to
+group rubrics; a method belongs to exactly one.
+
+```
+Espresso        espresso            shotStyle: ristretto | normale | lungo
+
+Filter coffee   coneDripper         brewer: v60 | origami | kono
+                flatBottomDripper   brewer: kalitaWave | staggX | orea | april
+                chemex
+                batchBrewer
+
+Immersion       frenchPress · coldBrew · turkishIbrik
+
+Hybrid          aeropress · smartDripper (clever | switch) · siphon
+
+Indonesian      kopiTubruk · kopiSaring · kopiJoss · kopiTalua · kopiKhop
+```
+
+**Variants are fields, not methods.** `shotStyle` and `brewer` shift the
+rubric's target ranges rather than duplicating a field set. Ristretto,
+espresso and lungo differ only in the ratio being aimed at (~1:1, ~1:2, ~1:3);
+made separate methods, three near-identical schemas would need maintaining and
+— worse — the ratio would stop being something the rubric could judge, because
+it would be implied by the method name instead of measured against a target.
+The same reasoning collapses V60, Origami and Kono into `coneDripper`, and
+Kalita Wave, Stagg [X], Orea and April into `flatBottomDripper`.
+
+**Kopi luwak is a bean, not a method.** It is a value in `process`, alongside
+wet-hulled (*giling basah*), because you brew a V60 *with* luwak beans — as a
+method it would make that unrecordable.
+
+Two deliberate imperfections, recorded so they are not re-litigated. **Turkish
+coffee is decoction, not immersion** — boiled with the grounds left in the cup
+— which makes it a closer cousin to kopi tubruk than to a French press; it
+sits in Immersion because a category of one for it would be worse. And
+**every category except Indonesian is defined by technique, while Indonesian
+is defined by culture**, so kopi saring — a cloth pour-over — sits apart from
+Filter. That is the right call for a personal logbook, at the cost of "show me
+all my filter brews" not including it.
+
+Chemex is separated from `coneDripper` despite being conical: the split is on
+filter thickness, which genuinely changes the grind and time targets, not on
+geometry.
 
 ## 3. The Cloudflare Worker
 
@@ -156,8 +201,8 @@ both → 400 unparseable request
        502 Gemini unreachable or returned non-JSON
 ```
 
-`/score` is called only for espresso, V60 and Aeropress; the app does not
-spend a request on a method it will display as unscored.
+`/score` is called only for the six scored methods; the app does not spend a
+request on a method it will display as unscored.
 
 The Worker calls Gemini 3.6 Flash with `responseMimeType: "application/json"`
 and an explicit `responseSchema`, so JSON shape is enforced by the API rather
@@ -179,7 +224,8 @@ missing one, because a missing one gets asked about.
 ## 4. One schema, three consumers
 
 `schema/brew_schema.json` at the repository root is the single source of truth
-for all eight method shapes. It is read by:
+for the categories, the fourteen methods and their field shapes. It is read
+by:
 
 1. **The Worker**, to build Gemini's `responseSchema`.
 2. **The app** (`lib/data/brew_schemas.dart`), to drive the follow-up form —
@@ -190,11 +236,39 @@ for all eight method shapes. It is read by:
 A test asserts all three cover exactly the same field set. Adding a brew
 method is then one file edit rather than four places to forget, and the
 failure mode of forgetting is a red test rather than a field that silently
-never gets asked about.
+never gets asked about. Adding a *dripper* is smaller still — one value in a
+`brewer` enum.
 
 Each field carries its type (`number`, `integer`, `string`, `boolean`,
 `enum`), its unit, whether it is required for a complete entry, and its
 label keys for EN and ID.
+
+### Required means "ask about it"
+
+With roughly eighteen fields available, `required` has to stay scarce or the
+follow-up form interrogates you after every shot and logging becomes a chore.
+It is set only for bean origin, roast level, dose, and each method's genuine
+essentials. Everything else is parsed when mentioned and **never asked for** —
+those fields exist so a brewer *can* record a pre-infusion time, not so the
+app can demand one.
+
+### Shared fields
+
+On top of origin, roast level, dose and notes: **roaster**, **process**
+(washed | natural | honey | anaerobic | wet-hulled | luwak), **roast date**,
+**grinder**, **grind setting**, **water type**, and **your own rating, 1–5**.
+
+`grinder` plus `grindSetting` — "Niche, 18" — is the single biggest
+contributor to actually reproducing a good brew later, which free-text
+`grindSize` ("medium-fine") never was. `roastDate` lets the app show days off
+roast without being told.
+
+**The 1–5 rating is asked on the score reveal, not in the follow-up form.**
+It is the one field you cannot answer before tasting, and putting it under the
+number — "here is what the app thinks, what do you think?" — is one tap in
+context. It is also the check on the rubric itself: if your ratings and the
+scores disagree consistently over months, the rubric is wrong, and nothing
+else in the app would ever reveal that.
 
 ## 5. Scoring
 
@@ -202,12 +276,18 @@ label keys for EN and ID.
 primary path and not as an offline fallback. One scoring path means there is
 never a question about which number is the real one.
 
-Scored in v1: **espresso, V60, Aeropress**. `frenchPress` and the four
-Indonesian methods log every field and display **"not scored"**
-(`scoreStatus = notApplicable`) and never trigger a scoring call at all. The
-reason is unchanged by the move to AI: kopi joss, talua and khop have no
-agreed-upon correct parameters, so a number against them would be confidently
-invented rather than assessed.
+Scored: **espresso** and every Filter coffee method (`coneDripper`,
+`flatBottomDripper`, `chemex`, `batchBrewer`), plus **aeropress** — six
+rubrics. The four filter ones share a formula with brewer-specific target
+shifts, so they cost far less than six independent rubrics.
+
+Everything else logs every field and displays **"not scored"**
+(`scoreStatus = notApplicable`), never triggering a scoring call. For the
+Indonesian methods and Turkish coffee the reason is unchanged by the move to
+AI: there are no agreed-upon correct parameters, so a number would be
+confidently invented rather than assessed. French press, cold brew, smart
+drippers and siphon *do* have defensible targets and are the obvious next
+rubrics; they are simply not in this round.
 
 ### The flow
 
@@ -233,7 +313,11 @@ time, that noise is the real cost of this decision. Four things bound it:
 - **Temperature 0** on the scoring call.
 - **A fixed written rubric** in the Worker — explicit target ranges and
   weights per method, so the model applies a stated standard rather than its
-  own taste. The rubric is versioned (`r1`, `r2`, …).
+  own taste. The rubric is versioned (`r1`, `r2`, …), and **the version must
+  be bumped whenever a number moves**. The taxonomy change alone forces `r2`:
+  basket size, pre-infusion, pressure, agitation and drawdown all change how a
+  brew is judged, and pour-over targets now vary by brewer. An `r1` score and
+  an `r2` score are not the same measurement.
 - **`responseSchema`** constraining output to an integer 0–100 plus a reasons
   array. The Dart side rejects anything outside that range rather than
   clamping it, and treats the response as failed.
