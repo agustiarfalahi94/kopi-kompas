@@ -87,6 +87,22 @@ the method is scored, add its entry to `TARGETS` in `src/prompts.ts` and bump
 `RUBRIC_VERSION`. Then run `npm test`; the schema tests will tell you what you
 missed.
 
+## Choosing the model
+
+Set in `wrangler.toml` as the `GEMINI_MODEL` var, defaulting in code to
+`gemini-3.6-flash`.
+
+**Always pin a concrete version. Never use an alias like
+`gemini-flash-latest`.** Every score the app stores records the model that
+produced it, so an old score stays interpretable. An alias would keep writing
+one name while the model underneath changed, which defeats the provenance that
+column exists for.
+
+Note that `ListModels` lies by omission: `gemini-2.5-flash` is still listed but
+returns `404 — no longer available to new users` for keys created recently. If
+you get a 404 from `/parse`, the error body now carries Gemini's own message;
+read it before assuming the URL is wrong.
+
 ## Design notes
 
 - **The Worker owns both prompts.** The app sends free text or a completed
@@ -101,3 +117,12 @@ missed.
   KV outage should not stop the owner logging their morning coffee.
 - **`/parse` omits absent fields rather than sending `null`.** The app's rule
   is that a missing field is one to ask about in the follow-up form.
+- **The parse schema marks every property `required` *and* `nullable`, and
+  changing either breaks parsing in a way the unit tests cannot see.** Without
+  `nullable`, a string field the model wants to leave empty cannot be null, so
+  the constrained decoder emits an adjacent property name instead — real
+  responses contained `{"beanOrigin":"doseGrams"}`. With only `brewMethod`
+  required, the decoder satisfies the minimum and stops after three fields,
+  silently dropping values that were stated in the text. If you touch
+  `buildParseResponseSchema`, re-run the live curl checks above; a green
+  `npm test` does not cover this.
