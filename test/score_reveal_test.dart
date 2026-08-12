@@ -41,6 +41,7 @@ void main() {
         home: Scaffold(
           body: ScoreReveal(
             entry: entry,
+            schema: schema,
             method: schema.method(entry.brewMethod),
             onRated: (v) => rated = v,
             onDone: () {},
@@ -64,6 +65,7 @@ void main() {
         home: Scaffold(
           body: ScoreReveal(
             entry: entryWith(score: 93),
+            schema: schema,
             method: schema.method('espresso'),
             onRated: (v) => rated = v,
             onDone: () {},

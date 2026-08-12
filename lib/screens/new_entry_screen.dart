@@ -248,6 +248,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
         _Stage.scoring => _busy(),
         _Stage.revealed => ScoreReveal(
           entry: _saved!,
+          schema: widget.schema,
           method: widget.schema.method(_saved!.brewMethod),
           onRated: _rate,
           onDone: () => Navigator.of(context).pop(true),

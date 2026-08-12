@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../data/brew_schema.dart';
 import '../models/brew_entry.dart';
+import '../screens/home_screen.dart' show displayLabel;
 import '../screens/new_entry_screen.dart' show shouldCelebrate;
 import '../strings.dart';
 
@@ -16,12 +17,14 @@ class ScoreReveal extends StatefulWidget {
   const ScoreReveal({
     super.key,
     required this.entry,
+    required this.schema,
     required this.method,
     required this.onRated,
     required this.onDone,
   });
 
   final BrewEntry entry;
+  final BrewSchema schema;
   final MethodSpec method;
 
   /// Fires only when a star is actually tapped. Never rating is a real state,
@@ -67,7 +70,9 @@ class _ScoreRevealState extends State<ScoreReveal> {
           children: [
             const SizedBox(height: 24),
             Text(
-              widget.method.label,
+              // The same name the list uses: you brewed a V60, not a cone
+              // dripper, and the two screens must not disagree.
+              displayLabel(widget.schema, entry),
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium,
             ),
