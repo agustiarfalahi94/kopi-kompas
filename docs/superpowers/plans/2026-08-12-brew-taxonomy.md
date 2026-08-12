@@ -76,32 +76,35 @@ Top level gains `categories`; `core` gains the shared fields; `methods` is rewri
                     "methods": ["kopiTubruk", "kopiSaring", "kopiJoss", "kopiTalua", "kopiKhop"] }
   },
   "core": {
-    "beanOrigin":   { "type": "string", "required": true,  "label": { "en": "Bean origin", "id": "Asal biji" } },
-    "roaster":      { "type": "string", "required": false, "label": { "en": "Roaster", "id": "Penyangrai" } },
-    "process":      { "type": "enum", "values": ["washed", "natural", "honey", "anaerobic", "wet-hulled", "luwak"], "required": false, "label": { "en": "Process", "id": "Proses" } },
-    "roastLevel":   { "type": "enum", "values": ["light", "medium", "medium-dark", "dark"], "required": true, "label": { "en": "Roast level", "id": "Tingkat sangrai" } },
-    "roastDate":    { "type": "date", "required": false, "label": { "en": "Roast date", "id": "Tanggal sangrai" } },
-    "doseGrams":    { "type": "number", "unit": "g", "required": true, "label": { "en": "Dose", "id": "Dosis" } },
-    "grinder":      { "type": "string", "required": false, "label": { "en": "Grinder", "id": "Penggiling" } },
-    "grindSetting": { "type": "string", "required": false, "label": { "en": "Grind setting", "id": "Setelan giling" } },
-    "grindSize":    { "type": "string", "required": false, "label": { "en": "Grind size", "id": "Kehalusan giling" } },
-    "waterType":    { "type": "enum", "values": ["filtered", "bottled", "tap", "mineral"], "required": false, "label": { "en": "Water", "id": "Air" } },
-    "notes":        { "type": "string", "required": false, "label": { "en": "Notes", "id": "Catatan" } }
+    "beanOrigin":   { "type": "string", "group": "coffee", "required": true,  "label": { "en": "Bean origin", "id": "Asal biji" } },
+    "roaster":      { "type": "string", "group": "coffee", "required": false, "label": { "en": "Roaster", "id": "Penyangrai" } },
+    "process":      { "type": "enum", "group": "coffee", "values": ["washed", "natural", "honey", "anaerobic", "wet-hulled", "luwak"], "required": false, "label": { "en": "Process", "id": "Proses" } },
+    "roastLevel":   { "type": "enum", "group": "coffee", "values": ["light", "medium-light", "medium", "medium-dark", "dark"], "required": true, "label": { "en": "Roast level", "id": "Tingkat sangrai" } },
+    "roastDate":    { "type": "date", "group": "coffee", "required": false, "label": { "en": "Roast date", "id": "Tanggal sangrai" } },
+    "doseGrams":    { "type": "number", "group": "brew", "unit": "g", "required": true, "label": { "en": "Dose", "id": "Dosis" } },
+    "grinder":      { "type": "string", "group": "grind", "required": false, "label": { "en": "Grinder", "id": "Penggiling" } },
+    "grindSetting": { "type": "string", "group": "grind", "required": false, "label": { "en": "Grind setting", "id": "Setelan giling" } },
+    "grindSize":    { "type": "string", "group": "grind", "required": false, "label": { "en": "Grind size", "id": "Kehalusan giling" } },
+    "waterType":    { "type": "enum", "group": "water", "values": ["filtered", "bottled", "tap", "mineral"], "required": false, "label": { "en": "Water", "id": "Air" } },
+    "notes":        { "type": "string", "group": "coffee", "required": false, "label": { "en": "Notes", "id": "Catatan" } }
   },
   "methods": { … }
 }
 ```
 
-The `methods` block, written in full. Required is scarce by design — compare it against the old schema and note how much moved to optional.
+The `methods` block, written in full. Every field also carries a `group`
+(`coffee` / `grind` / `brew` / `water`); method-specific fields are `brew`
+unless noted, and `waterTempC` is always `water`. `required` here means
+**expanded above the fold**, not compulsory — nothing blocks Save.
 
-- **espresso** (scored): `shotStyle` enum[ristretto, normale, lungo] req · `yieldGrams` g req · `brewTimeSeconds` s req · `puckPrepWdt` bool req · `puckPrepDistribution` bool req · `puckPrepTamp` bool req · `machine` string req · `basketSizeGrams` g opt · `basketType` string opt · `preInfusionSeconds` s opt · `pressureBars` bar opt · `waterTempC` °C opt
+- **espresso** (scored): `shotStyle` enum[ristretto, normale, lungo] req · `yieldGrams` g req · `brewTimeSeconds` s req · `puckPrepWdt` bool req · `puckPrepDistribution` bool req · `puckPrepTamp` bool req · `machine` string req · `basketSizeGrams` g opt · `basketType` string opt · `puckScreen` bool opt · `preInfusionSeconds` s opt · `pressureBars` bar opt · `waterTempC` °C opt
 - **coneDripper** (scored): `brewer` enum[v60, origami, kono] req · `waterGrams` g req · `ratio` opt · `bloomTimeSeconds` s req · `bloomWaterGrams` g req · `pourCount` integer req · `totalBrewTimeSeconds` s req · `waterTempC` °C req · `drawdownTimeSeconds` s opt · `agitation` enum[none, swirl, stir] opt · `filterType` string opt
 - **flatBottomDripper** (scored): `brewer` enum[kalitaWave, staggX, orea, april] req, then identical to `coneDripper`
 - **chemex** (scored): identical to `coneDripper` minus `brewer`
 - **batchBrewer** (scored): `machine` string req · `waterGrams` g req · `ratio` opt · `waterTempC` °C opt · `totalBrewTimeSeconds` s opt · `filterType` string opt
 - **aeropress** (scored): `inverted` bool req · `waterGrams` g req · `steepTimeSeconds` s req · `plungeTimeSeconds` s req · `waterTempC` °C req · `ratio` opt · `agitation` opt · `filterType` opt
 - **frenchPress**: `waterGrams` g req · `steepTimeMinutes` min req · `waterTempC` °C req · `ratio` opt · `plungeStyle` string opt
-- **coldBrew**: `waterGrams` g req · `steepTimeHours` h req · `ratio` opt · `filterType` opt
+- **coldBrew**: `waterGrams` g req · `steepTimeHours` h req · `ratio` opt · `hotBloom` bool opt · `filterType` opt
 - **turkishIbrik**: `waterGrams` g req · `sugarAdded` bool req · `foamRaises` integer opt · `waterTempC` °C opt
 - **smartDripper**: `brewer` enum[clever, switch] req · `waterGrams` g req · `steepTimeSeconds` s req · `drawdownTimeSeconds` s opt · `waterTempC` °C req · `ratio` opt · `filterType` opt
 - **siphon**: `waterGrams` g req · `brewTimeSeconds` s req · `waterTempC` °C opt · `stirCount` integer opt · `ratio` opt · `filterType` opt
