@@ -1,6 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Flutter's template declares INTERNET only in the debug and profile
+         manifests, so a release build silently has no network at all: every
+         call fails as "no connection" while debug works perfectly. The app's
+         one network feature is the Cloudflare Worker that parses and scores
+         a brew. test/manifest_test.dart keeps this here. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
-        android:label="kopi_kompas"
+        android:label="Kopi Kompas"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
