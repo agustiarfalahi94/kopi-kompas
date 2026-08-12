@@ -58,8 +58,24 @@ class _FollowUpFormState extends State<FollowUpForm> {
     // A switch shown at "off" is already answering the question, so seed
     // booleans as false rather than leaving them unset and losing the answer
     // if the user never touches the row.
+    //
+    // Seeding alone is not enough: the parent only learns values through
+    // onChanged, so an untouched switch used to report nothing and the field
+    // arrived absent rather than false. The rubric then read "distribution
+    // was not recorded" and deducted nothing, when the honest reading is that
+    // the step was skipped. Report the seed after the first frame — during
+    // initState the parent cannot safely setState.
+    //
+    // Only booleans are seeded. An untouched text or number field is
+    // genuinely unknown, and reporting a value for it would overwrite what
+    // the parse found.
     for (final f in widget.fields) {
       if (f.type == FieldType.boolean) _values[f.name] = false;
+    }
+    if (_values.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.onChanged(Map.of(_values));
+      });
     }
   }
 

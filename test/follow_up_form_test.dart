@@ -142,11 +142,36 @@ void main() {
       expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
     });
 
-    testWidgets('a boolean reports false without being touched', (
+    testWidgets('reports every boolean as false before anything is touched', (
       tester,
     ) async {
-      // The switch defaults off, and that is the answer: the user is being
-      // asked precisely because the text did not mention the step.
+      // The switch is drawn off, and that is already the answer: the user is
+      // being asked precisely because the text did not mention the step.
+      //
+      // This failed on the phone. The form seeded its own state but never
+      // told the parent, so an untouched switch reported nothing at all and
+      // the field arrived absent rather than false. The rubric then said
+      // "distribution was not recorded" and deducted nothing, when the honest
+      // reading is that the step was skipped and should cost points.
+      //
+      // The previous version of this test tapped the switch twice before
+      // asserting, which fired onChanged and hid the bug entirely.
+      Map<String, Object?> latest = {};
+      await pump(
+        tester,
+        missingFields(schema, 'espresso', {}, {}),
+        (v) => latest = v,
+      );
+      await tester.pump();
+
+      expect(latest['puckPrepWdt'], false);
+      expect(latest['puckPrepDistribution'], false);
+      expect(latest['puckPrepTamp'], false);
+    });
+
+    testWidgets('toggling a boolean on then off still reports false', (
+      tester,
+    ) async {
       Map<String, Object?> latest = {};
       await pump(
         tester,
@@ -158,6 +183,23 @@ void main() {
       await tester.tap(find.byType(Switch).first);
       await tester.pump();
       expect(latest['puckPrepWdt'], false);
+    });
+
+    testWidgets('the initial report never invents a value for a text field', (
+      tester,
+    ) async {
+      // Seeding booleans must not seed anything else: an untouched origin
+      // field is genuinely unknown, and reporting '' would overwrite what the
+      // parse found.
+      Map<String, Object?> latest = {};
+      await pump(
+        tester,
+        missingFields(schema, 'espresso', {}, {}),
+        (v) => latest = v,
+      );
+      await tester.pump();
+      expect(latest.containsKey('beanOrigin'), isFalse);
+      expect(latest.containsKey('doseGrams'), isFalse);
     });
   });
 }
