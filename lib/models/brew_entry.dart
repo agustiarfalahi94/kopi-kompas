@@ -31,10 +31,17 @@ class BrewEntry {
     required this.createdAt,
     required this.updatedAt,
     this.beanOrigin,
+    this.roaster,
+    this.process,
     this.roastLevel,
+    this.roastDate,
     this.doseGrams,
+    this.grinder,
+    this.grindSetting,
     this.grindSize,
+    this.waterType,
     this.notes,
+    this.myRating,
     this.overallScore,
     this.scoreReasons = const [],
     this.scoreRubric,
@@ -46,11 +53,24 @@ class BrewEntry {
   final String id;
   final String brewMethod;
   final String? beanOrigin;
+  final String? roaster;
+  final String? process;
   final String? roastLevel;
+  final DateTime? roastDate;
   final double? doseGrams;
+  final String? grinder;
+  final String? grindSetting;
   final String? grindSize;
+  final String? waterType;
   final DateTime brewDate;
   final String? notes;
+
+  /// What the brewer thought of it, 1-5, asked on the score reveal.
+  ///
+  /// The only check the app will ever have on whether the rubric matches a
+  /// real palate. Null means unrated, which is a genuine state and must never
+  /// be stored as zero — that would read as "hated it" in every average.
+  final int? myRating;
   final String rawInputText;
   final Map<String, Object?> methodData;
   final int? overallScore;
@@ -74,9 +94,16 @@ class BrewEntry {
     'id': id,
     'brewMethod': brewMethod,
     'beanOrigin': beanOrigin,
+    'roaster': roaster,
+    'process': process,
     'roastLevel': roastLevel,
+    'roastDate': roastDate?.toIso8601String().substring(0, 10),
     'doseGrams': doseGrams,
+    'grinder': grinder,
+    'grindSetting': grindSetting,
     'grindSize': grindSize,
+    'waterType': waterType,
+    'myRating': myRating,
     // Local wall-clock time, deliberately, with no zone suffix.
     //
     // A shot pulled at 00:30 belongs to the day the brewer was awake for, and
@@ -107,9 +134,16 @@ class BrewEntry {
     id: row['id'] as String,
     brewMethod: row['brewMethod'] as String,
     beanOrigin: row['beanOrigin'] as String?,
+    roaster: row['roaster'] as String?,
+    process: row['process'] as String?,
     roastLevel: row['roastLevel'] as String?,
+    roastDate: _date(row['roastDate']),
     doseGrams: (row['doseGrams'] as num?)?.toDouble(),
+    grinder: row['grinder'] as String?,
+    grindSetting: row['grindSetting'] as String?,
     grindSize: row['grindSize'] as String?,
+    waterType: row['waterType'] as String?,
+    myRating: (row['myRating'] as num?)?.toInt(),
     brewDate: DateTime.parse(row['brewDate'] as String),
     notes: row['notes'] as String?,
     rawInputText: row['rawInputText'] as String,
@@ -132,16 +166,26 @@ class BrewEntry {
   static DateTime? _date(Object? v) =>
       v == null ? null : DateTime.parse(v as String);
 
-  /// Note that the score fields are **not** `?? this.x`: a failed re-score
-  /// has to be able to clear a stale number rather than keep it.
+  /// Score fields are preserved like everything else. Dropping a number and
+  /// its provenance is possible but must be asked for, with [clearScore] —
+  /// they used to null by default, which meant rating a brew silently erased
+  /// what it scored.
   BrewEntry copyWith({
+    bool clearScore = false,
     String? brewMethod,
     String? beanOrigin,
+    String? roaster,
+    String? process,
     String? roastLevel,
+    DateTime? roastDate,
     double? doseGrams,
+    String? grinder,
+    String? grindSetting,
     String? grindSize,
+    String? waterType,
     DateTime? brewDate,
     String? notes,
+    int? myRating,
     Map<String, Object?>? methodData,
     int? overallScore,
     List<String>? scoreReasons,
@@ -155,19 +199,26 @@ class BrewEntry {
     id: id,
     brewMethod: brewMethod ?? this.brewMethod,
     beanOrigin: beanOrigin ?? this.beanOrigin,
+    roaster: roaster ?? this.roaster,
+    process: process ?? this.process,
     roastLevel: roastLevel ?? this.roastLevel,
+    roastDate: roastDate ?? this.roastDate,
     doseGrams: doseGrams ?? this.doseGrams,
+    grinder: grinder ?? this.grinder,
+    grindSetting: grindSetting ?? this.grindSetting,
     grindSize: grindSize ?? this.grindSize,
+    waterType: waterType ?? this.waterType,
     brewDate: brewDate ?? this.brewDate,
     notes: notes ?? this.notes,
+    myRating: myRating ?? this.myRating,
     rawInputText: rawInputText,
     methodData: methodData ?? this.methodData,
-    overallScore: overallScore,
-    scoreReasons: scoreReasons ?? this.scoreReasons,
+    overallScore: clearScore ? null : (overallScore ?? this.overallScore),
+    scoreReasons: clearScore ? const [] : (scoreReasons ?? this.scoreReasons),
     scoreStatus: scoreStatus ?? this.scoreStatus,
-    scoreRubric: scoreRubric,
-    scoreModel: scoreModel,
-    scoredAt: scoredAt,
+    scoreRubric: clearScore ? null : (scoreRubric ?? this.scoreRubric),
+    scoreModel: clearScore ? null : (scoreModel ?? this.scoreModel),
+    scoredAt: clearScore ? null : (scoredAt ?? this.scoredAt),
     createdAt: createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt ?? this.deletedAt,

@@ -14,192 +14,188 @@ void main() {
     );
   });
 
-  group('missingFields', () {
-    test('asks only for required fields that are absent', () {
-      final missing = missingFields(
+  BrewFormField at(List<BrewFormField> f, String name) =>
+      f.firstWhere((x) => x.spec.name == name);
+
+  group('formFields', () {
+    test('returns every field, not only the missing ones', () {
+      // The change that matters: a field nobody is shown is a field nobody
+      // knows exists.
+      final f = formFields(
         schema,
         'espresso',
-        {'doseGrams': 18, 'beanOrigin': 'Honduras', 'roastLevel': 'medium'},
-        {'yieldGrams': 36, 'brewTimeSeconds': 28},
+        {'doseGrams': 18},
+        {'yieldGrams': 36},
+        {},
       );
-      final names = missing.map((f) => f.name);
-      expect(names, contains('puckPrepWdt'));
-      expect(names, contains('machine'));
-      expect(names, isNot(contains('yieldGrams')));
-      expect(names, isNot(contains('doseGrams')));
+      final names = f.map((x) => x.spec.name);
+      expect(names, contains('doseGrams'));
+      expect(names, contains('basketSizeGrams'));
+      expect(names, contains('preInfusionSeconds'));
+      expect(names, contains('puckScreen'));
+      expect(f.length, greaterThan(15));
     });
 
-    test('never asks for an optional field', () {
-      final missing = missingFields(schema, 'espresso', {}, {});
-      final names = missing.map((f) => f.name);
-      expect(names, isNot(contains('basketType')));
-      expect(names, isNot(contains('waterTempC')));
-      expect(names, isNot(contains('grindSize')));
-    });
-
-    test('treats false as answered, not missing', () {
-      // "no wdt today" is an answer, and the rubric deducts for it.
-      final missing = missingFields(schema, 'espresso', {}, {
-        'puckPrepWdt': false,
-      });
-      expect(missing.map((f) => f.name), isNot(contains('puckPrepWdt')));
-    });
-
-    test('treats a blank string as missing', () {
-      final missing = missingFields(schema, 'espresso', {
-        'beanOrigin': '  ',
-      }, {});
-      expect(missing.map((f) => f.name), contains('beanOrigin'));
-    });
-
-    test('asks nothing when everything required is present', () {
-      final missing = missingFields(
+    test('marks where each value came from', () {
+      final f = formFields(
         schema,
-        'kopiJoss',
-        {'beanOrigin': 'local', 'roastLevel': 'dark', 'doseGrams': 20},
-        {'waterGrams': 200, 'charcoalUsed': true, 'sugarAdded': true},
+        'espresso',
+        {'doseGrams': 18},
+        {},
+        {'grinder': 'Niche'},
       );
-      expect(missing, isEmpty);
+      expect(at(f, 'doseGrams').source, FieldSource.parsed);
+      expect(at(f, 'doseGrams').value, 18);
+      expect(at(f, 'grinder').source, FieldSource.sticky);
+      expect(at(f, 'grinder').value, 'Niche');
+      expect(at(f, 'pressureBars').source, FieldSource.empty);
+      expect(at(f, 'pressureBars').value, isNull);
     });
 
-    test('returns fields in schema order, core before method', () {
-      final missing = missingFields(schema, 'espresso', {}, {});
-      expect(missing.first.name, 'beanOrigin');
-      expect(missing.map((f) => f.name), contains('yieldGrams'));
+    test('a parsed value beats a sticky default', () {
+      // "on the ek43 today" must win over the remembered grinder.
+      final f = formFields(
+        schema,
+        'espresso',
+        {'grinder': 'EK43'},
+        {},
+        {'grinder': 'Niche'},
+      );
+      expect(at(f, 'grinder').value, 'EK43');
+      expect(at(f, 'grinder').source, FieldSource.parsed);
+    });
+
+    test('core fields come before method fields', () {
+      final f = formFields(schema, 'espresso', {}, {}, {});
+      expect(f.first.spec.name, 'beanOrigin');
+    });
+
+    test('an unknown method throws rather than rendering an empty form', () {
+      expect(
+        () => formFields(schema, 'pourover', {}, {}, {}),
+        throwsArgumentError,
+      );
     });
   });
 
-  group('FollowUpForm', () {
-    Future<void> pump(
+  group('groupedFields', () {
+    test('sections in a fixed order', () {
+      final g = groupedFields(formFields(schema, 'espresso', {}, {}, {}));
+      expect(g.keys.toList(), [
+        FieldGroup.coffee,
+        FieldGroup.grind,
+        FieldGroup.brew,
+        FieldGroup.water,
+      ]);
+    });
+
+    test('omits a group with no fields', () {
+      // kopiSaring has no grind-specific field beyond the shared ones, but
+      // core always contributes grinder — so every group should be present
+      // here. The guard is that empty groups never render a bare header.
+      final g = groupedFields(formFields(schema, 'kopiSaring', {}, {}, {}));
+      for (final entry in g.entries) {
+        expect(entry.value, isNotEmpty, reason: '${entry.key} is empty');
+      }
+    });
+
+    test('puts dose in brew and roast level in coffee', () {
+      final g = groupedFields(formFields(schema, 'espresso', {}, {}, {}));
+      expect(
+        g[FieldGroup.brew]!.map((f) => f.spec.name),
+        contains('doseGrams'),
+      );
+      expect(
+        g[FieldGroup.coffee]!.map((f) => f.spec.name),
+        contains('roastLevel'),
+      );
+    });
+  });
+
+  group('BrewForm', () {
+    Future<Map<String, Object?>> pumpAndRead(
       WidgetTester tester,
-      List<FieldSpec> fields, [
-      ValueChanged<Map<String, Object?>>? onChanged,
-    ]) async {
+      String method, {
+      Map<String, Object?> core = const {},
+      Map<String, Object?> methodData = const {},
+      Map<String, Object?> sticky = const {},
+    }) async {
+      var latest = <String, Object?>{};
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: FollowUpForm(fields: fields, onChanged: onChanged ?? (_) {}),
+            body: BrewForm(
+              fields: formFields(schema, method, core, methodData, sticky),
+              onChanged: (v) => latest = v,
+            ),
           ),
         ),
       );
+      await tester.pump();
+      return latest;
     }
 
-    testWidgets('renders a row per missing field', (tester) async {
-      await pump(tester, missingFields(schema, 'espresso', {}, {}));
-      expect(find.text('Dose (g)'), findsOneWidget);
-      expect(find.text('WDT'), findsOneWidget);
-      expect(find.byType(Switch), findsWidgets);
-    });
-
-    testWidgets('reports a number as a double, not a string', (tester) async {
-      Map<String, Object?> latest = {};
-      await pump(
-        tester,
-        missingFields(schema, 'espresso', {}, {}),
-        (v) => latest = v,
-      );
-
-      await tester.enterText(
-        find
-            .ancestor(
-              of: find.text('Dose (g)'),
-              matching: find.byType(TextField),
-            )
-            .first,
-        '18.5',
-      );
-      await tester.pump();
-      expect(latest['doseGrams'], 18.5);
-      expect(latest['doseGrams'], isA<double>());
-    });
-
-    testWidgets('reports an integer field as an int', (tester) async {
-      Map<String, Object?> latest = {};
-      await pump(
-        tester,
-        missingFields(schema, 'v60', {}, {}),
-        (v) => latest = v,
-      );
-
-      await tester.enterText(
-        find
-            .ancestor(
-              of: find.text('Number of pours'),
-              matching: find.byType(TextField),
-            )
-            .first,
-        '3',
-      );
-      await tester.pump();
-      expect(latest['pourCount'], 3);
-      expect(latest['pourCount'], isA<int>());
-    });
-
-    testWidgets('roast level renders as a dropdown of its enum values', (
+    testWidgets('reports booleans as false before anything is touched', (
       tester,
     ) async {
-      await pump(tester, missingFields(schema, 'espresso', {}, {}));
-      expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
-    });
-
-    testWidgets('reports every boolean as false before anything is touched', (
-      tester,
-    ) async {
-      // The switch is drawn off, and that is already the answer: the user is
-      // being asked precisely because the text did not mention the step.
-      //
-      // This failed on the phone. The form seeded its own state but never
-      // told the parent, so an untouched switch reported nothing at all and
-      // the field arrived absent rather than false. The rubric then said
-      // "distribution was not recorded" and deducted nothing, when the honest
-      // reading is that the step was skipped and should cost points.
-      //
-      // The previous version of this test tapped the switch twice before
-      // asserting, which fired onChanged and hid the bug entirely.
-      Map<String, Object?> latest = {};
-      await pump(
-        tester,
-        missingFields(schema, 'espresso', {}, {}),
-        (v) => latest = v,
-      );
-      await tester.pump();
-
+      // A switch drawn off is already the answer. This regressed once, when
+      // the form seeded its own state without telling the parent, and the
+      // rubric read "not recorded" where the truth was "skipped".
+      final latest = await pumpAndRead(tester, 'espresso');
       expect(latest['puckPrepWdt'], false);
       expect(latest['puckPrepDistribution'], false);
       expect(latest['puckPrepTamp'], false);
     });
 
-    testWidgets('toggling a boolean on then off still reports false', (
+    testWidgets('reports parsed and sticky values without being touched', (
       tester,
     ) async {
-      Map<String, Object?> latest = {};
-      await pump(
+      final latest = await pumpAndRead(
         tester,
-        missingFields(schema, 'espresso', {}, {}),
-        (v) => latest = v,
+        'espresso',
+        core: {'doseGrams': 18},
+        sticky: {'grinder': 'Niche'},
       );
-      await tester.tap(find.byType(Switch).first);
-      await tester.pump();
-      await tester.tap(find.byType(Switch).first);
-      await tester.pump();
-      expect(latest['puckPrepWdt'], false);
+      expect(latest['doseGrams'], 18);
+      expect(latest['grinder'], 'Niche');
     });
 
-    testWidgets('the initial report never invents a value for a text field', (
+    testWidgets('never invents a value for an untouched text field', (
       tester,
     ) async {
-      // Seeding booleans must not seed anything else: an untouched origin
-      // field is genuinely unknown, and reporting '' would overwrite what the
-      // parse found.
-      Map<String, Object?> latest = {};
-      await pump(
-        tester,
-        missingFields(schema, 'espresso', {}, {}),
-        (v) => latest = v,
-      );
-      await tester.pump();
+      final latest = await pumpAndRead(tester, 'espresso');
       expect(latest.containsKey('beanOrigin'), isFalse);
-      expect(latest.containsKey('doseGrams'), isFalse);
+      expect(latest.containsKey('pressureBars'), isFalse);
+    });
+
+    testWidgets('renders a section header per group', (tester) async {
+      // Coffee and brew render expanded, so on a phone-sized surface the
+      // later headers sit below the fold. A tall surface checks that all
+      // four exist at all; the collapsed-state test below checks the rest.
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await pumpAndRead(tester, 'espresso');
+      for (final g in ['Coffee', 'Grind', 'Brew', 'Water']) {
+        expect(find.text(g), findsOneWidget, reason: 'missing $g header');
+      }
+    });
+
+    testWidgets('shows brew and coffee expanded, grind and water collapsed', (
+      tester,
+    ) async {
+      await pumpAndRead(tester, 'espresso');
+      // An expanded group shows its rows; a collapsed one does not.
+      expect(find.text('Roast level'), findsOneWidget);
+      expect(find.text('Grinder'), findsNothing);
+    });
+
+    testWidgets('a collapsed group opens on tap', (tester) async {
+      await pumpAndRead(tester, 'espresso');
+      await tester.tap(find.text('Grind'));
+      await tester.pumpAndSettle();
+      expect(find.text('Grinder'), findsOneWidget);
     });
   });
 }

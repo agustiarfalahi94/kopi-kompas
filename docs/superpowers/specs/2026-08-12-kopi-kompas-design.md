@@ -71,7 +71,7 @@ year.
 ## 2. Data model
 
 Core fields are columns, because they are what you filter and sort by.
-Method-specific fields are a JSON blob, because there are fourteen different
+Method-specific fields are a JSON blob, because there are sixteen different
 shapes and a column per field would be a sparse table nobody could query.
 
 ```
@@ -123,7 +123,7 @@ disagrees with itself.
 
 ## 2a. Brew taxonomy
 
-Fourteen methods in five categories. Categories exist for navigation and to
+Sixteen methods in five categories. Categories exist for navigation and to
 group rubrics; a method belongs to exactly one.
 
 ```
@@ -224,7 +224,7 @@ missing one, because a missing one gets asked about.
 ## 4. One schema, three consumers
 
 `schema/brew_schema.json` at the repository root is the single source of truth
-for the categories, the fourteen methods and their field shapes. It is read
+for the categories, the sixteen methods and their field shapes. It is read
 by:
 
 1. **The Worker**, to build Gemini's `responseSchema`.
@@ -243,14 +243,48 @@ Each field carries its type (`number`, `integer`, `string`, `boolean`,
 `enum`), its unit, whether it is required for a complete entry, and its
 label keys for EN and ID.
 
-### Required means "ask about it"
+### Every field is shown; nothing is compulsory
 
-With roughly eighteen fields available, `required` has to stay scarce or the
-follow-up form interrogates you after every shot and logging becomes a chore.
-It is set only for bean origin, roast level, dose, and each method's genuine
-essentials. Everything else is parsed when mentioned and **never asked for** —
-those fields exist so a brewer *can* record a pre-infusion time, not so the
-app can demand one.
+The follow-up form shows **all** of a method's fields, pre-filled with whatever
+the parse found, and **Save works no matter how many are blank**. The only
+thing that must be known is the brew method, and only because it decides which
+fields exist.
+
+This reverses an earlier decision, and the reason is worth keeping. The
+original design asked only for missing *required* fields and never mentioned
+the rest, on the grounds that a form which interrogates you after every shot
+is a form you abandon. That was half right. The other half: **a field you are
+never shown is a field you do not know exists.** Optional-and-invisible is
+indistinguishable from absent, which is precisely what would have happened to
+`grinder` — the single most useful field for ever reproducing a good brew, and
+one nobody mentions when they type "espresso this morning".
+
+So `required` is redefined. It no longer means "you must answer this"; it
+means **"show this expanded, above the fold"**. Everything else is one tap
+away in a collapsed group, which is what makes it discoverable.
+
+Scoring needs no change to accommodate this: the rubric already treats `null`
+as *not recorded, do not deduct*, and says so in its reasons. A half-filled
+entry scores on what it has.
+
+### Grouping
+
+Eighteen fields in a flat list is a wall people scroll past. Fields carry a
+`group` — **coffee · grind · brew · water** — and the form renders one section
+each. Coffee and brew open by default; grind and water collapse to a header
+with a count. The collapsed header is doing the real work here: it is the
+thing that tells you the fields exist.
+
+### Sticky defaults
+
+Grinder, machine, basket and water type change perhaps twice a year, so they
+are remembered from the last entry and pre-filled, editable every time. Free
+text always wins — mention a different grinder and the parse overwrites the
+default.
+
+Without this, the long form's cost lands on exactly the fields it was meant to
+rescue: you would retype your grinder every morning and stop bothering by
+Thursday.
 
 ### Shared fields
 
@@ -396,11 +430,12 @@ surface, and it stays sparse.
 speech recognition) and a submit button, with a loading state while `/parse`
 runs.
 
-*Fill the gaps.* The follow-up form, one row per field the parse returned as
-`null`, each with the input type the schema declares: number pad for grams and
-seconds, dropdown for roast level and puck-prep booleans, plain text for
-origin and machine. Espresso's `machine` is pre-filled from the Settings
-default when one is set, rather than asked every time.
+*Fill the gaps.* The form shows every field the method has, grouped into
+coffee / grind / brew / water, with the parse's findings already filled in and
+sticky defaults pre-filled. Each row uses the input type the schema declares:
+number pad for grams and seconds, dropdown for roast level and enums, switches
+for puck prep, plain text for origin and machine. **Nothing blocks Save** —
+leave the whole form untouched and the entry still saves.
 
 *Score.* Submitting the completed form runs a loading animation while
 `/score` works, then reveals the number with its reasons — **confetti at 90 or

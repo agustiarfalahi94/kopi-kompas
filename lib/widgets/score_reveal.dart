@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../data/brew_schema.dart';
 import '../models/brew_entry.dart';
+import '../screens/home_screen.dart' show displayLabel;
 import '../screens/new_entry_screen.dart' show shouldCelebrate;
 import '../strings.dart';
 
@@ -16,12 +17,21 @@ class ScoreReveal extends StatefulWidget {
   const ScoreReveal({
     super.key,
     required this.entry,
+    required this.schema,
     required this.method,
+    required this.onRated,
     required this.onDone,
   });
 
   final BrewEntry entry;
+  final BrewSchema schema;
   final MethodSpec method;
+
+  /// Fires only when a star is actually tapped. Never rating is a real state,
+  /// and reporting 0 would make "unrated" read as "hated it" in every average
+  /// the app ever computes.
+  final ValueChanged<int> onRated;
+
   final VoidCallback onDone;
 
   @override
@@ -32,6 +42,8 @@ class _ScoreRevealState extends State<ScoreReveal> {
   late final ConfettiController _confetti = ConfettiController(
     duration: const Duration(seconds: 2),
   );
+
+  late int? _rating = widget.entry.myRating;
 
   @override
   void initState() {
@@ -58,7 +70,9 @@ class _ScoreRevealState extends State<ScoreReveal> {
           children: [
             const SizedBox(height: 24),
             Text(
-              widget.method.label,
+              // The same name the list uses: you brewed a V60, not a cone
+              // dripper, and the two screens must not disagree.
+              displayLabel(widget.schema, entry),
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium,
             ),
@@ -82,6 +96,7 @@ class _ScoreRevealState extends State<ScoreReveal> {
                 ],
               ),
             ),
+            _rating_(context),
             if (entry.scoreRubric != null)
               Text(
                 'rubric ${entry.scoreRubric} · ${entry.scoreModel}',
@@ -105,6 +120,34 @@ class _ScoreRevealState extends State<ScoreReveal> {
       ],
     );
   }
+
+  /// The brewer's own verdict, asked here rather than in the form because it
+  /// is the one field nobody can answer before tasting — and because putting
+  /// it under the number turns "here is what the app thinks" into "and what
+  /// do you think?".
+  ///
+  /// Shown for every status, including unscored methods: kopi joss gets no
+  /// number, so an opinion is the only judgement it will ever carry.
+  Widget _rating_(BuildContext context) => Column(
+    children: [
+      Text(AppStrings.rateThis, style: Theme.of(context).textTheme.bodyMedium),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (var i = 1; i <= 5; i++)
+            IconButton(
+              key: ValueKey('rating-$i'),
+              icon: Icon((_rating ?? 0) >= i ? Icons.star : Icons.star_border),
+              color: Theme.of(context).colorScheme.primary,
+              onPressed: () {
+                setState(() => _rating = i);
+                widget.onRated(i);
+              },
+            ),
+        ],
+      ),
+    ],
+  );
 
   Widget _headline(ThemeData theme, BrewEntry entry) =>
       switch (entry.scoreStatus) {

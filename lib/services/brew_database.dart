@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
@@ -18,9 +20,16 @@ class BrewDatabase {
       id            TEXT PRIMARY KEY,
       brewMethod    TEXT NOT NULL,
       beanOrigin    TEXT,
+      roaster       TEXT,
+      process       TEXT,
       roastLevel    TEXT,
+      roastDate     TEXT,
       doseGrams     REAL,
+      grinder       TEXT,
+      grindSetting  TEXT,
       grindSize     TEXT,
+      waterType     TEXT,
+      myRating      INTEGER,
       brewDate      TEXT NOT NULL,
       notes         TEXT,
       rawInputText  TEXT NOT NULL,
@@ -37,18 +46,71 @@ class BrewDatabase {
     )
   ''';
 
+  /// Columns added between v1 and v2. Listed rather than derived so the
+  /// upgrade path is readable next to the create statement.
+  static const _v2Columns = [
+    'roaster TEXT',
+    'process TEXT',
+    'roastDate TEXT',
+    'grinder TEXT',
+    'grindSetting TEXT',
+    'waterType TEXT',
+    'myRating INTEGER',
+  ];
+
+  /// Methods renamed by the taxonomy, and the variant field that replaces the
+  /// old name. `v60` stopped being a method and became a `coneDripper` whose
+  /// `brewer` is `v60`.
+  static const _renamed = {'v60': ('coneDripper', 'brewer', 'v60')};
+
   static Future<BrewDatabase> open({String? path}) async {
     final dbPath = path ?? p.join(await getDatabasesPath(), 'kopi_kompas.db');
     final db = await openDatabase(
       dbPath,
-      version: 1,
+      version: 2,
       onCreate: (db, _) async {
         await db.execute(_createSql);
         await db.execute('CREATE INDEX idx_brewDate ON brews(brewDate)');
         await db.execute('CREATE INDEX idx_deletedAt ON brews(deletedAt)');
       },
+      onUpgrade: (db, from, to) async {
+        if (from < 2) await _upgradeToV2(db);
+      },
     );
     return BrewDatabase._(db);
+  }
+
+  /// Adds the v2 columns and rewrites renamed methods.
+  ///
+  /// The rewrite runs in Dart rather than with SQLite's `json_set`, because
+  /// the JSON1 extension is not guaranteed on every Android build — exactly
+  /// the kind of thing that passes on a test runner and fails on a phone.
+  static Future<void> _upgradeToV2(Database db) async {
+    for (final column in _v2Columns) {
+      await db.execute('ALTER TABLE brews ADD COLUMN $column');
+    }
+
+    for (final entry in _renamed.entries) {
+      final (newMethod, field, value) = entry.value;
+      final rows = await db.query(
+        'brews',
+        columns: ['id', 'methodData'],
+        where: 'brewMethod = ?',
+        whereArgs: [entry.key],
+      );
+      for (final row in rows) {
+        final data =
+            jsonDecode(row['methodData'] as String? ?? '{}')
+                as Map<String, dynamic>;
+        data[field] = value;
+        await db.update(
+          'brews',
+          {'brewMethod': newMethod, 'methodData': jsonEncode(data)},
+          where: 'id = ?',
+          whereArgs: [row['id']],
+        );
+      }
+    }
   }
 
   Future<void> insert(BrewEntry e) async => _db.insert('brews', e.toRow());

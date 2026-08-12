@@ -4,7 +4,10 @@ import {
   buildScoreResponseSchema,
 } from '../src/prompts';
 
-const SCORED = ['espresso', 'v60', 'aeropress'] as const;
+const SCORED = [
+  'espresso', 'coneDripper', 'flatBottomDripper', 'chemex',
+  'batchBrewer', 'aeropress',
+] as const;
 
 describe('parseInstruction', () => {
   const en = parseInstruction('en');
@@ -19,7 +22,7 @@ describe('parseInstruction', () => {
   });
 
   it('names every method so classification has a closed set', () => {
-    for (const m of ['espresso', 'v60', 'kopiTubruk', 'kopiKhop']) {
+    for (const m of ['espresso', 'coneDripper', 'kopiTubruk', 'kopiKhop']) {
       expect(en).toContain(m);
     }
   });
@@ -42,10 +45,33 @@ describe('scoreInstruction', () => {
     expect(s).toContain('32');
   });
 
-  it('carries concrete v60 targets', () => {
-    const s = scoreInstruction('v60', 'en');
+  it('carries concrete cone dripper targets', () => {
+    const s = scoreInstruction('coneDripper', 'en');
     expect(s).toContain('15');
     expect(s).toContain('17');
+    expect(s.toLowerCase()).toContain('brewer');
+  });
+
+  it('gives chemex a coarser, longer target than a cone dripper', () => {
+    expect(scoreInstruction('chemex', 'en').toLowerCase())
+      .toContain('thicker');
+  });
+
+  it('moves the espresso ratio target with shot style', () => {
+    const s = scoreInstruction('espresso', 'en');
+    expect(s).toContain('ristretto');
+    expect(s).toContain('lungo');
+    expect(s).toContain('1.8');
+  });
+
+  it('scores the new espresso fields', () => {
+    const s = scoreInstruction('espresso', 'en').toLowerCase();
+    expect(s).toContain('pre-infusion');
+    expect(s).toContain('basket');
+  });
+
+  it('refuses a method it has no rubric for', () => {
+    expect(() => scoreInstruction('kopiJoss', 'en')).toThrow();
   });
 
   it('carries concrete aeropress targets', () => {
@@ -90,5 +116,6 @@ describe('buildScoreResponseSchema', () => {
 });
 
 describe('rubric version', () => {
-  it('is r1', () => expect(RUBRIC_VERSION).toBe('r1'));
+  it('is r2, because the targets moved', () =>
+    expect(RUBRIC_VERSION).toBe('r2'));
 });

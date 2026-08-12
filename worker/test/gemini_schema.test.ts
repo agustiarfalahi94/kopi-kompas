@@ -4,10 +4,16 @@ import { buildParseResponseSchema, stripForeignFields } from '../src/schema';
 describe('buildParseResponseSchema', () => {
   const schema = buildParseResponseSchema() as any;
 
-  it('constrains brewMethod to the eight known methods', () => {
+  it('constrains brewMethod to the sixteen known methods', () => {
     expect(schema.properties.brewMethod.enum).toContain('espresso');
+    expect(schema.properties.brewMethod.enum).toContain('coneDripper');
     expect(schema.properties.brewMethod.enum).toContain('kopiKhop');
-    expect(schema.properties.brewMethod.enum).toHaveLength(8);
+    expect(schema.properties.brewMethod.enum).toHaveLength(16);
+  });
+
+  it('maps a date field to a date-formatted string', () => {
+    expect(schema.properties.roastDate.type).toBe('string');
+    expect(schema.properties.roastDate.format).toBe('date');
   });
 
   // Both of the next two exist because of a real failure against the live
@@ -42,16 +48,30 @@ describe('buildParseResponseSchema', () => {
   it('exposes core fields at the top level', () => {
     expect(schema.properties.doseGrams.type).toBe('number');
     expect(schema.properties.roastLevel.enum).toEqual([
-      'light', 'medium', 'medium-dark', 'dark',
+      'light', 'medium-light', 'medium', 'medium-dark', 'dark',
     ]);
   });
 
   it('unions every method field into methodData', () => {
     const md = schema.properties.methodData.properties;
     expect(md.yieldGrams.type).toBe('number');       // espresso
-    expect(md.bloomTimeSeconds.type).toBe('number'); // v60
+    expect(md.bloomTimeSeconds.type).toBe('number'); // coneDripper
     expect(md.eggYolkUsed.type).toBe('boolean');     // kopiTalua
     expect(md.puckPrepWdt.type).toBe('boolean');
+  });
+
+  it('unions enum values when a field name collides across methods', () => {
+    // brewer is a coneDripper field (v60/origami/kono), a flatBottomDripper
+    // field (kalitaWave/...) and a smartDripper field (clever/switch).
+    // Overwriting on collision meant only the last method's values reached
+    // the model, so a V60 came back as brewer "switch" — the right value was
+    // never offered to it.
+    const brewer = (schema.properties.methodData.properties as any).brewer;
+    for (const v of [
+      'v60', 'origami', 'kono', 'kalitaWave', 'staggX', 'clever', 'switch',
+    ]) {
+      expect(brewer.enum, v).toContain(v);
+    }
   });
 
   it('maps integer fields to integer, not number', () => {
@@ -85,6 +105,18 @@ describe('stripForeignFields', () => {
       yieldGrams: 30, machine: null,
     });
     expect(out).toEqual({ yieldGrams: 30 });
+  });
+
+  it('drops an enum value that is foreign to this method', () => {
+    // The union lets the model see every brewer value, so the narrowing has
+    // to happen here: a coneDripper with brewer "clever" is not a cone
+    // dripper, and storing it would render a nonsense label.
+    expect(stripForeignFields('coneDripper', { brewer: 'clever' }))
+      .toEqual({});
+    expect(stripForeignFields('coneDripper', { brewer: 'v60' }))
+      .toEqual({ brewer: 'v60' });
+    expect(stripForeignFields('smartDripper', { brewer: 'clever' }))
+      .toEqual({ brewer: 'clever' });
   });
 
   it('keeps false, which is a real answer', () => {

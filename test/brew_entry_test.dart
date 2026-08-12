@@ -65,17 +65,36 @@ void main() {
     final entry = sample().copyWith(
       brewMethod: 'kopiJoss',
       scoreStatus: ScoreStatus.notApplicable,
-      scoreReasons: const [],
+      clearScore: true,
     );
     final back = BrewEntry.fromRow(entry.toRow());
     expect(back.overallScore, isNull);
     expect(back.scoreStatus, ScoreStatus.notApplicable);
   });
 
-  test('copyWith clears a score rather than defaulting it', () {
-    // A failed re-score has to be able to drop a stale number.
-    final cleared = sample().copyWith(scoreStatus: ScoreStatus.failed);
+  test('copyWith preserves the score and its provenance', () {
+    // Rating a brew must not erase what it scored. copyWith used to null the
+    // score fields unless they were passed, so entry.copyWith(myRating: 4)
+    // silently dropped overallScore, scoreRubric, scoreModel and scoredAt.
+    final rated = sample().copyWith(myRating: 4);
+    expect(rated.myRating, 4);
+    expect(rated.overallScore, 82);
+    expect(rated.scoreRubric, 'r1');
+    expect(rated.scoreModel, 'gemini-3.5-flash');
+    expect(rated.scoredAt, isNotNull);
+    expect(rated.scoreReasons, ['Ratio on target']);
+  });
+
+  test('clearScore drops the number and its provenance together', () {
+    // A failed re-score has to be able to drop a stale number — but that has
+    // to be asked for, not be the default for every other edit.
+    final cleared = sample().copyWith(
+      scoreStatus: ScoreStatus.failed,
+      clearScore: true,
+    );
     expect(cleared.overallScore, isNull);
+    expect(cleared.scoreRubric, isNull);
+    expect(cleared.scoreReasons, isEmpty);
     expect(cleared.scoreStatus, ScoreStatus.failed);
   });
 

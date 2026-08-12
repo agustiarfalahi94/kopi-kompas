@@ -47,19 +47,19 @@ describe('POST /score', () => {
     const body = await res.json() as any;
     expect(body.score).toBe(88);
     expect(body.reasons).toEqual(['Ratio 2.0:1 — on target']);
-    expect(body.rubric).toBe('r1');
     expect(body.model).toBe('gemini-3.5-flash');
+    expect(body.rubric).toBe('r2');
   });
 
   it('sends the rubric for the entry\'s own method', async () => {
     const f = geminiReturning({ score: 70, reasons: ['x'] });
     await handleRequest(
-      scoreReq({ ...ESPRESSO, brewMethod: 'v60', methodData: {} }),
+      scoreReq({ ...ESPRESSO, brewMethod: 'coneDripper', methodData: {} }),
       env(), deps(f),
     );
     const sent = JSON.parse((f as any).mock.calls[0][1].body);
     const instruction = sent.systemInstruction.parts[0].text;
-    expect(instruction).toContain('v60');
+    expect(instruction).toContain('coneDripper');
     expect(instruction).not.toContain('Puck preparation');
   });
 
