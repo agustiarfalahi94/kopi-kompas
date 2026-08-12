@@ -1,0 +1,149 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:kopi_kompas/data/brew_schema.dart';
+import 'package:kopi_kompas/models/brew_entry.dart';
+import 'package:kopi_kompas/screens/entry_detail_screen.dart';
+
+late BrewSchema schema;
+
+BrewEntry entryWith({
+  String method = 'espresso',
+  Map<String, Object?> methodData = const {},
+  String? beanOrigin,
+  String? roastLevel,
+  double? doseGrams,
+  ScoreStatus status = ScoreStatus.scored,
+  int? score = 93,
+  String raw = '18g in, 36g out',
+}) => BrewEntry(
+  id: 'a',
+  brewMethod: method,
+  beanOrigin: beanOrigin,
+  roastLevel: roastLevel,
+  doseGrams: doseGrams,
+  brewDate: DateTime(2026, 8, 12, 7),
+  rawInputText: raw,
+  methodData: methodData,
+  scoreStatus: status,
+  overallScore: status == ScoreStatus.scored ? score : null,
+  scoreReasons: status == ScoreStatus.scored
+      ? const ['Ratio 2.0 — on target']
+      : const [],
+  scoreRubric: status == ScoreStatus.scored ? 'r2' : null,
+  scoreModel: status == ScoreStatus.scored ? 'gemini-3.5-flash' : null,
+  createdAt: DateTime(2026, 8, 12, 7),
+  updatedAt: DateTime(2026, 8, 12, 7),
+);
+
+void main() {
+  setUpAll(() {
+    schema = BrewSchema.parse(
+      File('schema/brew_schema.json').readAsStringSync(),
+    );
+  });
+
+  group('detailRows', () {
+    test('shows only fields that have a value', () {
+      final rows = detailRows(
+        schema,
+        entryWith(beanOrigin: 'Honduras', methodData: {'yieldGrams': 36.0}),
+      );
+      final names = rows.map((r) => r.spec.name);
+      expect(names, contains('beanOrigin'));
+      expect(names, contains('yieldGrams'));
+      expect(names, isNot(contains('pressureBars')));
+      expect(names, isNot(contains('roaster')));
+    });
+
+    test('keeps schema order, core before method', () {
+      final rows = detailRows(
+        schema,
+        entryWith(
+          beanOrigin: 'Honduras',
+          roastLevel: 'medium',
+          methodData: {'yieldGrams': 36.0},
+        ),
+      );
+      expect(rows.first.spec.name, 'beanOrigin');
+      expect(rows.last.spec.name, 'yieldGrams');
+    });
+
+    test('shows a false boolean, which is a real answer', () {
+      // "I skipped WDT" is information. Hiding it because it is falsey would
+      // make a deliberate omission look like an unanswered question.
+      final rows = detailRows(
+        schema,
+        entryWith(methodData: {'puckPrepWdt': false}),
+      );
+      expect(rows.map((r) => r.spec.name), contains('puckPrepWdt'));
+    });
+
+    test('ignores a method field that is not in the schema', () {
+      final rows = detailRows(
+        schema,
+        entryWith(methodData: {'nonsense': 1, 'yieldGrams': 36.0}),
+      );
+      expect(rows.map((r) => r.spec.name), ['yieldGrams']);
+    });
+  });
+
+  group('EntryDetailScreen', () {
+    Future<void> pump(WidgetTester tester, BrewEntry entry) =>
+        tester.pumpWidget(
+          MaterialApp(
+            home: EntryDetailScreen(
+              schema: schema,
+              entry: entry,
+              onEdit: () {},
+              onDelete: () {},
+              onRescore: () {},
+              onRate: (_) {},
+            ),
+          ),
+        );
+
+    testWidgets('shows the score, its reasons and its provenance', (
+      tester,
+    ) async {
+      await pump(tester, entryWith());
+      expect(find.text('93'), findsOneWidget);
+      expect(find.text('Ratio 2.0 — on target'), findsOneWidget);
+      expect(find.textContaining('r2'), findsOneWidget);
+    });
+
+    testWidgets('shows the original text you typed', (tester) async {
+      await pump(tester, entryWith(raw: 'a very specific sentence'));
+      expect(find.text('a very specific sentence'), findsOneWidget);
+    });
+
+    testWidgets('offers a rescore only when scoring failed', (tester) async {
+      await pump(tester, entryWith());
+      expect(find.text('Score this brew'), findsNothing);
+
+      await pump(tester, entryWith(status: ScoreStatus.failed));
+      expect(find.text('Score this brew'), findsOneWidget);
+    });
+
+    testWidgets('never offers a rescore for an unscored method', (
+      tester,
+    ) async {
+      // kopiJoss has no rubric. Offering to score it would promise something
+      // the Worker will refuse with a 422.
+      await pump(
+        tester,
+        entryWith(method: 'kopiJoss', status: ScoreStatus.notApplicable),
+      );
+      expect(find.text('Score this brew'), findsNothing);
+      expect(find.text('Not scored'), findsOneWidget);
+    });
+
+    testWidgets('delete asks first and says it is recoverable', (tester) async {
+      await pump(tester, entryWith());
+      await tester.tap(find.byIcon(Icons.delete_outline));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Deleted entries'), findsOneWidget);
+    });
+  });
+}
