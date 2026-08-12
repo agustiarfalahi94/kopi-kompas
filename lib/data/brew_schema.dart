@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
 
+import 'brew_guide.dart' show BrewTargets;
+
 import '../strings.dart' show AppStrings;
 
 /// Both labels, kept so [Labelled.label] can resolve at read time.
@@ -100,6 +102,7 @@ class MethodSpec with Labelled {
     required this.scored,
     required this.labels,
     required this.fields,
+    this.targets,
   });
 
   final String id;
@@ -107,6 +110,10 @@ class MethodSpec with Labelled {
   @override
   final Map<String, String> labels;
   final List<FieldSpec> fields;
+
+  /// The numbers this method is judged against, shared with the Worker's
+  /// rubric so a guide and a score can never disagree.
+  final BrewTargets? targets;
 }
 
 /// The sixteen brew methods, their categories and their fields, read from the
@@ -183,6 +190,9 @@ class BrewSchema {
         scored: m['scored'] as bool,
         labels: _labels(m['label'] as Map<String, dynamic>),
         fields: fields,
+        targets: m['targets'] == null
+            ? null
+            : BrewTargets.fromJson(m['targets'] as Map<String, dynamic>),
       );
     });
 

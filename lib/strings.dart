@@ -152,6 +152,25 @@ class AppStrings {
   static String codeSentTo(String phone) =>
       _s('Code sent to $phone', 'Kode dikirim ke $phone');
 
+  static String get guidesTitle => _s('How to brew', 'Cara menyeduh');
+  static String get guidesIntro => _s(
+    'Targets here are the same ones the app scores against, so following a '
+        'guide cannot cost you points.',
+    'Target di sini sama dengan yang dipakai untuk menilai, jadi mengikuti '
+        'panduan tidak akan mengurangi nilaimu.',
+  );
+  static String get guideTargets => _s('Aim for', 'Targetkan');
+  static String get guideRatio => _s('Ratio', 'Rasio');
+  static String get guideTime => _s('Time', 'Waktu');
+  static String get guideTemp => _s('Water', 'Air');
+  static String get guideGrind => _s('Grind', 'Gilingan');
+  static String get guideHow => _s('How to brew it', 'Cara menyeduhnya');
+  static String get guideFaults =>
+      _s('When it goes wrong', 'Kalau hasilnya meleset');
+  static String get guideGear => _s('Gear', 'Peralatan');
+  static String get guideNotes => _s('Worth knowing', 'Perlu diketahui');
+  static String get guideMissing => _s('No guide yet.', 'Belum ada panduan.');
+
   static String groupLabel(FieldGroup g) => switch (g) {
     FieldGroup.coffee => _s('Coffee', 'Kopi'),
     FieldGroup.grind => _s('Grind', 'Gilingan'),
@@ -217,6 +236,18 @@ class AppStrings {
     'rememberedTitle': rememberedTitle,
     'rememberedSubtitle': rememberedSubtitle,
     'rememberedEmpty': rememberedEmpty,
+    'guidesTitle': guidesTitle,
+    'guidesIntro': guidesIntro,
+    'guideTargets': guideTargets,
+    'guideRatio': guideRatio,
+    'guideTime': guideTime,
+    'guideTemp': guideTemp,
+    'guideGrind': guideGrind,
+    'guideHow': guideHow,
+    'guideFaults': guideFaults,
+    'guideGear': guideGear,
+    'guideNotes': guideNotes,
+    'guideMissing': guideMissing,
     'signInTitle': signInTitle,
     'signInWhy': signInWhy,
     'signInGoogle': signInGoogle,

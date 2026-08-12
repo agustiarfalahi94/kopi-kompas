@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'data/brew_guide.dart';
 import 'data/brew_schema.dart';
 import 'screens/home_screen.dart';
 import 'services/brew_database.dart';
@@ -33,6 +34,7 @@ Future<void> main() async {
 
   final db = await BrewDatabase.open();
   final schema = await BrewSchema.load();
+  final guides = await BrewGuides.load();
   final client = KopiClient(installId: await loadInstallId());
 
   final plugin = PluginNotifications(FlutterLocalNotificationsPlugin());
@@ -62,6 +64,7 @@ Future<void> main() async {
       schema: schema,
       client: client,
       reminder: reminder,
+      guides: guides,
       auth: auth,
       backup: backup,
     ),
@@ -77,6 +80,7 @@ class KopiKompasApp extends StatefulWidget {
     required this.schema,
     required this.client,
     required this.reminder,
+    required this.guides,
     required this.auth,
     required this.backup,
   });
@@ -85,6 +89,7 @@ class KopiKompasApp extends StatefulWidget {
   final BrewSchema schema;
   final KopiClient client;
   final ReminderService reminder;
+  final BrewGuides guides;
 
   /// Null when Firebase could not start. Everything still works; there is
   /// simply no backup on offer.
@@ -127,6 +132,7 @@ class _KopiKompasAppState extends State<KopiKompasApp>
       schema: widget.schema,
       client: widget.client,
       reminder: widget.reminder,
+      guides: widget.guides,
       auth: widget.auth,
       backup: widget.backup,
     ),

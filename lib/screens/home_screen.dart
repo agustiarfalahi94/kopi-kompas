@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/brew_guide.dart';
 import '../data/brew_schema.dart';
 import '../models/brew_entry.dart';
 import '../services/brew_database.dart';
@@ -11,6 +12,7 @@ import '../strings.dart';
 import 'edit_entry_screen.dart';
 import 'entry_detail_screen.dart';
 import 'full_log_screen.dart';
+import 'guide_screen.dart';
 import 'new_entry_screen.dart';
 import 'settings_screen.dart';
 
@@ -57,6 +59,7 @@ class HomeScreen extends StatefulWidget {
     required this.schema,
     required this.client,
     required this.reminder,
+    required this.guides,
     required this.auth,
     required this.backup,
   });
@@ -65,6 +68,7 @@ class HomeScreen extends StatefulWidget {
   final BrewSchema schema;
   final KopiClient client;
   final ReminderService reminder;
+  final BrewGuides guides;
   final AuthService? auth;
   final BackupService? backup;
 
@@ -172,6 +176,13 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: const Icon(Icons.article_outlined),
           onPressed: () =>
               _open(FullLogScreen(db: widget.db, schema: widget.schema)),
+        ),
+        IconButton(
+          tooltip: AppStrings.guidesTitle,
+          icon: const Icon(Icons.menu_book_outlined),
+          onPressed: () => _open(
+            GuideListScreen(schema: widget.schema, guides: widget.guides),
+          ),
         ),
         IconButton(
           tooltip: AppStrings.settingsTitle,

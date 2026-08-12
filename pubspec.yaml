@@ -49,6 +49,11 @@ flutter:
     # editing a widget.
     - schema/brew_schema.json
 
+    # How-to guides, one per brew method. Their target numbers are not here —
+    # those live in brew_schema.json so the guide and the scorer cannot
+    # disagree about what a good espresso is.
+    - assets/guides.json
+
   # assets/branding/ is deliberately NOT listed. The master logo is
   # build-time input for tool/generate_icon.dart; listing it would ship a
   # megabyte of PNG inside the APK. test/icon_test.dart enforces this.
