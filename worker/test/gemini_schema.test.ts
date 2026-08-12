@@ -60,6 +60,20 @@ describe('buildParseResponseSchema', () => {
     expect(md.puckPrepWdt.type).toBe('boolean');
   });
 
+  it('unions enum values when a field name collides across methods', () => {
+    // brewer is a coneDripper field (v60/origami/kono), a flatBottomDripper
+    // field (kalitaWave/...) and a smartDripper field (clever/switch).
+    // Overwriting on collision meant only the last method's values reached
+    // the model, so a V60 came back as brewer "switch" — the right value was
+    // never offered to it.
+    const brewer = (schema.properties.methodData.properties as any).brewer;
+    for (const v of [
+      'v60', 'origami', 'kono', 'kalitaWave', 'staggX', 'clever', 'switch',
+    ]) {
+      expect(brewer.enum, v).toContain(v);
+    }
+  });
+
   it('maps integer fields to integer, not number', () => {
     expect(schema.properties.methodData.properties.pourCount.type)
       .toBe('integer');
@@ -91,6 +105,18 @@ describe('stripForeignFields', () => {
       yieldGrams: 30, machine: null,
     });
     expect(out).toEqual({ yieldGrams: 30 });
+  });
+
+  it('drops an enum value that is foreign to this method', () => {
+    // The union lets the model see every brewer value, so the narrowing has
+    // to happen here: a coneDripper with brewer "clever" is not a cone
+    // dripper, and storing it would render a nonsense label.
+    expect(stripForeignFields('coneDripper', { brewer: 'clever' }))
+      .toEqual({});
+    expect(stripForeignFields('coneDripper', { brewer: 'v60' }))
+      .toEqual({ brewer: 'v60' });
+    expect(stripForeignFields('smartDripper', { brewer: 'clever' }))
+      .toEqual({ brewer: 'clever' });
   });
 
   it('keeps false, which is a real answer', () => {

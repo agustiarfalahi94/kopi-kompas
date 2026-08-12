@@ -98,12 +98,27 @@ export function buildParseResponseSchema(): Record<string, unknown> {
     core[name] = { ...geminiType(spec), nullable: true };
   }
 
-  const methodData: Record<string, unknown> = {};
+  // A field name shared by several methods collapses to one entry here, and
+  // for `waterGrams` or `ratio` that is fine — the types agree. It is *not*
+  // fine for an enum: `brewer` means v60/origami/kono on a coneDripper,
+  // kalitaWave/… on a flatBottomDripper and clever/switch on a smartDripper.
+  // Plain assignment let the last method win, so `v60` was never offered to
+  // the model and a V60 came back as brewer "switch". Union the values
+  // instead; stripForeignFields narrows them back down per method.
+  const methodData: Record<string, Record<string, unknown>> = {};
   for (const method of METHODS) {
     for (const [name, spec] of Object.entries(
       brewSchema.methods[method].fields,
     )) {
-      methodData[name] = { ...geminiType(spec), nullable: true };
+      const next: Record<string, unknown> = {
+        ...geminiType(spec),
+        nullable: true,
+      };
+      const seenEnum = methodData[name]?.enum;
+      if (Array.isArray(seenEnum) && Array.isArray(next.enum)) {
+        next.enum = [...new Set([...seenEnum, ...next.enum])];
+      }
+      methodData[name] = next;
     }
   }
 
@@ -132,9 +147,16 @@ export function stripForeignFields(
   const allowed = brewSchema.methods[method].fields;
   const out: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(data)) {
-    if (key in allowed && value !== null && value !== undefined) {
-      out[key] = value;
+    const spec = allowed[key];
+    if (!spec || value === null || value === undefined) continue;
+    // The parse schema offers the union of every method's enum values, so a
+    // coneDripper can come back with brewer "clever". It is not a cone
+    // dripper, and storing it would render a nonsense label — drop it and
+    // let the follow-up form ask.
+    if (spec.type === 'enum' && !(spec.values ?? []).includes(value as string)) {
+      continue;
     }
+    out[key] = value;
   }
   return out;
 }
