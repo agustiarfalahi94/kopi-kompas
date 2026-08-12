@@ -45,6 +45,12 @@ class AppStrings {
   static String get editTitle => 'Edit';
   static String get scoreLabel => 'Score';
   static String get settingsTitle => 'Settings';
+  static String get reminderTitle => 'Daily reminder';
+  static String get reminderSubtitle =>
+      'Only on days you have not logged a coffee.';
+  static String get reminderBlocked =>
+      'Notifications are turned off for this app in Android settings.';
+  static String get reminderTime => 'Remind me at';
   static String get deletedTitle => 'Deleted entries';
   static String get deletedSubtitle => 'Bring a brew back, or remove it';
   static String get deletedOn => 'Deleted';
