@@ -1,0 +1,33 @@
+rules_version = '2';
+
+// The security boundary for Kopi Kompas.
+//
+// Client code is not a boundary — anyone can call the API directly with a
+// stolen or hand-made token. These rules are what actually stop them, so
+// they deny by default and open only the narrowest path that works.
+//
+// Modelled on random_recall/firestore.rules, which has been in production.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // A signed-in user may read and write only their own tree, and nobody
+    // else's. `request.auth.uid == userId` is the whole of the access
+    // control; the path shape is what makes it enforceable.
+    match /users/{userId}/{document=**} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // Writes are additionally capped at 100 KB per document, so a leaked
+      // token cannot be used for unbounded storage abuse. A brew entry is a
+      // few hundred bytes; anything near this cap is not a brew entry.
+      allow write: if request.auth != null
+        && request.auth.uid == userId
+        && (request.resource == null || request.resource.size() < 100000);
+    }
+
+    // Everything else is denied. New collections start closed, which means
+    // forgetting to write a rule fails safe rather than fails open.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

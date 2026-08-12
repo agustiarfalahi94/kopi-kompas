@@ -17,8 +17,9 @@ void main() {
     expect(en.keys, id.keys);
     for (final key in en.keys) {
       expect(id[key], isNotEmpty, reason: '$key is empty in Indonesian');
-      // A handful are legitimately identical — proper nouns and units.
-      if (const {'appName', 'espresso'}.contains(key)) continue;
+      // A handful are legitimately identical — proper nouns and loanwords
+      // that Indonesian uses unchanged.
+      if (const {'appName', 'espresso', 'emailLabel'}.contains(key)) continue;
       expect(id[key], isNot(en[key]), reason: '$key was never translated');
     }
   });

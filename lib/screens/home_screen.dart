@@ -4,6 +4,8 @@ import '../data/brew_schema.dart';
 import '../models/brew_entry.dart';
 import '../services/brew_database.dart';
 import '../services/kopi_client.dart';
+import '../services/auth_service.dart';
+import '../services/backup_service.dart';
 import '../services/reminder_service.dart';
 import '../strings.dart';
 import 'edit_entry_screen.dart';
@@ -55,12 +57,16 @@ class HomeScreen extends StatefulWidget {
     required this.schema,
     required this.client,
     required this.reminder,
+    required this.auth,
+    required this.backup,
   });
 
   final BrewDatabase db;
   final BrewSchema schema;
   final KopiClient client;
   final ReminderService reminder;
+  final AuthService? auth;
+  final BackupService? backup;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -74,6 +80,9 @@ class _HomeScreenState extends State<HomeScreen> {
     // Anything that changes today's entries changes when the next nudge is
     // due, so this runs after every save, delete, restore and edit.
     widget.reminder.reschedule();
+    // Fire-and-forget: the entry is already saved locally, and a failed
+    // backup must never surface as a failed save.
+    widget.backup?.pushAll();
   }
 
   Future<void> _newEntry() async {
@@ -172,6 +181,8 @@ class _HomeScreenState extends State<HomeScreen> {
               db: widget.db,
               schema: widget.schema,
               reminder: widget.reminder,
+              auth: widget.auth,
+              backup: widget.backup,
             ),
           ),
         ),

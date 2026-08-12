@@ -50,3 +50,6 @@ worker/node_modules/
 worker/.wrangler/
 worker/.dev.vars
 worker/dist/
+
+# Firebase config — holds project identifiers, written by CI from a secret
+android/app/google-services.json

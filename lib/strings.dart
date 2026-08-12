@@ -100,6 +100,58 @@ class AppStrings {
   static String get rememberedEmpty =>
       _s('Nothing yet — log a brew.', 'Belum ada — catat seduhan dulu.');
 
+  static String get signInTitle => _s('Sign in', 'Masuk');
+  static String get signInWhy => _s(
+    'Your log lives on this phone. Sign in to back it up, so a lost or '
+        'reset phone is not a lost logbook.',
+    'Catatanmu ada di HP ini. Masuk untuk mencadangkan, supaya HP hilang '
+        'atau direset tidak menghapus catatanmu.',
+  );
+  static String get signInGoogle =>
+      _s('Continue with Google', 'Lanjut dengan Google');
+  static String get signInEmail => _s('Use email', 'Pakai email');
+  static String get signInPhone => _s('Use phone number', 'Pakai nomor HP');
+  static String get emailLabel => _s('Email', 'Email');
+  static String get passwordLabel => _s('Password', 'Kata sandi');
+  static String get phoneLabel => _s('Phone number', 'Nomor HP');
+  static String get codeLabel => _s('6-digit code', 'Kode 6 digit');
+  static String get sendCode => _s('Send code', 'Kirim kode');
+  static String get confirmCode => _s('Confirm', 'Konfirmasi');
+  static String get createAccount => _s('Create account', 'Buat akun');
+  static String get needAccount => _s('No account yet?', 'Belum punya akun?');
+  static String get haveAccount => _s('Already have one?', 'Sudah punya akun?');
+  static String get forgotPassword => _s('Forgot password', 'Lupa sandi');
+  static String get resetSent =>
+      _s('Reset email sent.', 'Email atur ulang terkirim.');
+  static String get authWrongPassword =>
+      _s('Wrong email or password.', 'Email atau sandi salah.');
+  static String get authNeedsLinking => _s(
+    'That email already has an account. Sign in the way you did before.',
+    'Email itu sudah punya akun. Masuk dengan cara yang dulu kamu pakai.',
+  );
+  static String get authFailed => _s('Could not sign in.', 'Gagal masuk.');
+  static String get backupTitle => _s('Backup', 'Cadangan');
+  static String get backupSignedOut => _s(
+    'Not signed in — this log is only on this phone.',
+    'Belum masuk — catatan ini hanya ada di HP ini.',
+  );
+  static String get backupNever =>
+      _s('Not backed up yet', 'Belum pernah dicadangkan');
+  static String get backupNow => _s('Back up now', 'Cadangkan sekarang');
+  static String get restoreNow =>
+      _s('Restore from backup', 'Pulihkan cadangan');
+  static String get signOut => _s('Sign out', 'Keluar');
+  static String get backupWorking => _s('Backing up…', 'Mencadangkan…');
+  static String get backupFailed =>
+      _s("Couldn't back up — will retry", 'Gagal mencadangkan — akan diulang');
+
+  static String backupDone(int n) =>
+      _s('Backed up $n brews', '$n seduhan dicadangkan');
+  static String restoreDone(int n) =>
+      _s('Restored $n brews', '$n seduhan dipulihkan');
+  static String codeSentTo(String phone) =>
+      _s('Code sent to $phone', 'Kode dikirim ke $phone');
+
   static String groupLabel(FieldGroup g) => switch (g) {
     FieldGroup.coffee => _s('Coffee', 'Kopi'),
     FieldGroup.grind => _s('Grind', 'Gilingan'),
@@ -165,5 +217,32 @@ class AppStrings {
     'rememberedTitle': rememberedTitle,
     'rememberedSubtitle': rememberedSubtitle,
     'rememberedEmpty': rememberedEmpty,
+    'signInTitle': signInTitle,
+    'signInWhy': signInWhy,
+    'signInGoogle': signInGoogle,
+    'signInEmail': signInEmail,
+    'signInPhone': signInPhone,
+    'emailLabel': emailLabel,
+    'passwordLabel': passwordLabel,
+    'phoneLabel': phoneLabel,
+    'codeLabel': codeLabel,
+    'sendCode': sendCode,
+    'confirmCode': confirmCode,
+    'createAccount': createAccount,
+    'needAccount': needAccount,
+    'haveAccount': haveAccount,
+    'forgotPassword': forgotPassword,
+    'resetSent': resetSent,
+    'authWrongPassword': authWrongPassword,
+    'authNeedsLinking': authNeedsLinking,
+    'authFailed': authFailed,
+    'backupTitle': backupTitle,
+    'backupSignedOut': backupSignedOut,
+    'backupNever': backupNever,
+    'backupNow': backupNow,
+    'restoreNow': restoreNow,
+    'signOut': signOut,
+    'backupWorking': backupWorking,
+    'backupFailed': backupFailed,
   };
 }

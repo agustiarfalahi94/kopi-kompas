@@ -60,8 +60,15 @@ flutter build apk --release --split-per-abi
   files.
 - Do NOT commit `android/key.properties` or `android/app/release-keystore.jks`.
   The keystore is shared with `random_recall` and `tiny_tapsters`.
-- Do NOT add ads, analytics or tracking. The only permission is `INTERNET`, and
-  `test/manifest_test.dart` enforces that.
+- Do NOT add ads, analytics or tracking. The app **declares** only `INTERNET`;
+  the merged manifest also carries `POST_NOTIFICATIONS` (the reminder),
+  `ACCESS_NETWORK_STATE` and `VIBRATE` (Firebase and notifications). Firebase
+  also tries to add `USE_BIOMETRIC` and `USE_FINGERPRINT`, which are stripped
+  with `tools:node="remove"` — a coffee logbook has no business holding them.
+  `test/manifest_test.dart` pins all of this.
+- **Signing in is optional and must stay optional.** The app has always worked
+  signed out. SQLite is the source of truth; Firestore is a backup, and a
+  backup failure is never a save failure.
 - **`schema/brew_schema.json` is the only place brew fields are defined.** The
   Worker and the app both read it. Never restate a field list in Dart or TS.
 - **Bump `RUBRIC_VERSION` whenever a scoring number moves.** Every stored score
@@ -95,4 +102,9 @@ flutter build apk --release --split-per-abi
   compulsory. `required` means "shown expanded", not "must answer".
 - `lib/models/brew_entry.dart` — `copyWith` preserves the score; clearing it
   takes `clearScore: true`, because the default once ate scores on every edit.
+- `lib/services/backup_service.dart` — the Firestore mirror. Push is keyed by
+  the entry's uuid so it is idempotent, deleted rows are mirrored *as*
+  deleted so a restore cannot empty the recovery page, and a newer local
+  entry always wins a restore.
+- `firestore.rules` — the actual security boundary. Client code is not one.
 - `tool/check.sh` — the gate.
