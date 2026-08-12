@@ -1,0 +1,48 @@
+name: kopi_kompas
+description: "Kopi Kompas — a personal coffee-brewing logbook."
+publish_to: 'none'
+
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  # Brew storage. Core fields are columns, method-specific fields a JSON blob.
+  sqflite: ^2.4.1
+  path: ^1.9.0
+
+  # Settings and the install id. No secure storage: there is no secret on the
+  # device — the Gemini key never leaves the Cloudflare Worker.
+  shared_preferences: ^2.3.3
+
+  # The 90+ celebration.
+  confetti: ^0.8.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # Runs real SQLite on the test runner, so every query is covered headless
+  # with no emulator.
+  sqflite_common_ffi: ^2.3.4
+  image: ^4.9.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # The single source of truth for all eight brew methods, read by the
+    # Worker too. Drives the follow-up form, so adding a method never means
+    # editing a widget.
+    - schema/brew_schema.json
+
+  # assets/branding/ is deliberately NOT listed. The master logo is
+  # build-time input for tool/generate_icon.dart; listing it would ship a
+  # megabyte of PNG inside the APK. test/icon_test.dart enforces this.
