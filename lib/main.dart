@@ -14,13 +14,11 @@ import 'theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final db = await BrewDatabase.open();
-  final schema = await BrewSchema.load();
   final settings = SettingsStore();
-  // Set before the first frame, so no screen ever renders in the wrong
-  // language and then swaps.
   AppStrings.language = await settings.language();
 
+  final db = await BrewDatabase.open();
+  final schema = await BrewSchema.load();
   final client = KopiClient(installId: await loadInstallId());
 
   final plugin = PluginNotifications(FlutterLocalNotificationsPlugin());

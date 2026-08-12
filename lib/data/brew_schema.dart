@@ -4,12 +4,20 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import '../strings.dart' show AppStrings;
 
-/// Picks the label for the language currently selected.
+/// Both labels, kept so [Labelled.label] can resolve at read time.
+Map<String, String> _labels(Map<String, dynamic> j) =>
+    j.map((k, v) => MapEntry(k, v as String));
+
+/// Resolves a label against whatever language is selected *now*.
 ///
-/// The schema carries both, so a translation cannot go missing for a field
-/// the way it could for a hand-maintained list.
-String _label(Map<String, dynamic> j) =>
-    (j[AppStrings.language] ?? j['en']) as String;
+/// Resolving at parse time froze the labels in whichever language was set
+/// when the schema loaded — English, because main() loaded the schema before
+/// reading the stored language — and switching language never updated them
+/// because nothing re-parses. A getter has no such ordering to get wrong.
+mixin Labelled {
+  Map<String, String> get labels;
+  String get label => labels[AppStrings.language] ?? labels['en']!;
+}
 
 enum FieldType { number, integer, string, boolean, enumerated, date }
 
@@ -37,13 +45,13 @@ FieldGroup _fieldGroup(String raw) => switch (raw) {
   _ => throw ArgumentError('unknown field group: $raw'),
 };
 
-class FieldSpec {
+class FieldSpec with Labelled {
   const FieldSpec({
     required this.name,
     required this.type,
     required this.group,
     required this.required,
-    required this.label,
+    required this.labels,
     this.unit,
     this.values = const [],
   });
@@ -59,7 +67,8 @@ class FieldSpec {
   /// nobody knows exists, which is why the form renders all of them.
   final bool required;
 
-  final String label;
+  @override
+  final Map<String, String> labels;
 
   factory FieldSpec.fromJson(String name, Map<String, dynamic> j) => FieldSpec(
     name: name,
@@ -68,33 +77,35 @@ class FieldSpec {
     unit: j['unit'] as String?,
     values: ((j['values'] as List?) ?? const []).cast<String>(),
     required: j['required'] as bool,
-    label: _label(j['label'] as Map<String, dynamic>),
+    labels: _labels(j['label'] as Map<String, dynamic>),
   );
 }
 
-class CategorySpec {
+class CategorySpec with Labelled {
   const CategorySpec({
     required this.id,
-    required this.label,
+    required this.labels,
     required this.methodIds,
   });
 
   final String id;
-  final String label;
+  @override
+  final Map<String, String> labels;
   final List<String> methodIds;
 }
 
-class MethodSpec {
+class MethodSpec with Labelled {
   const MethodSpec({
     required this.id,
     required this.scored,
-    required this.label,
+    required this.labels,
     required this.fields,
   });
 
   final String id;
   final bool scored;
-  final String label;
+  @override
+  final Map<String, String> labels;
   final List<FieldSpec> fields;
 }
 
@@ -149,7 +160,7 @@ class BrewSchema {
       categories.add(
         CategorySpec(
           id: id,
-          label: _label(c['label'] as Map<String, dynamic>),
+          labels: _labels(c['label'] as Map<String, dynamic>),
           methodIds: (c['methods'] as List).cast<String>(),
         ),
       );
@@ -170,7 +181,7 @@ class BrewSchema {
       methods[id] = MethodSpec(
         id: id,
         scored: m['scored'] as bool,
-        label: _label(m['label'] as Map<String, dynamic>),
+        labels: _labels(m['label'] as Map<String, dynamic>),
         fields: fields,
       );
     });
