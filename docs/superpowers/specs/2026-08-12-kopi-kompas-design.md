@@ -105,9 +105,17 @@ section 5. A score produced by an AI is only comparable to another score
 produced by the same rubric and the same model, and if that pairing is not
 recorded the history degrades without ever looking wrong.
 
-`brewDate` stores local time with its offset rather than UTC. "Did I log a
-brew today?" is a question about the wall clock in front of you, and a shot
-pulled at 00:30 belongs to the day you were awake for.
+`brewDate` stores the **local wall-clock time with no zone suffix**, rather
+than a UTC instant. "Did I log a brew today?" is a question about the wall
+clock in front of you, and a shot pulled at 00:30 belongs to the day you were
+awake for — stored as an instant it would file under the previous day for
+anyone east of Greenwich.
+
+This originally read "local time with its offset", which Dart cannot do: a
+`DateTime` is either UTC or device-local and carries no offset, so
+`DateTime.parse('...+07:00').toIso8601String()` returns the UTC form. The
+model converts any UTC value to local before writing, and `hasBrewOn` buckets
+on the first ten characters of the stored string.
 
 **Methods**: `espresso`, `v60`, `aeropress`, `frenchPress`, `kopiTubruk`,
 `kopiJoss`, `kopiTalua`, `kopiKhop`. Their field shapes are in
