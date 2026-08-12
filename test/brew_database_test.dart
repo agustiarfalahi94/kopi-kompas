@@ -78,7 +78,9 @@ void main() {
     final when = DateTime(2026, 8, 12, 7);
     await db.insert(entry('a', when));
     await db.update(
-      (await db.byId('a'))!.copyWith(scoreStatus: ScoreStatus.failed),
+      (await db.byId(
+        'a',
+      ))!.copyWith(scoreStatus: ScoreStatus.failed, clearScore: true),
     );
     final back = (await db.byId('a'))!;
     expect(back.scoreStatus, ScoreStatus.failed);

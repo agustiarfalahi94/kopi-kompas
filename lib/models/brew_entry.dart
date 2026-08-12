@@ -166,9 +166,12 @@ class BrewEntry {
   static DateTime? _date(Object? v) =>
       v == null ? null : DateTime.parse(v as String);
 
-  /// Note that the score fields are **not** `?? this.x`: a failed re-score
-  /// has to be able to clear a stale number rather than keep it.
+  /// Score fields are preserved like everything else. Dropping a number and
+  /// its provenance is possible but must be asked for, with [clearScore] —
+  /// they used to null by default, which meant rating a brew silently erased
+  /// what it scored.
   BrewEntry copyWith({
+    bool clearScore = false,
     String? brewMethod,
     String? beanOrigin,
     String? roaster,
@@ -210,12 +213,12 @@ class BrewEntry {
     myRating: myRating ?? this.myRating,
     rawInputText: rawInputText,
     methodData: methodData ?? this.methodData,
-    overallScore: overallScore,
-    scoreReasons: scoreReasons ?? this.scoreReasons,
+    overallScore: clearScore ? null : (overallScore ?? this.overallScore),
+    scoreReasons: clearScore ? const [] : (scoreReasons ?? this.scoreReasons),
     scoreStatus: scoreStatus ?? this.scoreStatus,
-    scoreRubric: scoreRubric,
-    scoreModel: scoreModel,
-    scoredAt: scoredAt,
+    scoreRubric: clearScore ? null : (scoreRubric ?? this.scoreRubric),
+    scoreModel: clearScore ? null : (scoreModel ?? this.scoreModel),
+    scoredAt: clearScore ? null : (scoredAt ?? this.scoredAt),
     createdAt: createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt ?? this.deletedAt,

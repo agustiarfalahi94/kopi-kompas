@@ -163,6 +163,17 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
     _error = null;
   });
 
+  /// Persists the star rating immediately. The entry is already in the
+  /// database by the time the reveal is on screen, so this is an update — and
+  /// it means a rating survives even if the app is killed before Done.
+  Future<void> _rate(int stars) async {
+    final entry = _saved;
+    if (entry == null) return;
+    final rated = entry.copyWith(myRating: stars, updatedAt: DateTime.now());
+    await widget.db.update(rated);
+    if (mounted) setState(() => _saved = rated);
+  }
+
   void _pickMethod(String methodId) => setState(() {
     _brewMethod = methodId;
     _core = const {};
@@ -201,7 +212,10 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
         case ScoreFailed():
           // Saving still happens. A brew that could not be scored is worth
           // far more than no brew at all, and the detail screen can retry.
-          entry = entry.copyWith(scoreStatus: ScoreStatus.failed);
+          entry = entry.copyWith(
+            scoreStatus: ScoreStatus.failed,
+            clearScore: true,
+          );
       }
     }
 
@@ -221,6 +235,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
     appBar: AppBar(
       title: Text(switch (_stage) {
         _Stage.fillGaps => AppStrings.fillGapsTitle,
+        _Stage.pickMethod => AppStrings.pickMethod,
         _ => AppStrings.newEntryTitle,
       }),
     ),
@@ -234,6 +249,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
         _Stage.revealed => ScoreReveal(
           entry: _saved!,
           method: widget.schema.method(_saved!.brewMethod),
+          onRated: _rate,
           onDone: () => Navigator.of(context).pop(true),
         ),
       },
