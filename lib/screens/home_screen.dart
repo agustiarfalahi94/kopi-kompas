@@ -5,7 +5,10 @@ import '../models/brew_entry.dart';
 import '../services/brew_database.dart';
 import '../services/kopi_client.dart';
 import '../strings.dart';
+import 'entry_detail_screen.dart';
+import 'full_log_screen.dart';
 import 'new_entry_screen.dart';
+import 'settings_screen.dart';
 
 /// Human names for the variant values, which are stored as ids.
 ///
@@ -77,9 +80,56 @@ class _HomeScreenState extends State<HomeScreen> {
     _reload();
   }
 
+  Future<void> _open(Widget screen) async {
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+    _reload();
+  }
+
+  Future<void> _openDetail(BrewEntry e) async {
+    // Captured before the await so the pop below never reaches for a context
+    // that may have gone away.
+    final navigator = Navigator.of(context);
+    await navigator.push(
+      MaterialPageRoute(
+        builder: (_) => EntryDetailScreen(
+          schema: widget.schema,
+          entry: e,
+          onEdit: () {},
+          onRescore: () {},
+          onRate: (stars) async {
+            await widget.db.update(
+              e.copyWith(myRating: stars, updatedAt: DateTime.now()),
+            );
+          },
+          onDelete: () async {
+            await widget.db.softDelete(e.id, DateTime.now());
+            navigator.pop();
+          },
+        ),
+      ),
+    );
+    _reload();
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(AppStrings.appName)),
+    appBar: AppBar(
+      title: Text(AppStrings.appName),
+      actions: [
+        IconButton(
+          tooltip: AppStrings.fullLogTitle,
+          icon: const Icon(Icons.article_outlined),
+          onPressed: () =>
+              _open(FullLogScreen(db: widget.db, schema: widget.schema)),
+        ),
+        IconButton(
+          tooltip: AppStrings.settingsTitle,
+          icon: const Icon(Icons.settings_outlined),
+          onPressed: () =>
+              _open(SettingsScreen(db: widget.db, schema: widget.schema)),
+        ),
+      ],
+    ),
     floatingActionButton: FloatingActionButton(
       onPressed: _newEntry,
       child: const Icon(Icons.add),
@@ -112,6 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
         '${when.minute.toString().padLeft(2, '0')}';
 
     return ListTile(
+      onTap: () => _openDetail(e),
       title: Text(displayLabel(widget.schema, e)),
       subtitle: Text(
         [

@@ -190,4 +190,43 @@ void main() {
     await db.insert(entry('a', when).copyWith(myRating: 4));
     expect((await db.byId('a'))!.myRating, 4);
   });
+
+  group('deleted entries', () {
+    test('lists only deleted rows, newest deletion first', () async {
+      await db.insert(entry('a', DateTime(2026, 8, 12, 7)));
+      await db.insert(entry('b', DateTime(2026, 8, 11, 7)));
+      await db.softDelete('a', DateTime(2026, 8, 12, 8));
+      await db.softDelete('b', DateTime(2026, 8, 12, 9));
+      expect((await db.deletedEntries()).map((e) => e.id), ['b', 'a']);
+    });
+
+    test('restore brings an entry back to the live list', () async {
+      final when = DateTime(2026, 8, 12, 7);
+      await db.insert(entry('a', when));
+      await db.softDelete('a', when);
+      await db.restore('a', DateTime(2026, 8, 12, 10));
+      expect((await db.liveEntries()).map((e) => e.id), ['a']);
+      expect(await db.deletedEntries(), isEmpty);
+      expect((await db.byId('a'))!.deletedAt, isNull);
+    });
+
+    test('a restored entry counts for hasBrewOn again', () async {
+      final when = DateTime(2026, 8, 12, 7);
+      await db.insert(entry('a', when));
+      await db.softDelete('a', when);
+      expect(await db.hasBrewOn(when), isFalse);
+      await db.restore('a', when);
+      expect(await db.hasBrewOn(when), isTrue);
+    });
+
+    test('purge removes the row from every query', () async {
+      final when = DateTime(2026, 8, 12, 7);
+      await db.insert(entry('a', when));
+      await db.softDelete('a', when);
+      await db.purge('a');
+      expect(await db.byId('a'), isNull);
+      expect(await db.deletedEntries(), isEmpty);
+      expect(await db.liveEntries(), isEmpty);
+    });
+  });
 }

@@ -142,6 +142,32 @@ class BrewDatabase {
     whereArgs: [id],
   );
 
+  /// Deleted entries, most recently deleted first.
+  ///
+  /// These never appear in the live list or the full log — the archive is a
+  /// record of brewing, not of edits. They live on their own page so a
+  /// mistaken delete is recoverable.
+  Future<List<BrewEntry>> deletedEntries() async {
+    final rows = await _db.query(
+      'brews',
+      where: 'deletedAt IS NOT NULL',
+      orderBy: 'deletedAt DESC',
+    );
+    return rows.map(BrewEntry.fromRow).toList();
+  }
+
+  Future<void> restore(String id, DateTime when) async => _db.update(
+    'brews',
+    {'deletedAt': null, 'updatedAt': when.toIso8601String()},
+    where: 'id = ?',
+    whereArgs: [id],
+  );
+
+  /// Removes a row for good. The only destructive operation in the app, and
+  /// the only one the UI asks about twice.
+  Future<void> purge(String id) async =>
+      _db.delete('brews', where: 'id = ?', whereArgs: [id]);
+
   /// Whether a live brew exists on [day]'s local calendar date.
   ///
   /// Compared on the local date string rather than an instant range, because
