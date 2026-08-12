@@ -23,30 +23,36 @@ void main() {
     }
   });
 
-  test('field labels follow the language', () {
-    final source = File('schema/brew_schema.json').readAsStringSync();
+  test('labels follow the language without re-parsing the schema', () {
+    // The schema is parsed once at startup. Resolving labels at parse time
+    // froze them in whichever language happened to be set then, and left
+    // them stale forever after a switch — which is exactly what shipped and
+    // showed up as an Indonesian form with English field names.
+    final schema = BrewSchema.parse(
+      File('schema/brew_schema.json').readAsStringSync(),
+    );
+    final origin = schema.core.firstWhere((f) => f.name == 'beanOrigin');
 
     AppStrings.language = 'en';
-    final english = BrewSchema.parse(source);
-    expect(
-      english.core.firstWhere((f) => f.name == 'beanOrigin').label,
-      'Bean origin',
-    );
+    expect(origin.label, 'Bean origin');
 
     AppStrings.language = 'id';
-    final indonesian = BrewSchema.parse(source);
-    expect(
-      indonesian.core.firstWhere((f) => f.name == 'beanOrigin').label,
-      'Asal biji',
-    );
+    expect(origin.label, 'Asal biji');
+
+    AppStrings.language = 'en';
+    expect(origin.label, 'Bean origin', reason: 'must switch back too');
   });
 
-  test('category and method labels follow the language', () {
-    final source = File('schema/brew_schema.json').readAsStringSync();
+  test('category and method labels follow the language too', () {
+    final s = BrewSchema.parse(
+      File('schema/brew_schema.json').readAsStringSync(),
+    );
     AppStrings.language = 'id';
-    final s = BrewSchema.parse(source);
     expect(s.categoryOf('kopiTubruk').label, 'Nusantara');
     expect(s.method('coneDripper').label, 'Dripper kerucut');
+    AppStrings.language = 'en';
+    expect(s.categoryOf('kopiTubruk').label, 'Indonesian');
+    expect(s.method('coneDripper').label, 'Cone dripper');
   });
 
   test('defaults to English', () {

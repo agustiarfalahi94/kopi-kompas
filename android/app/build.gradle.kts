@@ -1,8 +1,19 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// Release signing keys, shared with random_recall and tiny_tapsters.
+// key.properties and the keystore are git-ignored and must never be
+// committed; CI writes them from repository secrets.
+val keyPropertiesFile = rootProject.file("key.properties")
+val keyProperties = Properties()
+if (keyPropertiesFile.exists()) {
+    keyProperties.load(keyPropertiesFile.inputStream())
 }
 
 android {
@@ -35,12 +46,44 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (keyPropertiesFile.exists()) {
+            create("release") {
+                keyAlias = keyProperties["keyAlias"] as String
+                keyPassword = keyProperties["keyPassword"] as String
+                storeFile = file(keyProperties["storeFile"] as String)
+                storePassword = keyProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Falls back to debug signing when the keystore is absent, so a
+            // local `flutter build apk` still works for someone without it.
+            signingConfig = if (keyPropertiesFile.exists())
+                signingConfigs.getByName("release")
+            else
+                signingConfigs.getByName("debug")
+
+            // Shrinks and renames the code: a smaller APK, and harder to read
+            // if someone unpacks it. Anything reached only by reflection has
+            // to be kept explicitly — see proguard-rules.pro.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
+    }
+
+    // Google injects an encrypted dependency-metadata blob into every APK.
+    // Only Google can read it, it breaks reproducible builds, and F-Droid
+    // rejects APKs that carry it. Learned from AntiSplit-M.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 }
 
