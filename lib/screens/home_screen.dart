@@ -7,6 +7,40 @@ import '../services/kopi_client.dart';
 import '../strings.dart';
 import 'new_entry_screen.dart';
 
+/// Human names for the variant values, which are stored as ids.
+///
+/// Kept here rather than in the schema because these are display strings for
+/// one screen; the schema's job is the shape of the data.
+const _variantLabels = {
+  'v60': 'V60',
+  'origami': 'Origami',
+  'kono': 'Kono',
+  'kalitaWave': 'Kalita Wave',
+  'staggX': 'Stagg [X]',
+  'orea': 'Orea',
+  'april': 'April',
+  'clever': 'Clever Dripper',
+  'switch': 'Hario Switch',
+  'ristretto': 'Ristretto',
+  'lungo': 'Lungo',
+};
+
+/// What to call a brew in a list.
+///
+/// Prefers the variant over the method: you brewed a V60, not a "cone
+/// dripper", and a ristretto, not an "espresso". `normale` is the exception —
+/// nobody says it out loud, so it reads as Espresso. Anything unrecognised
+/// falls back to the method label rather than showing a raw id.
+String displayLabel(BrewSchema schema, BrewEntry entry) {
+  for (final key in ['brewer', 'shotStyle']) {
+    final value = entry.methodData[key];
+    if (value == 'normale') continue;
+    final label = _variantLabels[value];
+    if (label != null) return label;
+  }
+  return schema.method(entry.brewMethod).label;
+}
+
 /// The everyday surface: live brews, newest first. Deliberately sparse — the
 /// full log in Phase 3 is where everything is shown at once.
 class HomeScreen extends StatefulWidget {
@@ -78,9 +112,13 @@ class _HomeScreenState extends State<HomeScreen> {
         '${when.minute.toString().padLeft(2, '0')}';
 
     return ListTile(
-      title: Text(widget.schema.method(e.brewMethod).label),
+      title: Text(displayLabel(widget.schema, e)),
       subtitle: Text(
-        [if (e.beanOrigin != null) e.beanOrigin!, stamp].join(' · '),
+        [
+          if (e.beanOrigin != null) e.beanOrigin!,
+          if (e.myRating != null) '★' * e.myRating!,
+          stamp,
+        ].join(' · '),
       ),
       trailing: switch (e.scoreStatus) {
         ScoreStatus.scored => Text(
