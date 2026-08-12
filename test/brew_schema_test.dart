@@ -12,23 +12,76 @@ void main() {
     );
   });
 
-  test('loads all eight methods in file order', () {
-    expect(schema.methodIds, [
+  test('groups sixteen methods into five categories', () {
+    expect(schema.methodIds, hasLength(16));
+    expect(schema.categories.map((c) => c.id), [
       'espresso',
-      'v60',
-      'aeropress',
-      'frenchPress',
-      'kopiTubruk',
-      'kopiJoss',
-      'kopiTalua',
-      'kopiKhop',
+      'filter',
+      'immersion',
+      'hybrid',
+      'indonesian',
     ]);
   });
 
-  test('knows which three are scored', () {
-    expect(schema.scoredMethodIds, ['espresso', 'v60', 'aeropress']);
-    expect(schema.isScored('espresso'), isTrue);
-    expect(schema.isScored('kopiJoss'), isFalse);
+  test('puts every method in exactly one category', () {
+    final listed = schema.categories.expand((c) => c.methodIds).toList();
+    expect(listed..sort(), equals([...schema.methodIds]..sort()));
+    expect(listed.toSet().length, listed.length);
+    for (final m in schema.methodIds) {
+      expect(schema.categoryOf(m).methodIds, contains(m));
+    }
+  });
+
+  test('scores espresso, the four filter methods and aeropress', () {
+    expect(schema.scoredMethodIds, [
+      'espresso',
+      'coneDripper',
+      'flatBottomDripper',
+      'chemex',
+      'batchBrewer',
+      'aeropress',
+    ]);
+  });
+
+  test('keeps variants as fields rather than methods', () {
+    for (final notAMethod in ['v60', 'ristretto', 'lungo', 'kopiLuwak']) {
+      expect(schema.methodIds, isNot(contains(notAMethod)));
+    }
+    final shot = schema
+        .method('espresso')
+        .fields
+        .firstWhere((f) => f.name == 'shotStyle');
+    expect(shot.values, ['ristretto', 'normale', 'lungo']);
+    final brewer = schema
+        .method('coneDripper')
+        .fields
+        .firstWhere((f) => f.name == 'brewer');
+    expect(brewer.values, contains('v60'));
+  });
+
+  test('treats luwak and wet-hulled as bean processes', () {
+    final process = schema.core.firstWhere((f) => f.name == 'process');
+    expect(process.values, contains('luwak'));
+    expect(process.values, contains('wet-hulled'));
+  });
+
+  test('parses roastDate as a date field', () {
+    final d = schema.core.firstWhere((f) => f.name == 'roastDate');
+    expect(d.type, FieldType.date);
+  });
+
+  test('gives every field a group', () {
+    final all = [
+      ...schema.core,
+      ...schema.methodIds.expand((m) => schema.method(m).fields),
+    ];
+    for (final f in all) {
+      expect(FieldGroup.values, contains(f.group), reason: f.name);
+    }
+  });
+
+  test('an unknown method has no category and throws', () {
+    expect(() => schema.categoryOf('pourover'), throwsArgumentError);
   });
 
   test('maps field types, units and labels', () {
@@ -45,7 +98,7 @@ void main() {
 
   test('maps integer separately from number, for the keyboard', () {
     final pours = schema
-        .method('v60')
+        .method('coneDripper')
         .fields
         .firstWhere((f) => f.name == 'pourCount');
     expect(pours.type, FieldType.integer);
@@ -64,7 +117,7 @@ void main() {
   });
 
   test('preserves field order, which the form renders in', () {
-    expect(schema.method('espresso').fields.first.name, 'yieldGrams');
+    expect(schema.method('espresso').fields.first.name, 'shotStyle');
     expect(schema.method('espresso').fields.last.name, 'waterTempC');
   });
 

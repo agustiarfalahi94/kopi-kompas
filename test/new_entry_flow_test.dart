@@ -35,16 +35,17 @@ void main() {
     'a form answer routes to core or methodData by schema, not guesswork',
     () {
       final e = buildEntry(
-        brewMethod: 'v60',
+        brewMethod: 'coneDripper',
         core: const {},
         methodData: const {},
-        answers: {'roastLevel': 'light', 'pourCount': 3},
+        answers: {'roastLevel': 'light', 'pourCount': 3, 'brewer': 'v60'},
         rawInputText: 'x',
         schema: schema,
         now: DateTime(2026, 8, 12, 7),
       );
       expect(e.roastLevel, 'light');
       expect(e.methodData['pourCount'], 3);
+      expect(e.methodData['brewer'], 'v60');
       expect(e.methodData.containsKey('roastLevel'), isFalse);
     },
   );
@@ -122,5 +123,37 @@ void main() {
     expect(shouldCelebrate(100), isTrue);
     expect(shouldCelebrate(89), isFalse);
     expect(shouldCelebrate(null), isFalse);
+  });
+
+  test('routes every new core field to core, not to methodData', () {
+    // buildEntry decides by asking the schema. If that ever drifts, roaster
+    // and grinder would silently land in the method blob and never render.
+    final e = buildEntry(
+      brewMethod: 'espresso',
+      core: const {},
+      methodData: const {},
+      answers: {
+        'roaster': 'Common Grounds',
+        'process': 'natural',
+        'roastDate': '2026-08-01',
+        'grinder': 'Niche',
+        'grindSetting': '18',
+        'waterType': 'filtered',
+        'basketSizeGrams': 18.0,
+      },
+      rawInputText: 'x',
+      schema: schema,
+      now: DateTime(2026, 8, 12, 7),
+    );
+    expect(e.roaster, 'Common Grounds');
+    expect(e.process, 'natural');
+    expect(e.roastDate, DateTime(2026, 8, 1));
+    expect(e.grinder, 'Niche');
+    expect(e.grindSetting, '18');
+    expect(e.waterType, 'filtered');
+    expect(e.methodData['basketSizeGrams'], 18.0);
+    for (final coreOnly in ['roaster', 'grinder', 'waterType']) {
+      expect(e.methodData.containsKey(coreOnly), isFalse, reason: coreOnly);
+    }
   });
 }

@@ -4,6 +4,7 @@ import '../data/brew_schema.dart';
 import '../models/brew_entry.dart';
 import '../services/brew_database.dart';
 import '../services/kopi_client.dart';
+import '../services/sticky_defaults.dart';
 import '../strings.dart';
 import '../widgets/follow_up_form.dart';
 import '../widgets/score_reveal.dart';
@@ -44,9 +45,20 @@ BrewEntry buildEntry({
     id: newUuid(),
     brewMethod: brewMethod,
     beanOrigin: mergedCore['beanOrigin'] as String?,
+    roaster: mergedCore['roaster'] as String?,
+    process: mergedCore['process'] as String?,
     roastLevel: mergedCore['roastLevel'] as String?,
+    // The form and the parse both hand this over as an ISO date string.
+    roastDate: switch (mergedCore['roastDate']) {
+      final String s => DateTime.tryParse(s),
+      final DateTime d => d,
+      _ => null,
+    },
     doseGrams: (mergedCore['doseGrams'] as num?)?.toDouble(),
+    grinder: mergedCore['grinder'] as String?,
+    grindSetting: mergedCore['grindSetting'] as String?,
     grindSize: mergedCore['grindSize'] as String?,
+    waterType: mergedCore['waterType'] as String?,
     notes: mergedCore['notes'] as String?,
     brewDate: now,
     rawInputText: rawInputText,
@@ -59,7 +71,7 @@ BrewEntry buildEntry({
   );
 }
 
-enum _Stage { describe, fillGaps, scoring, revealed }
+enum _Stage { describe, pickMethod, fillGaps, scoring, revealed }
 
 class NewEntryScreen extends StatefulWidget {
   const NewEntryScreen({
@@ -87,8 +99,16 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
   Map<String, Object?> _core = const {};
   Map<String, Object?> _methodData = const {};
   Map<String, Object?> _answers = const {};
-  List<FieldSpec> _missing = const [];
+  Map<String, Object?> _sticky = const {};
   BrewEntry? _saved;
+
+  @override
+  void initState() {
+    super.initState();
+    loadStickyDefaults().then((d) {
+      if (mounted) setState(() => _sticky = d);
+    });
+  }
 
   @override
   void dispose() {
@@ -123,29 +143,32 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
           _error = _messageFor(kind);
         });
       case ParseOk(:final brewMethod, :final core, :final methodData):
-        _brewMethod = brewMethod;
-        _core = core;
-        _methodData = methodData;
-        _missing = missingFields(widget.schema, brewMethod, core, methodData);
-        if (_missing.isEmpty) {
-          await _save();
-        } else {
-          setState(() => _stage = _Stage.fillGaps);
-        }
+        // Always show the form, however complete the parse was. A field
+        // nobody is shown is a field nobody knows exists.
+        setState(() {
+          _brewMethod = brewMethod;
+          _core = core;
+          _methodData = methodData;
+          _stage = _Stage.fillGaps;
+        });
     }
   }
 
   /// Falls back to filling the form by hand when the parse could not run.
-  void _byHand() {
-    _brewMethod = widget.schema.methodIds.first;
+  ///
+  /// Shows the category picker rather than guessing: defaulting to the first
+  /// method across sixteen of them is a wrong answer dressed as a choice.
+  void _byHand() => setState(() {
+    _stage = _Stage.pickMethod;
+    _error = null;
+  });
+
+  void _pickMethod(String methodId) => setState(() {
+    _brewMethod = methodId;
     _core = const {};
     _methodData = const {};
-    _missing = missingFields(widget.schema, _brewMethod, const {}, const {});
-    setState(() {
-      _stage = _Stage.fillGaps;
-      _error = null;
-    });
-  }
+    _stage = _Stage.fillGaps;
+  });
 
   Future<void> _save() async {
     setState(() {
@@ -185,6 +208,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
     // Written before the reveal, so a crash during the celebration cannot
     // lose the brew.
     await widget.db.insert(entry);
+    await rememberSticky(entry);
     if (!mounted) return;
     setState(() {
       _saved = entry;
@@ -204,6 +228,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
       padding: const EdgeInsets.all(16),
       child: switch (_stage) {
         _Stage.describe => _describe(),
+        _Stage.pickMethod => _methodPicker(),
         _Stage.fillGaps => _fillGaps(),
         _Stage.scoring => _busy(),
         _Stage.revealed => ScoreReveal(
@@ -247,16 +272,44 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
     ],
   );
 
+  Widget _methodPicker() => ListView(
+    children: [
+      for (final category in widget.schema.categories) ...[
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 16, 4, 4),
+          child: Text(
+            category.label,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+        ),
+        for (final id in category.methodIds)
+          ListTile(
+            title: Text(widget.schema.method(id).label),
+            onTap: () => _pickMethod(id),
+          ),
+      ],
+    ],
+  );
+
   Widget _fillGaps() => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       Text(
-        widget.schema.method(_brewMethod).label,
+        '${widget.schema.categoryOf(_brewMethod).label} · '
+        '${widget.schema.method(_brewMethod).label}',
         style: Theme.of(context).textTheme.titleMedium,
       ),
-      const SizedBox(height: 8),
       Expanded(
-        child: FollowUpForm(fields: _missing, onChanged: (v) => _answers = v),
+        child: BrewForm(
+          fields: formFields(
+            widget.schema,
+            _brewMethod,
+            _core,
+            _methodData,
+            _sticky,
+          ),
+          onChanged: (v) => _answers = v,
+        ),
       ),
       const SizedBox(height: 8),
       FilledButton(onPressed: _save, child: Text(AppStrings.saveButton)),

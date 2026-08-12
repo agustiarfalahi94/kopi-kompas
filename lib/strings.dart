@@ -1,3 +1,5 @@
+import 'data/brew_schema.dart' show FieldGroup;
+
 /// Every user-facing string in the app.
 ///
 /// Static getters rather than a map, so a string that does not exist fails to
@@ -28,4 +30,13 @@ class AppStrings {
       'Daily limit reached. Your text is safe — fill it in by hand for now.';
   static String get retry => 'Retry';
   static String get byHand => 'Fill in by hand';
+  static String get pickMethod => 'What did you brew it with?';
+  static String get rateThis => 'What did you think?';
+
+  static String groupLabel(FieldGroup g) => switch (g) {
+    FieldGroup.coffee => 'Coffee',
+    FieldGroup.grind => 'Grind',
+    FieldGroup.brew => 'Brew',
+    FieldGroup.water => 'Water',
+  };
 }
