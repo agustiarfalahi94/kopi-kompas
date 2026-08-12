@@ -45,7 +45,7 @@ describe('callGemini', () => {
   it('maps a 429 from Gemini to a 429', async () => {
     const fetchImpl = reply({ error: 'quota' }, 429);
     const res = await callGemini({ ...base, fetchImpl: fetchImpl as any });
-    expect(res).toEqual({ ok: false, status: 429, detail: 'gemini quota' });
+    expect(res).toEqual({ ok: false, status: 429, detail: expect.stringContaining('gemini quota') });
   });
 
   it('maps any other non-200 to a 502', async () => {

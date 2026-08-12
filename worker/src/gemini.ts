@@ -43,7 +43,14 @@ export async function callGemini<T>(
   }
 
   if (response.status === 429) {
-    return { ok: false, status: 429, detail: 'gemini quota' };
+    // Keep the upstream text: a per-minute limit clears on its own and a
+    // per-day one does not, and the app should be able to say which.
+    const body = await response.text().catch(() => '');
+    return {
+      ok: false,
+      status: 429,
+      detail: `gemini quota: ${body.slice(0, 900)}`,
+    };
   }
   if (!response.ok) {
     // The upstream message is worth keeping: "model not found" and "billing
@@ -53,7 +60,7 @@ export async function callGemini<T>(
     return {
       ok: false,
       status: 502,
-      detail: `gemini ${response.status}: ${body.slice(0, 400)}`,
+      detail: `gemini ${response.status}: ${body.slice(0, 900)}`,
     };
   }
 
