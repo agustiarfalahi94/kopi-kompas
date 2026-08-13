@@ -3,7 +3,7 @@
 ## Start here
 
 **Kopi Kompas** — a Flutter coffee-brewing logbook, `com.inkpebble.kopi_kompas`,
-v0.3.0+4. Android-first. 16 brew methods in 5 categories; 6 of them scored.
+v0.4.0+5. Android-first. 16 brew methods in 5 categories; 6 of them scored.
 
 Read: this file → **`docs/STATE.md`** (what is true right now: what is
 unmerged, what has never run on a phone, and every bug already paid for once)
