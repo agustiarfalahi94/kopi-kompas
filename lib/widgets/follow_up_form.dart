@@ -179,7 +179,12 @@ class _BrewFormState extends State<BrewForm> {
           initialValue: f.values.contains(current) ? current as String? : null,
           items: [
             for (final v in f.values)
-              DropdownMenuItem(value: v, child: Text(v)),
+              // The id stays the stored value; only the label is translated,
+              // so what lands in the database never depends on the language.
+              DropdownMenuItem(
+                value: v,
+                child: Text(widget.schema.valueLabel(v)),
+              ),
           ],
           onChanged: (v) => _set(f.name, v),
         ),

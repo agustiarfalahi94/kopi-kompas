@@ -98,7 +98,7 @@ class _FullLogScreenState extends State<FullLogScreen> {
         const SizedBox(height: 8),
         for (final row in detailRows(widget.schema, e))
           Text(
-            '${row.spec.label}: ${_value(row.value)}'
+            '${row.spec.label}: ${_value(row.spec, row.value)}'
             '${row.spec.unit == null ? '' : ' ${row.spec.unit}'}',
             style: dense,
           ),
@@ -117,8 +117,13 @@ class _FullLogScreenState extends State<FullLogScreen> {
     );
   }
 
-  String _value(Object? v) => switch (v) {
+  /// Enum values are ids. Rendering them raw put "filtered" and "kalitaWave"
+  /// straight on screen, in both languages — the archive had its own copy of
+  /// this logic and never got the label lookup the detail screen has.
+  String _value(FieldSpec spec, Object? v) => switch (v) {
     final bool b => b ? AppStrings.yes : AppStrings.no,
+    final String s when spec.type == FieldType.enumerated =>
+      widget.schema.valueLabel(s),
     final Object o => o.toString(),
     null => '',
   };

@@ -47,11 +47,11 @@
     },
     "filtered": {
       "en": "Filtered",
-      "id": "Air saring"
+      "id": "Air filter"
     },
     "bottled": {
       "en": "Bottled",
-      "id": "Air kemasan"
+      "id": "Air botol"
     },
     "tap": {
       "en": "Tap",

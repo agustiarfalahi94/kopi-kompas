@@ -151,4 +151,35 @@ void main() {
     AppStrings.language = 'id';
     expect(schema.method('espresso').targets!.grind, contains('garam meja'));
   });
+
+  test('no screen renders a raw enum id', () {
+    // The full log had its own copy of the value-rendering logic and never
+    // got the label lookup, so it showed "filtered" and "kalitaWave" on
+    // screen in both languages. Any screen that formats a field value has to
+    // go through valueLabel, and this is the reminder.
+    final source = [
+      'lib/screens/full_log_screen.dart',
+      'lib/screens/entry_detail_screen.dart',
+      'lib/widgets/follow_up_form.dart',
+    ];
+    for (final path in source) {
+      final text = File(path).readAsStringSync();
+      expect(
+        text,
+        contains('valueLabel'),
+        reason: '$path formats field values without translating enums',
+      );
+    }
+  });
+
+  test('water types read naturally in Indonesian', () {
+    final schema = BrewSchema.parse(
+      File('schema/brew_schema.json').readAsStringSync(),
+    );
+    AppStrings.language = 'id';
+    expect(schema.valueLabel('filtered'), 'Air filter');
+    expect(schema.valueLabel('bottled'), 'Air botol');
+    expect(schema.valueLabel('tap'), 'Air keran');
+    expect(schema.valueLabel('mineral'), 'Air mineral');
+  });
 }
