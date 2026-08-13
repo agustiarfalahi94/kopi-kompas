@@ -7,7 +7,7 @@ have already been paid for once.
 
 Keep it current. A stale state file is worse than none, because it is believed.
 
-Last updated: 2026-08-13, after the reminder-receiver fix.
+Last updated: 2026-08-13, after cutting v0.4.0.
 
 ---
 
@@ -15,14 +15,14 @@ Last updated: 2026-08-13, after the reminder-receiver fix.
 
 | | |
 |---|---|
-| Version | `0.3.0+4` — see `pubspec.yaml`, which is the arbiter |
-| Latest GitHub release | **v0.3.0**, and it is behind `develop` |
+| Version | `0.4.0+5` — see `pubspec.yaml`, which is the arbiter |
+| Latest GitHub release | **v0.4.0**, cut 2026-08-13; `main` and `develop` are level |
 | Working branch | `develop` |
 | Worker deployed | rubric `r3`, verified live |
 | App tests | run `./tool/check.sh` for the real number; never quote one from here |
 
-**`develop` is ahead of the last release.** Everything below is built, gated
-and committed but has never been in a tagged build:
+**Nothing is unmerged.** v0.4.0 carries everything that had accumulated on
+`develop` since v0.3.0:
 
 - the filter chip no longer draws a ✕ it cannot honour
 - editing announces the new score instead of changing it silently
@@ -31,6 +31,11 @@ and committed but has never been in a tagged build:
 - every document brought back in line with what ships
 - Settings shows which build it is
 - **the daily reminder can fire at all** — see the ledger below
+
+**v0.4.0 was cut on light testing, by the user's decision.** They had tried
+some of it and what they tried worked; the list under "Never verified on a
+phone" was *not* worked through first. So this tag ships the reminder fix
+unobserved, and sign-in and backup still unproven on hardware.
 
 Cutting a release: merge `develop` → `main`, push, annotated tag `vX.Y.Z`,
 push the tag. CI builds and attaches the APKs. Only on the user's say-so.
