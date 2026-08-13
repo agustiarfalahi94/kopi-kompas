@@ -5,7 +5,7 @@ structured fields, the app shows you everything it holds so you can fill in
 what it missed, and the finished entry is scored out of 100 against a written
 rubric — with the reasons shown next to the number.
 
-Android-first, Flutter, `com.inkpebble.kopi_kompas`, v0.2.0+2.
+Android-first, Flutter, `com.inkpebble.kopi_kompas`, v0.2.1+3.
 English and Bahasa Indonesia.
 
 ## What it does
