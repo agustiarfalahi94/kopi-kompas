@@ -85,9 +85,10 @@ void main() {
   });
 
   test('the methods without a photo are named, not silently missing', () {
-    // Absence is a decision — Commons has nothing usable for these three —
-    // and a decision nobody wrote down looks like an oversight later.
-    for (final id in ['coldBrew', 'kopiSaring', 'kopiTalua']) {
+    // Absence is a decision — neither Commons nor Openverse has a freely
+    // licensed kopi talua, only the tea made the same way — and a decision
+    // nobody wrote down looks like an oversight later.
+    for (final id in ['kopiTalua']) {
       expect(photos.forMethod(id), isNull, reason: '$id gained a photo');
       expect(creditsDoc, contains(id), reason: '$id absence undocumented');
     }

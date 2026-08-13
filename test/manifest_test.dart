@@ -36,7 +36,7 @@ void main() {
     final granted = RegExp(
       r'<uses-permission android:name="android\.permission\.(\w+)"\s*/>',
     ).allMatches(text).map((m) => m.group(1)).toList();
-    expect(granted, ['INTERNET']);
+    expect(granted, ['INTERNET', 'RECEIVE_BOOT_COMPLETED']);
 
     for (final removed in ['USE_BIOMETRIC', 'USE_FINGERPRINT']) {
       expect(
@@ -46,5 +46,29 @@ void main() {
       );
     }
     expect(RegExp('tools:node="remove"').allMatches(text).length, 2);
+  });
+
+  test('the notification receivers are declared', () {
+    // flutter_local_notifications stopped contributing these in v16. Without
+    // ScheduledNotificationReceiver the alarm fires into nothing and a
+    // scheduled notification never appears at all — the daily reminder was
+    // dead in every build ever shipped, while reminder_schedule_test stayed
+    // green because the schedule maths is a pure function and was correct.
+    //
+    // This test asserts the wiring the maths depends on, which is the part no
+    // unit test could see.
+    final text = File(
+      'android/app/src/main/AndroidManifest.xml',
+    ).readAsStringSync();
+    for (final receiver in [
+      'com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver',
+      'com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver',
+    ]) {
+      expect(text, contains(receiver), reason: '$receiver is missing');
+    }
+    // The boot receiver is useless without the permission that lets it run.
+    expect(text, contains('android.permission.RECEIVE_BOOT_COMPLETED'));
+    expect(text, contains('android.intent.action.BOOT_COMPLETED'));
+    expect(text, contains('android.intent.action.MY_PACKAGE_REPLACED'));
   });
 }

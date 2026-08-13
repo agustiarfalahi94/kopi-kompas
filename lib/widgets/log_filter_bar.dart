@@ -128,6 +128,11 @@ class _LogFilterBarState extends State<LogFilterBar> {
   /// it filters, the caret says it opens something, and the checkmark
   /// [FilterChip] would otherwise draw is turned off so the icon survives
   /// being selected.
+  ///
+  /// The caret never becomes a ✕. A chip has one tap target, so a cross drawn
+  /// inside it opened the picker like everything else — it promised to clear
+  /// the filter and did the opposite. Clearing lives in the button at the end
+  /// of the row, which is a control of its own.
   Widget _chip({
     required IconData icon,
     required String text,
@@ -138,10 +143,7 @@ class _LogFilterBarState extends State<LogFilterBar> {
     showCheckmark: false,
     label: Row(
       mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(text),
-        Icon(on ? Icons.close : Icons.arrow_drop_down, size: 18),
-      ],
+      children: [Text(text), const Icon(Icons.arrow_drop_down, size: 18)],
     ),
     selected: on,
     onSelected: (_) => onTap(),

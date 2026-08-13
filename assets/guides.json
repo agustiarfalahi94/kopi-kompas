@@ -107,12 +107,16 @@
       ],
       "notes": [
         {
-          "en": "58 mm is the commercial standard basket; 51 and 54 mm appear on smaller home machines and hold less coffee.",
-          "id": "58 mm itu ukuran standar kafe. Mesin rumahan yang lebih kecil pakai 51 atau 54 mm dan muat lebih sedikit kopi."
+          "en": "58 mm is the commercial standard basket; 51, 53 and 54 mm appear on smaller home machines and hold less coffee. Diameter is whatever your portafilter takes — it is not a choice you make per shot, and it is never scored against you. Capacity is: 18 g in a 22 g basket channels.",
+          "id": "58 mm itu ukuran standar mesin komersial; 51, 53, dan 54 mm biasanya di mesin rumahan yang lebih kecil dan muat lebih sedikit kopi. Diameternya ikut portafilter kamu — bukan sesuatu yang kamu pilih tiap seduhan, dan nggak pernah mengurangi nilai. Yang ngaruh itu kapasitasnya: 18 g di basket 22 g bakal channeling."
         },
         {
           "en": "Pressurised (dual-wall) baskets create back-pressure artificially, so they forgive a bad grinder but flatten the flavour and cannot be dialled in. Non-pressurised (single-wall) baskets reward a good grinder and are what you want once you have one.",
           "id": "Basket pressurized (dinding dobel) bikin tekanan balik secara buatan. Enaknya, grinder seadanya masih bisa dipakai. Nggak enaknya, rasanya jadi datar dan nggak bisa di-dial in. Begitu grinder-mu udah bagus, pindah ke non-pressurized."
+        },
+        {
+          "en": "On a pressurised basket, WDT and a distributor have almost nothing to act on: the pressure is made at the hole in the second wall, not by the coffee bed. Level the bed with a tamp or a distributor and stop there. The app scores it this way too — skipping WDT on a pressurised basket costs you nothing. On a non-pressurised basket all of it matters.",
+          "id": "Di basket pressurized, WDT dan distributor hampir nggak ada gunanya: tekanannya dibuat di lubang dinding kedua, bukan sama bubuk kopinya. Ratakan saja bubuknya pakai tamper atau distributor, sudah cukup. Aplikasi ini juga menilainya begitu — nggak pakai WDT di basket pressurized nggak mengurangi nilai. Di basket non-pressurized, semuanya baru berpengaruh."
         }
       ]
     },

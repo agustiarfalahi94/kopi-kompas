@@ -3,11 +3,17 @@
 ## Start here
 
 **Kopi Kompas** — a Flutter coffee-brewing logbook, `com.inkpebble.kopi_kompas`,
-v0.3.0+4. Android-first. 16 brew methods in 5 categories; 6 of them scored.
+v0.4.0+5. Android-first. 16 brew methods in 5 categories; 6 of them scored.
 
-Read: this file → `AGENTS.md` (same instructions, must stay in sync) →
+Read: this file → **`docs/STATE.md`** (what is true right now: what is
+unmerged, what has never run on a phone, and every bug already paid for once)
+→ `AGENTS.md` (same instructions, must stay in sync) →
 `docs/superpowers/specs/2026-08-12-kopi-kompas-design.md` → the relevant plan
 in `docs/superpowers/plans/`.
+
+`docs/STATE.md` is the handover file. Update it whenever a bug is fixed, a
+branch is merged, or something is verified on a device — a new session has no
+memory of this one, and the ledger is how a mistake gets made only once.
 
 ## Working agreement
 
@@ -91,6 +97,13 @@ flutter build apk --release --split-per-abi
 
 - **`flutter create` puts `INTERNET` in the debug and profile manifests only.**
   A release build then has no network while every test passes.
+- **`flutter_local_notifications` stopped shipping its own receivers in v16.**
+  The host app must declare `ScheduledNotificationReceiver` and
+  `ScheduledNotificationBootReceiver` plus `RECEIVE_BOOT_COMPLETED`. Without
+  the first, the alarm fires into nothing and a scheduled notification never
+  appears — the daily reminder was dead in every build ever shipped while
+  `reminder_schedule_test` stayed green, because the schedule maths is a pure
+  function and was right all along. `test/manifest_test.dart` pins them now.
 - **A colliding enum in `methodData` silently narrows.** `brewer` exists in
   three methods with different values; the union must merge them or the model
   is never offered the right one.

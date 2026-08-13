@@ -7,6 +7,7 @@ import '../services/kopi_client.dart';
 import '../strings.dart';
 import '../widgets/brew_date_field.dart';
 import '../widgets/follow_up_form.dart';
+import '../widgets/score_change_dialog.dart';
 import 'home_screen.dart' show displayLabel;
 
 /// Rebuilds an entry from the form's answers.
@@ -158,6 +159,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
       rescore: !_fieldsUnchanged,
     );
 
+    ScoreChange? change;
     if (edited.scoreStatus == ScoreStatus.pending) {
       final result = await widget.client.score(edited);
       if (result case ScoreOk(
@@ -174,19 +176,41 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
           scoreModel: model,
           scoredAt: DateTime.now(),
         );
+        change = ScoreChange(
+          before: widget.entry.overallScore,
+          after: score,
+          beforeRubric: widget.entry.scoreRubric,
+          afterRubric: rubric,
+          reasons: reasons,
+        );
       } else {
         // Keep the old number rather than clearing it — it is still the last
-        // real assessment this brew had.
+        // real assessment this brew had. Say so, though: a silent failure
+        // leaves someone believing their edit was re-checked when it was not.
         edited = edited.copyWith(
           scoreStatus: widget.entry.scoreStatus == ScoreStatus.scored
               ? ScoreStatus.scored
               : ScoreStatus.failed,
         );
+        change = ScoreChange(
+          before: widget.entry.overallScore,
+          after: widget.entry.overallScore,
+          beforeRubric: widget.entry.scoreRubric,
+          afterRubric: widget.entry.scoreRubric,
+          reasons: const [],
+          failed: true,
+        );
       }
     }
 
     await widget.db.update(edited);
-    if (mounted) Navigator.of(context).pop(true);
+    if (!mounted) return;
+
+    // Captured before the dialog, because popping the edit screen must not
+    // reach for a context that the await has already invalidated.
+    final navigator = Navigator.of(context);
+    if (change != null) await showScoreChange(context, change);
+    navigator.pop(true);
   }
 
   @override

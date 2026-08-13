@@ -1,10 +1,10 @@
 [
  {
   "method": "espresso",
-  "title": "Espresso BW 1.jpg",
-  "author": "Berthold Werner",
-  "licence": "Public domain",
-  "source": "https://commons.wikimedia.org/wiki/File:Espresso_BW_1.jpg"
+  "title": "Espresso extraction",
+  "author": "Schill",
+  "licence": "CC BY 2.0",
+  "source": "https://www.flickr.com/photos/12289718@N00/14576345751"
  },
  {
   "method": "coneDripper",
@@ -42,6 +42,13 @@
   "source": "https://commons.wikimedia.org/wiki/File:French_Press_coffee_making_10.jpg"
  },
  {
+  "method": "coldBrew",
+  "title": "cold brew coffee",
+  "author": "shalommama",
+  "licence": "CC BY 2.0",
+  "source": "https://www.flickr.com/photos/77516069@N05/13610569685"
+ },
+ {
   "method": "turkishIbrik",
   "title": "Bakırcezve-fincan.jpg",
   "author": "Eaeeae",
@@ -64,10 +71,10 @@
  },
  {
   "method": "siphon",
-  "title": "Rocanini, Siphon Coffee (5910298498).jpg",
-  "author": "Kenny Louie from Vancouver, Canada",
-  "licence": "CC BY 2.0",
-  "source": "https://commons.wikimedia.org/wiki/File:Rocanini,_Siphon_Coffee_(5910298498).jpg"
+  "title": "Coffee brewing class at Juan Valdez, Cartagena, Colombia",
+  "author": "Corvair Owner",
+  "licence": "CC BY-SA 2.0",
+  "source": "https://www.flickr.com/photos/59398780@N00/24560924475"
  },
  {
   "method": "kopiTubruk",
@@ -75,6 +82,13 @@
   "author": "Gunawan Kartapranata",
   "licence": "CC BY-SA 3.0",
   "source": "https://commons.wikimedia.org/wiki/File:Javanese_Kopi_Tubruk.jpg"
+ },
+ {
+  "method": "kopiSaring",
+  "title": "Kopi Susu, dari warung kopi Solong",
+  "author": "anggafara",
+  "licence": "CC BY 2.0",
+  "source": "https://www.flickr.com/photos/78125272@N02/26229557192"
  },
  {
   "method": "kopiJoss",

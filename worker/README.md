@@ -75,7 +75,7 @@ curl -sS https://kopi-kompas.<subdomain>.workers.dev/parse \
 The scoring rubric lives in `src/prompts.ts` as `TARGETS`, keyed by method,
 and is versioned by `RUBRIC_VERSION`. **Bump the version whenever the numbers
 change.** Every score the app stores records the rubric that produced it, and
-comparing an `r1` score to an `r2` score is comparing two different
+comparing an `r1` score to an `r3` score is comparing two different
 measurements. Leaving the version alone makes past scores silently wrong
 rather than merely old.
 
