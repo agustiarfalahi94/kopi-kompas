@@ -91,6 +91,13 @@ flutter build apk --release --split-per-abi
 
 - **`flutter create` puts `INTERNET` in the debug and profile manifests only.**
   A release build then has no network while every test passes.
+- **`flutter_local_notifications` stopped shipping its own receivers in v16.**
+  The host app must declare `ScheduledNotificationReceiver` and
+  `ScheduledNotificationBootReceiver` plus `RECEIVE_BOOT_COMPLETED`. Without
+  the first, the alarm fires into nothing and a scheduled notification never
+  appears — the daily reminder was dead in every build ever shipped while
+  `reminder_schedule_test` stayed green, because the schedule maths is a pure
+  function and was right all along. `test/manifest_test.dart` pins them now.
 - **A colliding enum in `methodData` silently narrows.** `brewer` exists in
   three methods with different values; the union must merge them or the model
   is never offered the right one.

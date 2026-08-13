@@ -645,6 +645,15 @@ failed kept the old number and looked identical to one that agreed with it,
 and an entry last scored under an older rubric may have moved because the
 rules changed rather than because of the edit.
 
+**The reminder had never once worked, found v0.3.1.** Not a scheduling bug —
+`reminder_schedule.dart` was correct from the start, which is why every unit
+test passed. `flutter_local_notifications` stopped contributing its broadcast
+receivers to the merged manifest in v16, and this app never declared them, so
+the AlarmManager alarm fired into an app with nothing registered to receive
+it. A scheduled notification could not appear at all. Found by reading the
+plugin's current documentation and then the merged manifest, rather than by
+testing, because there is nothing in Dart to test.
+
 **Guide photographs, v0.3.0.** Fifteen of sixteen methods, from Wikimedia
 Commons and Openverse under CC0, CC BY or CC BY-SA. `kopiTalua` has none —
 no archive holds a freely licensed one. See `ASSET_CREDITS.md`; attribution is

@@ -16,6 +16,10 @@
     <uses-permission android:name="android.permission.USE_FINGERPRINT"
         tools:node="remove"/>
 
+    <!-- Without this the daily reminder is silently lost on every reboot.
+         Paired with ScheduledNotificationBootReceiver below. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
     <application
         android:label="Kopi Kompas"
         android:name="${applicationName}"
@@ -47,6 +51,32 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- flutter_local_notifications stopped contributing these in v16:
+             its own manifest now declares only POST_NOTIFICATIONS and
+             VIBRATE, and the host app must add the rest.
+
+             Without ScheduledNotificationReceiver the AlarmManager alarm
+             fires into nothing, so a scheduled notification never appears —
+             not "is late", never. That is why nobody had seen the daily
+             reminder go off. Every unit test still passed: the schedule maths
+             is a pure function and was right all along.
+
+             ScheduledNotificationBootReceiver re-registers the alarm after a
+             reboot or an app update, which Android otherwise discards. -->
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
