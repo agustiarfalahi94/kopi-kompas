@@ -103,6 +103,7 @@ class MethodSpec with Labelled {
     required this.labels,
     required this.fields,
     this.targets,
+    this.hideCore = const [],
   });
 
   final String id;
@@ -114,6 +115,13 @@ class MethodSpec with Labelled {
   /// The numbers this method is judged against, shared with the Worker's
   /// rubric so a guide and a score can never disagree.
   final BrewTargets? targets;
+
+  /// Core fields this method should not ask about.
+  ///
+  /// Kopi tubruk and its relatives are almost always made from pre-ground
+  /// packaged coffee, so a roast date or a grinder setting is asking about
+  /// something the tin does not say and the brewer never chose.
+  final List<String> hideCore;
 }
 
 /// The sixteen brew methods, their categories and their fields, read from the
@@ -200,6 +208,7 @@ class BrewSchema {
         scored: m['scored'] as bool,
         labels: _labels(m['label'] as Map<String, dynamic>),
         fields: fields,
+        hideCore: ((m['hideCore'] as List?) ?? const []).cast<String>(),
         targets: m['targets'] == null
             ? null
             : BrewTargets.fromJson(m['targets'] as Map<String, dynamic>),

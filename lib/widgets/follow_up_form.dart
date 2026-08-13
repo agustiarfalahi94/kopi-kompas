@@ -51,7 +51,8 @@ List<BrewFormField> formFields(
   }
 
   return [
-    for (final f in schema.core) resolve(f, core),
+    for (final f in schema.core)
+      if (!spec.hideCore.contains(f.name)) resolve(f, core),
     for (final f in spec.fields) resolve(f, methodData),
   ];
 }
