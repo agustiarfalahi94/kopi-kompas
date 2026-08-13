@@ -92,7 +92,7 @@ class _ScoreRevealState extends State<ScoreReveal> {
                   if (widget.photo case final p?)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
-                      child: GuidePhotoCard(photo: p, height: 140),
+                      child: GuidePhotoCard(photo: p, maxHeight: 200),
                     ),
                   for (final reason in entry.scoreReasons)
                     Padding(
