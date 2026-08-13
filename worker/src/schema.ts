@@ -124,6 +124,12 @@ export function buildParseResponseSchema(): Record<string, unknown> {
 
   const properties = {
     brewMethod: { type: 'string', enum: METHODS },
+    // Not a schema field: brewedAt is a column on the entry, not something a
+    // method declares, so it is named here rather than in brew_schema.json.
+    // Nullable like the rest — a constrained decoder that cannot emit null
+    // fills the slot with whatever is nearby, which is how a parse once came
+    // back with beanOrigin "doseGrams".
+    brewedAt: { type: 'string', nullable: true },
     ...core,
     methodData: {
       type: 'object',

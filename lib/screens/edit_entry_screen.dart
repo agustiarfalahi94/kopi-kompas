@@ -5,6 +5,7 @@ import '../models/brew_entry.dart';
 import '../services/brew_database.dart';
 import '../services/kopi_client.dart';
 import '../strings.dart';
+import '../widgets/brew_date_field.dart';
 import '../widgets/follow_up_form.dart';
 import 'home_screen.dart' show displayLabel;
 
@@ -21,12 +22,18 @@ import 'home_screen.dart' show displayLabel;
 /// The existing score is kept until a new one replaces it. A network blip
 /// while re-scoring must not destroy a number you already had — the opposite
 /// of the first save, where there was nothing to lose.
+///
+/// [rescore] is false when only the timestamp moved. No rubric looks at when
+/// a coffee was brewed, so re-running the model would spend a request to
+/// arrive at the same number with a newer `scoredAt`.
 BrewEntry applyEdits(
   BrewEntry entry,
   Map<String, Object?> answers,
   BrewSchema schema,
-  DateTime now,
-) {
+  DateTime now, {
+  DateTime? brewDate,
+  bool rescore = true,
+}) {
   final coreNames = schema.core.map((f) => f.name).toSet();
   final core = <String, Object?>{};
   final methodData = <String, Object?>{};
@@ -58,14 +65,16 @@ BrewEntry applyEdits(
     grindSize: core['grindSize'] as String?,
     waterType: core['waterType'] as String?,
     notes: core['notes'] as String?,
-    brewDate: entry.brewDate,
+    brewDate: brewDate ?? entry.brewDate,
     rawInputText: entry.rawInputText,
     methodData: methodData,
     overallScore: entry.overallScore,
     scoreReasons: entry.scoreReasons,
-    scoreStatus: schema.isScored(entry.brewMethod)
+    scoreStatus: !schema.isScored(entry.brewMethod)
+        ? ScoreStatus.notApplicable
+        : rescore
         ? ScoreStatus.pending
-        : ScoreStatus.notApplicable,
+        : entry.scoreStatus,
     scoreRubric: entry.scoreRubric,
     scoreModel: entry.scoreModel,
     scoredAt: entry.scoredAt,
@@ -98,6 +107,30 @@ class EditEntryScreen extends StatefulWidget {
 class _EditEntryScreenState extends State<EditEntryScreen> {
   Map<String, Object?> _answers = const {};
   bool _busy = false;
+  late DateTime _brewedAt = widget.entry.brewDate;
+
+  /// What the form reported when it first rendered, before anything was
+  /// touched. Comparing against this is what tells us an edit is real.
+  Map<String, Object?>? _initial;
+
+  /// True when no field differs from what it said on arrival.
+  ///
+  /// Saving an unchanged entry would re-score it for nothing — a Gemini
+  /// request, a new number that may differ by a point or two, and a fresh
+  /// scoredAt on a brew nobody actually edited.
+  bool get _fieldsUnchanged {
+    final start = _initial;
+    if (start == null) return true;
+    if (start.length != _answers.length) return false;
+    for (final e in _answers.entries) {
+      if (start[e.key] != e.value) return false;
+    }
+    return true;
+  }
+
+  /// The timestamp counts as an edit — it is stored data — but it is the one
+  /// change that must not trigger a re-score.
+  bool get _unchanged => _fieldsUnchanged && _brewedAt == widget.entry.brewDate;
 
   Map<String, Object?> get _core => {
     'beanOrigin': widget.entry.beanOrigin,
@@ -121,6 +154,8 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
       _answers,
       widget.schema,
       DateTime.now(),
+      brewDate: _brewedAt,
+      rescore: !_fieldsUnchanged,
     );
 
     if (edited.scoreStatus == ScoreStatus.pending) {
@@ -177,8 +212,13 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                BrewDateField(
+                  value: _brewedAt,
+                  onChanged: (t) => setState(() => _brewedAt = t),
+                ),
                 Expanded(
                   child: BrewForm(
+                    schema: widget.schema,
                     fields: formFields(
                       widget.schema,
                       widget.entry.brewMethod,
@@ -186,13 +226,20 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                       widget.entry.methodData,
                       const {},
                     ),
-                    onChanged: (v) => _answers = v,
+                    onChanged: (v) => setState(() {
+                      _answers = v;
+                      _initial ??= Map.of(v);
+                    }),
                   ),
                 ),
                 const SizedBox(height: 8),
                 FilledButton(
-                  onPressed: _save,
-                  child: Text(AppStrings.saveButton),
+                  // Disabled until something actually differs, so an edit
+                  // opened out of curiosity costs nothing.
+                  onPressed: _unchanged ? null : _save,
+                  child: Text(
+                    _unchanged ? AppStrings.noChanges : AppStrings.saveButton,
+                  ),
                 ),
               ],
             ),

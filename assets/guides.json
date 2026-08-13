@@ -1,0 +1,1562 @@
+{
+  "guides": {
+    "espresso": {
+      "what": {
+        "en": "Hot water forced through a compacted bed of fine coffee at around 9 bar. Everything happens in half a minute, which is why every variable matters so much.",
+        "id": "Air panas ditekan lewat bubuk halus yang sudah dipadatkan, sekitar 9 bar. Semuanya kelar dalam setengah menit — makanya sedikit saja meleset langsung kerasa."
+      },
+      "steps": [
+        {
+          "en": "Grind fine and dose into a dry, level basket.",
+          "id": "Giling halus, tuang ke basket yang kering dan rata."
+        },
+        {
+          "en": "Distribute — WDT with a needle tool breaks up clumps that would otherwise channel.",
+          "id": "Ratakan pakai WDT. Jarumnya memecah gumpalan yang bikin air nyari jalan pintas."
+        },
+        {
+          "en": "Tamp level. Pressure matters less than being flat; a tilted puck extracts unevenly.",
+          "id": "Tamping yang rata. Rata itu lebih penting daripada kuat — puck miring pasti ekstraksinya pincang."
+        },
+        {
+          "en": "Lock in and start the shot immediately. A hot puck sitting in the group starts extracting before the pump does.",
+          "id": "Pasang, langsung tarik. Puck panas yang nunggu di grouphead sudah mulai terekstraksi duluan."
+        },
+        {
+          "en": "Watch the first drops: 5–10 seconds before flow is normal. Under 3 means too coarse, over 15 means too fine.",
+          "id": "Lihat tetes pertama: 5–10 detik itu wajar. Di bawah 3 berarti kekasaran, di atas 15 kehalusan."
+        },
+        {
+          "en": "Stop at your target yield by weight, not by eye.",
+          "id": "Stop di target hasil pakai timbangan, jangan ngira-ngira."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Sour, thin, runs fast",
+            "id": "Asam, tipis, ngalirnya cepat"
+          },
+          "cause": {
+            "en": "Under-extracted. Grind finer or raise the dose.",
+            "id": "Ekstraksinya kurang. Gilingnya halusin, atau dosisnya tambah."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Bitter, harsh, dry finish",
+            "id": "Pahit, kasar, seret di akhir"
+          },
+          "cause": {
+            "en": "Over-extracted. Grind coarser, lower the temperature, or shorten the shot.",
+            "id": "Kelewat ekstraksi. Gilingnya kasarin, suhunya turunin, atau shot-nya perpendek."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Fast then slow, tastes both sour and bitter",
+            "id": "Awalnya cepat lalu melambat, rasanya asam sekaligus pahit"
+          },
+          "cause": {
+            "en": "Channelling. Water found a crack and skipped most of the puck. Better distribution, not a finer grind.",
+            "id": "Channeling — air nemu celah dan lewat begitu saja. Yang perlu diperbaiki distribusinya, bukan gilingannya."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Won't flow at all",
+            "id": "Sama sekali nggak keluar"
+          },
+          "cause": {
+            "en": "Far too fine, or over-dosed for the basket.",
+            "id": "Kehalusan, atau dosisnya kebanyakan buat basket segitu."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "A single-boiler machine with a decent portafilter, plus a hand grinder. The grinder matters more than the machine — a great machine cannot fix an uneven grind.",
+            "id": "Mesin single boiler yang portafilternya layak, plus grinder manual. Grinder lebih menentukan daripada mesinnya — mesin mahal nggak bisa nutupin gilingan yang nggak rata."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "Heat exchanger or dual boiler for temperature stability, and a flat-burr electric grinder. This is where shot-to-shot consistency arrives.",
+            "id": "Heat exchanger atau dual boiler biar suhunya stabil, plus grinder listrik burr datar. Di sini shot-mu baru mulai konsisten."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "Multi-boiler with PID and pressure profiling, on-demand commercial grinder. Buys repeatability across hundreds of shots a day, not a better single shot.",
+            "id": "Multi-boiler dengan PID dan pressure profiling, grinder komersial on-demand. Yang kamu bayar itu kemampuan ngulang ratusan shot sehari, bukan satu shot yang lebih enak."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "58 mm is the commercial standard basket; 51 and 54 mm appear on smaller home machines and hold less coffee.",
+          "id": "58 mm itu ukuran standar kafe. Mesin rumahan yang lebih kecil pakai 51 atau 54 mm dan muat lebih sedikit kopi."
+        },
+        {
+          "en": "Pressurised (dual-wall) baskets create back-pressure artificially, so they forgive a bad grinder but flatten the flavour and cannot be dialled in. Non-pressurised (single-wall) baskets reward a good grinder and are what you want once you have one.",
+          "id": "Basket pressurized (dinding dobel) bikin tekanan balik secara buatan. Enaknya, grinder seadanya masih bisa dipakai. Nggak enaknya, rasanya jadi datar dan nggak bisa di-dial in. Begitu grinder-mu udah bagus, pindah ke non-pressurized."
+        }
+      ]
+    },
+    "coneDripper": {
+      "what": {
+        "en": "A conical dripper with a large single hole — V60, Origami, Kono. You control the flow with your pour, which is what makes it expressive and unforgiving.",
+        "id": "Dripper kerucut dengan satu lubang besar — V60, Origami, Kono. Alirannya kamu yang atur lewat cara nuang, jadi karakternya keluar banget, tapi salah dikit langsung kelihatan."
+      },
+      "steps": [
+        {
+          "en": "Rinse the paper filter with hot water; it removes papery taste and preheats the brewer.",
+          "id": "Siram kertasnya pakai air panas dulu. Bau kertasnya hilang, alatnya sekalian anget."
+        },
+        {
+          "en": "Add grounds, level the bed, and make a small well in the centre.",
+          "id": "Masukkan bubuknya, ratakan, bikin cekungan kecil di tengah."
+        },
+        {
+          "en": "Bloom with two to three times the dose in water. Wait 30–45 seconds while it degasses.",
+          "id": "Bloom pakai air dua sampai tiga kali berat kopinya. Tunggu 30–45 detik sampai gasnya keluar."
+        },
+        {
+          "en": "Pour in slow spirals from the centre outward, keeping the bed level.",
+          "id": "Nuang muter pelan dari tengah ke pinggir, jaga permukaannya tetap rata."
+        },
+        {
+          "en": "Aim for 3–5 pours. Finish with a gentle swirl to flatten the bed.",
+          "id": "Targetnya 3–5 kali tuang. Terakhir, goyang pelan biar ampasnya rata lagi."
+        },
+        {
+          "en": "Drawdown should finish shortly after the last pour.",
+          "id": "Airnya harus habis nggak lama setelah tuangan terakhir."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Drains far too fast, tastes thin",
+            "id": "Turunnya kecepetan, rasanya tipis"
+          },
+          "cause": {
+            "en": "Too coarse, or you poured too aggressively and broke the bed.",
+            "id": "Kekasaran, atau nuangnya kelewat deras sampai permukaannya rusak."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Stalls, takes far too long, bitter",
+            "id": "Mampet, kelamaan, pahit"
+          },
+          "cause": {
+            "en": "Too fine, or fines migrated and blocked the filter.",
+            "id": "Kehalusan, atau bubuk halusnya nyumbat kertas."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Grounds high on the wall when finished",
+            "id": "Ampas nempel tinggi di dinding"
+          },
+          "cause": {
+            "en": "Uneven pouring. Those grounds never got extracted.",
+            "id": "Nuangnya nggak rata. Ampas yang di situ nggak keekstrak sama sekali."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "A plastic V60 (holds heat better than glass), paper filters, and any kettle you can pour slowly from.",
+            "id": "V60 plastik (nahan panasnya lebih bagus daripada kaca), kertas filter, dan teko apa saja yang bisa nuang pelan."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "Gooseneck kettle with temperature control, and a burr grinder. The kettle changes pour control more than the dripper does.",
+            "id": "Teko leher angsa yang ada pengatur suhunya, plus grinder burr. Tekonya lebih ngubah kontrol tuangan daripada dripper-nya sendiri."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "Scale with built-in timer and flow readout. Mostly about repeating a recipe exactly.",
+            "id": "Timbangan yang ada timer dan bacaan alirannya. Ini soal ngulang resep persis sama."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "Origami on a cone filter behaves like a V60; on a wave filter it behaves flat-bottomed.",
+          "id": "Origami pakai kertas kerucut kelakuannya kayak V60; pakai kertas wave jadi kayak dripper dasar rata."
+        },
+        {
+          "en": "Kono's ribs stop short of the top, so the paper seals against the wall and flow slows — expect longer times than a V60.",
+          "id": "Rusuk Kono berhenti sebelum bibir atas, jadi kertasnya nempel ke dinding dan aliran melambat — wajar kalau lebih lama dari V60."
+        }
+      ]
+    },
+    "flatBottomDripper": {
+      "what": {
+        "en": "A flat bed with small restricted holes — Kalita Wave, Stagg [X], Orea, April. The flat bed extracts more evenly than a cone, so it is more forgiving of an imperfect pour.",
+        "id": "Dasarnya rata, lubangnya kecil-kecil jadi alirannya tertahan — Kalita Wave, Stagg [X], Orea, April. Karena permukaannya rata, ekstraksinya lebih merata dan tuangan yang kurang rapi masih aman."
+      },
+      "steps": [
+        {
+          "en": "Rinse the filter and preheat.",
+          "id": "Siram kertasnya, panasin alatnya."
+        },
+        {
+          "en": "Add grounds and level the bed — flat means flat here, it matters more than on a cone.",
+          "id": "Masukkan bubuk dan ratakan — di sini rata itu lebih penting daripada di kerucut."
+        },
+        {
+          "en": "Bloom with two to three times the dose, 30–45 seconds.",
+          "id": "Bloom dua sampai tiga kali berat kopinya, 30–45 detik."
+        },
+        {
+          "en": "Pour in gentle concentric circles, avoiding the wall.",
+          "id": "Nuang muter pelan, jangan kena dinding."
+        },
+        {
+          "en": "Keep the water level fairly constant rather than letting it drain fully between pours.",
+          "id": "Airnya jaga jangan sampai kering di antara tuangan."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Slow and muddy",
+            "id": "Lambat dan keruh"
+          },
+          "cause": {
+            "en": "Too fine — the restricted holes clog more readily than a cone's.",
+            "id": "Kehalusan — lubang kecilnya lebih gampang mampet daripada kerucut."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Thin and sour",
+            "id": "Tipis dan asam"
+          },
+          "cause": {
+            "en": "Too coarse, or the bed drained dry between pours.",
+            "id": "Kekasaran, atau ampasnya sempat kering di antara tuangan."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "Kalita Wave 155 in stainless, and its wave filters.",
+            "id": "Kalita Wave 155 stainless sama kertas wave-nya."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "Add a gooseneck kettle and a decent grinder. Orea or April if you want faster flow and more control.",
+            "id": "Tambah teko leher angsa dan grinder yang lumayan. Orea atau April kalau mau aliran lebih cepat dan kontrol lebih banyak."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "Batch-consistent filters and a flow-measuring scale.",
+            "id": "Kertas yang mutunya konsisten dan timbangan yang bisa baca aliran."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "Kalita's three small holes restrict flow by design, so it runs longer than a cone. That is not a fault to correct.",
+          "id": "Tiga lubang kecil Kalita memang sengaja nahan aliran, jadi wajar lebih lama daripada kerucut. Jadi jangan dianggap salah."
+        },
+        {
+          "en": "Wave filters are dearer and less widely stocked than cone papers — worth checking before you commit.",
+          "id": "Kertas wave lebih mahal dan lebih susah dicari daripada kertas kerucut — cek dulu sebelum beli alatnya."
+        }
+      ]
+    },
+    "chemex": {
+      "what": {
+        "en": "A conical brewer with a filter roughly three times the thickness of a normal paper. That filter is the whole point: it strips oils and fines, giving an unusually clean, tea-like cup.",
+        "id": "Alat kerucut dengan kertas tiga kali lebih tebal dari biasanya. Justru kertasnya itu intinya: minyak dan bubuk halus ketahan, hasilnya bersih banget, mirip teh."
+      },
+      "steps": [
+        {
+          "en": "Rinse the filter thoroughly — the thick paper carries a lot of taste. Put the triple-fold side over the spout.",
+          "id": "Siram kertasnya sampai bener-bener bersih — setebal itu bau kertasnya kebawa. Sisi yang tiga lipat menghadap corong."
+        },
+        {
+          "en": "Add grounds coarser than you would for a V60.",
+          "id": "Bubuknya lebih kasar daripada buat V60."
+        },
+        {
+          "en": "Bloom 30–45 seconds.",
+          "id": "Bloom 30–45 detik."
+        },
+        {
+          "en": "Pour slowly in the centre, avoiding the wall where the filter folds.",
+          "id": "Nuang pelan di tengah, hindari dinding tempat kertasnya melipat."
+        },
+        {
+          "en": "Expect a longer total time than any other pour-over. That is correct, not slow.",
+          "id": "Totalnya bakal lebih lama daripada pour-over mana pun. Itu bener, bukan kelamaan."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Stalled completely",
+            "id": "Berhenti total"
+          },
+          "cause": {
+            "en": "Too fine. A Chemex clogs earlier than a V60 because the paper is thicker.",
+            "id": "Kehalusan. Chemex mampet lebih cepat daripada V60 karena kertasnya tebal."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Papery taste",
+            "id": "Kerasa kertas"
+          },
+          "cause": {
+            "en": "The filter was not rinsed enough.",
+            "id": "Nyiramnya kurang bersih."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Weak despite a long brew",
+            "id": "Encer padahal lama"
+          },
+          "cause": {
+            "en": "Too coarse — long contact with coarse coffee still under-extracts.",
+            "id": "Kekasaran — kontak lama sama bubuk kasar tetap aja kurang keekstrak."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "A 6-cup Chemex and its bonded filters. Nothing else fits properly.",
+            "id": "Chemex 6 cangkir sama kertas bawaannya. Kertas lain nggak pas."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "Gooseneck kettle and a grinder that can go coarse without producing fines.",
+            "id": "Teko leher angsa dan grinder yang bisa kasar tanpa banyak bubuk halus."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "Little to add — the Chemex is already the simple end of the craft.",
+            "id": "Hampir nggak ada tambahan — Chemex emang sisi sederhananya."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "A three-minute Chemex is fast, not normal. Judge it against 3:30–4:30.",
+          "id": "Chemex tiga menit itu kecepetan, bukan normal. Patokannya 3:30–4:30."
+        },
+        {
+          "en": "The thick filter is why a Chemex tastes cleaner and lighter-bodied than a V60 with the same coffee.",
+          "id": "Kertas tebal itulah alasan Chemex kerasa lebih bersih dan ringan daripada V60 dengan kopi yang sama."
+        }
+      ]
+    },
+    "batchBrewer": {
+      "what": {
+        "en": "A machine that heats and doses the water for you. You control the grind and the ratio; it controls everything else.",
+        "id": "Mesin yang manasin dan nakar airnya buat kamu. Kamu tinggal ngatur gilingan sama rasio; sisanya mesin."
+      },
+      "steps": [
+        {
+          "en": "Use a ratio around 1:16 and weigh both coffee and water — the carafe markings are usually optimistic.",
+          "id": "Pakai rasio sekitar 1:16, dan timbang kopinya maupun airnya — garis di teko biasanya kejauhan."
+        },
+        {
+          "en": "Grind medium, roughly like table salt.",
+          "id": "Giling medium, kira-kira sekasar garam meja."
+        },
+        {
+          "en": "Check the machine reaches 92–96 °C. Many cheap brewers do not, and that is the single biggest cause of weak coffee.",
+          "id": "Pastiin mesinnya nyampe 92–96 °C. Banyak mesin murah nggak nyampe, dan itu penyebab utama kopi encer."
+        },
+        {
+          "en": "Pull the carafe as soon as it finishes; a hotplate cooks coffee bitter within minutes.",
+          "id": "Angkat tekonya begitu selesai. Hotplate bikin kopi pahit dalam hitungan menit."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Weak and sour no matter what",
+            "id": "Encer dan asam terus, diapain juga"
+          },
+          "cause": {
+            "en": "The machine is not getting hot enough. No grind change fixes this.",
+            "id": "Mesinnya kurang panas. Mau diapain gilingannya juga percuma."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Bitter after sitting",
+            "id": "Pahit setelah didiemin"
+          },
+          "cause": {
+            "en": "The hotplate. Decant into a thermos instead.",
+            "id": "Hotplate-nya. Pindahin ke termos."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Uneven, some grounds dry",
+            "id": "Nggak merata, sebagian ampas masih kering"
+          },
+          "cause": {
+            "en": "The showerhead is not wetting the bed evenly — a known weakness on cheaper machines.",
+            "id": "Showerhead-nya nggak nyiram rata — kelemahan umum mesin murah."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "Any brewer that actually hits temperature. Certification by a coffee body is a reasonable shortcut.",
+            "id": "Mesin apa pun yang beneran nyampe suhunya. Cek aja yang udah disertifikasi lembaga kopi, itu patokan paling cepat."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "A brewer with a proper showerhead, pre-infusion, and a thermal carafe rather than a hotplate.",
+            "id": "Mesin dengan showerhead yang bener, ada pre-infusion, dan teko termal bukan hotplate."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "Commercial batch brewer with programmable pulse profiles and a heated dispenser.",
+            "id": "Batch brewer komersial dengan profil pulsa dan dispenser berpemanas."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "There are no bloom or pour fields for this method because the machine decides them. Score what you control.",
+          "id": "Metode ini nggak punya kolom bloom atau tuangan karena mesinnya yang nentuin. Yang dinilai cuma yang kamu kendalikan."
+        }
+      ]
+    },
+    "aeropress": {
+      "what": {
+        "en": "Immersion plus pressure through a paper filter. Forgiving, fast, and almost impossible to make undrinkable — which is why it travels so well.",
+        "id": "Rendam plus tekanan, lewat kertas. Gampang, cepat, dan susah bikin yang nggak enak — makanya sering dibawa jalan."
+      },
+      "steps": [
+        {
+          "en": "Rinse the filter and assemble. Upright is simpler; inverted lets you steep without drips.",
+          "id": "Siram kertasnya, rakit alatnya. Posisi normal lebih gampang; kebalik bikin bisa ngerendam tanpa netes."
+        },
+        {
+          "en": "Add coffee, then water. Stir gently to wet everything.",
+          "id": "Kopi dulu, baru air. Aduk pelan biar semuanya kena."
+        },
+        {
+          "en": "Steep 60–120 seconds.",
+          "id": "Rendam 60–120 detik."
+        },
+        {
+          "en": "Press slowly and evenly — 20–30 seconds. If it presses in five, the grind is too coarse.",
+          "id": "Tekan pelan dan rata — 20–30 detik. Kalau lima detik udah kelar, gilingannya kekasaran."
+        },
+        {
+          "en": "Stop pressing when you hear air. Pushing further pulls bitterness through.",
+          "id": "Berhenti pas kedengeran bunyi angin. Diterusin malah nariknya pahit."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Very hard to press",
+            "id": "Berat banget ditekan"
+          },
+          "cause": {
+            "en": "Too fine. Uncomfortable to push and usually bitter.",
+            "id": "Kehalusan. Capek dan biasanya pahit."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Presses instantly, tastes thin",
+            "id": "Langsung amblas, rasanya tipis"
+          },
+          "cause": {
+            "en": "Too coarse.",
+            "id": "Kekasaran."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Bitter at the end",
+            "id": "Pahit di akhir"
+          },
+          "cause": {
+            "en": "You pressed past the hiss.",
+            "id": "Kamu nerusin nekan lewat bunyi anginnya."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "An AeroPress and paper filters. That is genuinely the whole kit.",
+            "id": "AeroPress sama kertasnya. Beneran cuma itu."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "A hand grinder and a scale. A metal filter if you want more body and less clarity.",
+            "id": "Grinder manual dan timbangan. Filter logam kalau mau body lebih tebal, tapi jadi kurang bening."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "Nothing meaningful. The AeroPress does not scale up, which is part of its charm.",
+            "id": "Nggak ada. AeroPress emang cuma buat porsi kecil, dan itu justru enaknya."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "Lower temperatures than other methods work well here — 80–85 °C suits light roasts and reduces bitterness.",
+          "id": "Suhu di sini boleh lebih rendah daripada metode lain — 80–85 °C cocok buat sangrai terang dan nahan pahitnya."
+        },
+        {
+          "en": "The concentrate style (1:5, then diluted) is a different drink from a full-immersion 1:15. Both are valid; decide which you are making before judging it.",
+          "id": "Gaya konsentrat (1:5 terus diencerin) itu minuman yang beda dari rendaman penuh 1:15. Dua-duanya sah, tapi tentuin dulu mau bikin yang mana sebelum nilai hasilnya."
+        }
+      ]
+    },
+    "frenchPress": {
+      "what": {
+        "en": "Full immersion with a metal mesh. The mesh lets oils and fine particles through, which is exactly what gives it that heavy body.",
+        "id": "Rendam penuh, saringannya logam. Minyak dan partikel halus ikut lolos, dan justru itu yang bikin body-nya tebal."
+      },
+      "steps": [
+        {
+          "en": "Preheat the press. Coarse grind, like breadcrumbs.",
+          "id": "Panasin dulu presnya. Giling kasar, kayak remah roti."
+        },
+        {
+          "en": "Add all the water at once and stir the crust after a minute.",
+          "id": "Tuang airnya sekaligus, terus aduk keraknya setelah semenit."
+        },
+        {
+          "en": "Steep four minutes total.",
+          "id": "Rendam empat menit."
+        },
+        {
+          "en": "Skim the foam and floating grounds off the top before plunging — this removes most of the bitterness people blame on the method.",
+          "id": "Sebelum ditekan, buang busa dan ampas yang ngambang di atas — ini yang ngilangin sebagian besar rasa pahit yang sering disalahin ke metodenya."
+        },
+        {
+          "en": "Plunge slowly and pour immediately. Coffee left on the grounds keeps extracting.",
+          "id": "Tekan pelan, langsung tuang habis. Kopi yang nginep di atas ampas terus keekstrak."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Muddy and gritty",
+            "id": "Keruh dan berpasir"
+          },
+          "cause": {
+            "en": "Grind too fine, or you plunged hard and forced fines through.",
+            "id": "Kehalusan, atau kamu nekannya kekencengan sampai bubuk halusnya lolos."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Bitter, especially the last cup",
+            "id": "Pahit, apalagi gelas terakhir"
+          },
+          "cause": {
+            "en": "It sat on the grounds. Decant everything as soon as you plunge.",
+            "id": "Kelamaan nginep di ampas. Tuang habis begitu ditekan."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Weak and watery",
+            "id": "Encer"
+          },
+          "cause": {
+            "en": "Ratio too lean, or steeped too briefly.",
+            "id": "Kopinya kurang banyak, atau ngerendamnya kesingkatan."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "Any press and a kettle. The most forgiving brewer there is.",
+            "id": "Pres apa aja sama teko. Alat paling gampang yang ada."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "A burr grinder — fines are the enemy here, and a blade grinder makes nothing but.",
+            "id": "Grinder burr — musuhnya di sini bubuk halus, dan grinder pisau cuma bikin itu."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "A double-walled steel press for heat retention, and a cupping spoon for skimming.",
+            "id": "Pres baja dinding dobel biar panasnya tahan, sama sendok cupping buat buang busanya."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "Skimming rather than plunging hard is the single biggest improvement most people can make.",
+          "id": "Buang busanya, jangan nekan kuat-kuat. Itu perbaikan paling gede yang bisa dilakuin kebanyakan orang."
+        }
+      ]
+    },
+    "coldBrew": {
+      "what": {
+        "en": "Coarse coffee steeped in cold water for many hours. Low temperature extracts very little acidity, which is why it tastes sweet and soft rather than bright.",
+        "id": "Kopi kasar direndam air dingin berjam-jam. Karena dingin, asamnya hampir nggak keekstrak — makanya rasanya manis dan lembut, bukan cerah."
+      },
+      "steps": [
+        {
+          "en": "Grind coarse. Fines turn cold brew muddy and there is no filter fast enough to save it.",
+          "id": "Giling kasar. Bubuk halus bikin cold brew keruh, dan dan nggak ada saringan yang bisa nyelametin."
+        },
+        {
+          "en": "Combine at roughly 1:8 for a concentrate, 1:15 to drink straight.",
+          "id": "Campur sekitar 1:8 kalau mau konsentrat, 1:15 kalau mau langsung diminum."
+        },
+        {
+          "en": "Stir to wet everything, then leave it. Room temperature 12–16 hours, or in the fridge 16–24.",
+          "id": "Aduk sampai semuanya kena air, terus diemin. Suhu ruang 12–16 jam, atau di kulkas 16–24 jam."
+        },
+        {
+          "en": "Strain through a paper filter or a cloth. Expect it to take a while.",
+          "id": "Saring pakai kertas atau kain. Siapin waktu, ini lama."
+        },
+        {
+          "en": "Keep refrigerated and drink within a week.",
+          "id": "Simpen di kulkas, habisin dalam seminggu."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Weak and papery",
+            "id": "Encer dan kerasa kertas"
+          },
+          "cause": {
+            "en": "Too coarse, too short, or the ratio was too lean.",
+            "id": "Kekasaran, kesingkatan, atau kopinya kurang banyak."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Muddy and heavy",
+            "id": "Keruh dan berat"
+          },
+          "cause": {
+            "en": "Too fine, or you squeezed the grounds while straining.",
+            "id": "Kehalusan, atau ampasnya kamu peres pas nyaring."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Sour or fermented",
+            "id": "Asam atau kayak terfermentasi"
+          },
+          "cause": {
+            "en": "Left too long at room temperature. Move it to the fridge.",
+            "id": "Kelamaan di suhu ruang. Pindahin ke kulkas."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "A jar and a paper filter. Nothing else is required.",
+            "id": "Toples sama kertas saring. Udah, cuma itu."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "A dedicated brewer with a fine mesh basket, and fridge space.",
+            "id": "Alat khusus yang saringannya halus, sama tempat kosong di kulkas."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "Nitro tap and kegs, which is a serving question rather than a brewing one.",
+            "id": "Keran nitro dan keg — tapi itu urusan nyajiin, bukan nyeduh."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "A hot bloom — wetting the grounds with a little hot water first — brings out more aroma before the long cold steep. Worth trying; there is a field for it.",
+          "id": "Bloom panas — bubuknya dibasahin sedikit air panas dulu — bikin aromanya lebih keluar sebelum direndam dingin lama. Boleh dicoba — kolomnya udah disediain."
+        }
+      ]
+    },
+    "turkishIbrik": {
+      "what": {
+        "en": "Coffee ground to a powder, boiled with the water, and served without filtering. The grounds settle in the cup rather than being removed, which makes it a decoction rather than an immersion.",
+        "id": "Kopi digiling sehalus tepung, direbus bareng airnya, disajikan tanpa disaring. Ampasnya ngendap di cangkir, bukan dibuang — itu yang bikin ini dekoksi, bukan rendaman."
+      },
+      "steps": [
+        {
+          "en": "Grind finer than espresso — it should feel like flour.",
+          "id": "Giling lebih halus dari espresso — harus kerasa kayak tepung."
+        },
+        {
+          "en": "Combine coffee, cold water and any sugar in the ibrik before heating. Sugar goes in now, never after.",
+          "id": "Kopi, air dingin, sama gulanya dicampur di ibrik sebelum dipanasin. Gulanya masuk sekarang, jangan belakangan."
+        },
+        {
+          "en": "Heat slowly. Do not stir once it warms.",
+          "id": "Panasin pelan-pelan. Jangan diaduk lagi begitu mulai anget."
+        },
+        {
+          "en": "As foam rises, lift it off the heat before it boils over. Traditionally repeated two or three times.",
+          "id": "Pas busanya naik, angkat sebelum tumpah. Tradisinya diulang dua tiga kali."
+        },
+        {
+          "en": "Pour gently, foam first, and let it settle a minute before drinking.",
+          "id": "Tuang pelan, busanya duluan, terus diemin sebentar sebelum diminum."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "No foam",
+            "id": "Nggak berbusa"
+          },
+          "cause": {
+            "en": "Heated too fast, or the grind is not fine enough.",
+            "id": "Kecepetan manasinnya, atau gilingannya kurang halus."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Gritty in the mouth",
+            "id": "Berpasir di mulut"
+          },
+          "cause": {
+            "en": "Poured too quickly, or not left to settle.",
+            "id": "Nuangnya kecepetan, atau nggak sempat diemin."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Burnt and bitter",
+            "id": "Gosong dan pahit"
+          },
+          "cause": {
+            "en": "It actually boiled. It should never reach a rolling boil.",
+            "id": "Beneran kelewat mendidih. Nggak boleh sampai menggelegak."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "A copper or brass ibrik and a grinder that can reach powder — most burr grinders cannot.",
+            "id": "Ibrik tembaga atau kuningan, sama grinder yang sanggup sehalus tepung — kebanyakan grinder burr nggak bisa."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "A dedicated Turkish mill, usually a hand mill built for this fineness.",
+            "id": "Penggiling khusus Turki, biasanya manual yang emang dibikin buat kehalusan segini."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "A sand-bed heater, which heats far more evenly than a flame.",
+            "id": "Pemanas pasir, panasnya jauh lebih rata daripada api."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "Closest relative among the other methods is kopi tubruk — both leave the grounds in the cup.",
+          "id": "Saudara terdekatnya di antara metode lain itu kopi tubruk — sama-sama ninggalin ampas di cangkir."
+        }
+      ]
+    },
+    "smartDripper": {
+      "what": {
+        "en": "A dripper with a valve — Clever, Hario Switch. You steep like a French press, then release it through a paper filter. Immersion body with pour-over clarity.",
+        "id": "Dripper yang ada katupnya — Clever, Hario Switch. Kamu ngerendam kayak French press, terus dilepas lewat kertas. Body-nya rendaman, beningnya pour-over."
+      },
+      "steps": [
+        {
+          "en": "Rinse the filter with the valve closed.",
+          "id": "Siram kertasnya dengan katup ketutup."
+        },
+        {
+          "en": "Add grounds and all the water at once. Stir to wet.",
+          "id": "Masukin bubuk sama semua airnya sekaligus. Aduk biar kena semua."
+        },
+        {
+          "en": "Steep two to four minutes — this is where extraction happens, not during the drain.",
+          "id": "Rendam dua sampai empat menit — di sinilah ekstraksinya, bukan pas netesnya."
+        },
+        {
+          "en": "Open the valve (or set it on the cup) and let it draw down.",
+          "id": "Buka katupnya (atau taruh di atas gelas), biarin turun."
+        },
+        {
+          "en": "The drawdown should take under a minute. Longer means too fine.",
+          "id": "Turunnya harus di bawah semenit. Lebih dari itu berarti kehalusan."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Very slow drawdown",
+            "id": "Turunnya lama banget"
+          },
+          "cause": {
+            "en": "Too fine, or fines have blocked the paper.",
+            "id": "Kehalusan, atau bubuk halusnya nyumbat kertas."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Thin despite a long steep",
+            "id": "Tipis padahal direndam lama"
+          },
+          "cause": {
+            "en": "Too coarse. Steep time cannot rescue a grind that is too big.",
+            "id": "Kekasaran. Direndam lama pun percuma kalau gilingannya kegedean."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "A Clever dripper and standard cone filters.",
+            "id": "Clever dripper sama kertas kerucut biasa."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "A Hario Switch, which lets you alternate steeping and percolating within one brew.",
+            "id": "Hario Switch, bisa gantian ngerendam dan ngalirin dalam satu seduhan."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "Not a café brewer, but excellent for tasting several coffees side by side.",
+            "id": "Bukan alat kafe, tapi pas banget buat nyicip beberapa kopi sekaligus."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "Because extraction happens during the steep, grind affects taste less here than in a pour-over — which makes it a forgiving place to start.",
+          "id": "Karena ekstraksinya pas ngerendam, gilingan nggak sepenting di pour-over — makanya cocok banget buat yang baru mulai."
+        }
+      ]
+    },
+    "siphon": {
+      "what": {
+        "en": "Vapour pressure pushes water into an upper chamber, it brews there, and a vacuum pulls it back down through a filter as it cools. Theatrical, and genuinely very clean.",
+        "id": "Uap ndorong air ke ruang atas, kopinya diseduh di situ, terus vakum nariknya turun lewat filter pas mendingin. Seru dilihat, dan hasilnya emang bersih banget."
+      },
+      "steps": [
+        {
+          "en": "Fill the lower bulb with hot water to save time, and seat the filter in the upper chamber.",
+          "id": "Isi bola bawahnya pakai air panas biar cepat, pasang filternya di ruang atas."
+        },
+        {
+          "en": "Bring to the boil; the water rises on its own.",
+          "id": "Didihin; airnya bakal naik sendiri."
+        },
+        {
+          "en": "Add coffee once the water is up. Stir gently to wet.",
+          "id": "Masukin kopinya setelah airnya naik. Aduk pelan biar kena semua."
+        },
+        {
+          "en": "Brew 60–90 seconds, with a second gentle stir.",
+          "id": "Seduh 60–90 detik, aduk pelan sekali lagi."
+        },
+        {
+          "en": "Remove the heat. The vacuum pulls it down in around 30 seconds — a good draw looks like a whirlpool.",
+          "id": "Angkat dari api. Vakumnya narik turun sekitar 30 detik — tarikan yang bagus keliatan kayak pusaran."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Very slow draw",
+            "id": "Nariknya lama banget"
+          },
+          "cause": {
+            "en": "Too fine, or the filter is clogged.",
+            "id": "Kehalusan, atau filternya mampet."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Water rises before you are ready",
+            "id": "Airnya naik sebelum kamu siap"
+          },
+          "cause": {
+            "en": "Normal — just heat more gently.",
+            "id": "Wajar — panasinnya pelanin aja."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Thin and sour",
+            "id": "Tipis dan asam"
+          },
+          "cause": {
+            "en": "Too coarse, or too short in the upper chamber.",
+            "id": "Kekasaran, atau kesingkatan di ruang atas."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "A 3-cup siphon and a butane burner. Cloth filters need proper care.",
+            "id": "Siphon 3 cangkir sama kompor butana. Filter kainnya butuh dirawat serius."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "A halogen beam heater, which is far easier to control than a flame.",
+            "id": "Pemanas halogen, jauh lebih gampang diatur daripada api."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "A multi-station siphon bar. Almost entirely about presentation.",
+            "id": "Bar siphon banyak stasiun. Hampir semuanya soal tampilan."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "Cloth filters give the cleanest cup but must be kept wet in the fridge and replaced often. Paper and metal are easier.",
+          "id": "Filter kain hasilnya paling bening tapi harus selalu basah di kulkas dan sering diganti. Kertas sama logam lebih gampang."
+        }
+      ]
+    },
+    "kopiTubruk": {
+      "what": {
+        "en": "Indonesian home coffee: fine grounds and sugar in the glass, boiling water poured over, and you wait for it to settle. No filter, no equipment.",
+        "id": "Kopi rumahan: bubuk sama gula langsung di gelas, disiram air panas, terus tunggu ngendap. Nggak pakai saringan, nggak pakai alat."
+      },
+      "steps": [
+        {
+          "en": "Put fine grounds and sugar straight into the glass.",
+          "id": "Bubuk sama gulanya langsung masuk gelas."
+        },
+        {
+          "en": "Pour water just off the boil.",
+          "id": "Siram air yang baru turun dari mendidih."
+        },
+        {
+          "en": "Stir once, then leave it alone.",
+          "id": "Aduk sekali, terus diemin."
+        },
+        {
+          "en": "Wait four to five minutes for the grounds to sink.",
+          "id": "Tunggu empat lima menit sampai ampasnya turun."
+        },
+        {
+          "en": "Drink from the top and stop before the sludge.",
+          "id": "Minum dari atas, berhenti sebelum kena ampasnya."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Gritty throughout",
+            "id": "Berpasir dari awal"
+          },
+          "cause": {
+            "en": "Not settled long enough, or stirred again after settling.",
+            "id": "Belum cukup ngendap, atau keaduk lagi setelah ngendap."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Bitter",
+            "id": "Pahit"
+          },
+          "cause": {
+            "en": "Water at a full boil, or left far too long before drinking.",
+            "id": "Airnya masih menggelegak, atau kelamaan didiemin sebelum diminum."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "A glass and a kettle. That is the entire method, and it is why it is everywhere.",
+            "id": "Gelas sama teko. Cuma itu metodenya, makanya ada di mana-mana."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "A grinder, so you can use fresh single-origin instead of pre-ground blends.",
+            "id": "Grinder, biar bisa pakai biji segar bukan bubuk kemasan."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "Not a café method, though some specialty shops serve it to make a point.",
+            "id": "Bukan metode kafe, walau ada juga kedai specialty yang nyajiin."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "Sugar traditionally goes in before the water, which helps it dissolve and slightly changes the extraction.",
+          "id": "Gulanya biasanya masuk sebelum air. Lebih gampang larut, dan sedikit ngubah ekstraksinya."
+        },
+        {
+          "en": "Usually made with pre-ground coffee — Kapal Api, Nescafe, or a local roaster's bubuk — which is why the roaster and roast date fields are not asked for.",
+          "id": "Biasanya pakai bubuk jadi — Kapal Api, Nescafe, atau bubuk roaster lokal — makanya kolom roaster dan tanggal sangrai nggak ditanyain."
+        }
+      ]
+    },
+    "kopiSaring": {
+      "what": {
+        "en": "Coffee brewed and strained through a cloth sock, common across Indonesia and Malaysia. The cloth holds back grounds while letting oils through, so it sits between filter and immersion.",
+        "id": "Kopi diseduh terus disaring lewat kain. Kainnya nahan ampas tapi ngelolosin minyak, jadi posisinya di tengah-tengah antara filter dan rendaman."
+      },
+      "steps": [
+        {
+          "en": "Rinse the sock in hot water — a dry cloth tastes of cloth.",
+          "id": "Siram kainnya pakai air panas — kain kering bakal kerasa kainnya."
+        },
+        {
+          "en": "Add fine grounds to the sock and set it in the pot.",
+          "id": "Masukin bubuk halus ke kain, taruh di panci."
+        },
+        {
+          "en": "Pour hot water through slowly.",
+          "id": "Siram air panas pelan-pelan."
+        },
+        {
+          "en": "Pour the result back through a second time for a stronger cup — this is the traditional 'tarik' idea.",
+          "id": "Saring ulang hasilnya sekali lagi kalau mau lebih pekat — ini ide 'tarik' yang klasik."
+        },
+        {
+          "en": "Rinse the sock immediately after and store it wet, in the fridge if you brew daily.",
+          "id": "Habis dipakai langsung dicuci, simpen dalam keadaan basah. Kalau tiap hari nyeduh, taruh di kulkas."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Tastes stale or rancid",
+            "id": "Kerasa tengik atau apek"
+          },
+          "cause": {
+            "en": "The sock. Old coffee oils go rancid in cloth faster than anywhere else.",
+            "id": "Kainnya. Minyak kopi lama jadi tengik di kain lebih cepat daripada di mana pun."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Weak",
+            "id": "Encer"
+          },
+          "cause": {
+            "en": "Water passed too quickly. Pour slower, or pass it twice.",
+            "id": "Airnya lewat kecepetan. Nuangnya pelanin, atau saring dua kali."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "A cloth sock and a pot. Buy two so one is always clean.",
+            "id": "Kain saring sama panci. Beli dua biar selalu ada yang bersih."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "A dedicated pouring kettle and several socks in rotation.",
+            "id": "Teko tuang khusus dan beberapa kain buat gantian."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "Standard kit in a warung, where the sock is used continuously and rinsed constantly.",
+            "id": "Perlengkapan standar warung — kainnya dipakai terus, dicuci terus."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "Cloth care is the whole method. A neglected sock ruins good coffee more reliably than any grind error.",
+          "id": "Ngerawat kainnya itu inti metodenya. Kain yang diabaikan lebih pasti ngerusak kopi bagus daripada salah giling."
+        }
+      ]
+    },
+    "kopiJoss": {
+      "what": {
+        "en": "Yogyakarta street coffee: a glowing lump of charcoal dropped straight into the glass. The charcoal neutralises some acidity and adds a distinct smoky note.",
+        "id": "Kopi kaki lima Jogja: bara arang nyala dicemplungin langsung ke gelas. Arangnya nurunin sebagian asamnya dan ninggalin aroma asap yang khas."
+      },
+      "steps": [
+        {
+          "en": "Brew a strong tubruk-style coffee with sugar.",
+          "id": "Bikin kopi tubruk yang pekat pakai gula."
+        },
+        {
+          "en": "Heat a lump of hardwood charcoal until it glows right through.",
+          "id": "Bakar arang kayu keras sampai nyala merata."
+        },
+        {
+          "en": "Knock the ash off, then drop it into the glass. It will hiss and foam hard.",
+          "id": "Ketok abunya, terus cemplungin ke gelas. Bakal mendesis dan berbuih kenceng."
+        },
+        {
+          "en": "Leave the charcoal in for about a minute, then lift it out.",
+          "id": "Biarin arangnya di dalam sekitar semenit, terus angkat."
+        },
+        {
+          "en": "Let it settle before drinking.",
+          "id": "Diemin sampai ngendap sebelum diminum."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Tastes of ash",
+            "id": "Kerasa abu"
+          },
+          "cause": {
+            "en": "The charcoal was not fully glowing, or the ash was not knocked off.",
+            "id": "Arangnya belum nyala penuh, atau abunya nggak diketok."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Barely different from tubruk",
+            "id": "Nggak beda jauh sama tubruk"
+          },
+          "cause": {
+            "en": "The charcoal cooled too fast, or came out too soon.",
+            "id": "Arangnya kecepetan dingin, atau kecepetan diangkat."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "Hardwood charcoal only — never briquettes, which contain binders you should not drink.",
+            "id": "Arang kayu keras aja — jangan briket, ada perekatnya dan itu bukan buat diminum."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "Tongs and a small brazier.",
+            "id": "Japitan sama anglo kecil."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "A street cart with a permanent charcoal fire, which is where it belongs.",
+            "id": "Gerobak kaki lima yang baranya nyala terus, dan emang di situ tempatnya."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "Use lump hardwood charcoal, not barbecue briquettes. Briquettes are bound with additives that are not food-safe.",
+          "id": "Pakai arang kayu keras, bukan briket barbeku. Briket direkat pakai bahan tambahan yang nggak aman dikonsumsi."
+        },
+        {
+          "en": "Usually made with pre-ground coffee — Kapal Api, Nescafe, or a local roaster's bubuk — which is why the roaster and roast date fields are not asked for.",
+          "id": "Biasanya pakai bubuk jadi, makanya kolom roaster dan tanggal sangrai nggak ditanyain."
+        }
+      ]
+    },
+    "kopiTalua": {
+      "what": {
+        "en": "Minangkabau egg coffee. A raw yolk is whipped with sugar until pale and thick, then strong coffee is poured over it, leaving a foam layer on top.",
+        "id": "Kopi telur khas Minang. Kuning telur mentah dikocok sama gula sampai pucat dan kental, terus disiram kopi pekat — busanya ngambang di atas."
+      },
+      "steps": [
+        {
+          "en": "Whip a raw egg yolk with sugar until pale, thick and roughly doubled — two to three minutes of hard work.",
+          "id": "Kocok kuning telur mentah sama gula sampai pucat, kental, dan kira-kira jadi dua kali lipat. Dua tiga menit ngocok beneran."
+        },
+        {
+          "en": "Brew strong coffee separately.",
+          "id": "Seduh kopi pekat terpisah."
+        },
+        {
+          "en": "Pour the hot coffee slowly over the whipped yolk without stirring it in.",
+          "id": "Siram kopinya pelan-pelan di atas kocokan telur, jangan diaduk."
+        },
+        {
+          "en": "The foam should sit on top. Some add cinnamon or nutmeg.",
+          "id": "Busanya harus ngambang di atas. Ada yang nambahin kayu manis atau pala."
+        },
+        {
+          "en": "Drink through the foam rather than mixing it.",
+          "id": "Minum nembus busanya, jangan diaduk dulu."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "Scrambled bits",
+            "id": "Ada butiran telur mateng"
+          },
+          "cause": {
+            "en": "Coffee too hot or poured too fast. Slow down.",
+            "id": "Kopinya kepanasan atau nuangnya kecepetan. Pelanin."
+          }
+        },
+        {
+          "symptom": {
+            "en": "No foam layer",
+            "id": "Busanya nggak jadi"
+          },
+          "cause": {
+            "en": "The yolk was not whipped long enough.",
+            "id": "Kuning telurnya kurang lama dikocok."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Eggy smell",
+            "id": "Bau amis"
+          },
+          "cause": {
+            "en": "Not enough sugar, or the egg was not fresh.",
+            "id": "Gulanya kurang, atau telurnya nggak segar."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "A whisk and a strong arm. A milk frother works too.",
+            "id": "Pengocok sama tenaga. Frother susu juga bisa."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "An electric hand whisk, which makes the texture far more consistent.",
+            "id": "Mixer tangan listrik, teksturnya jadi jauh lebih konsisten."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "Served in Padang restaurants, whipped to order.",
+            "id": "Disajiin di rumah makan Padang, dikocok pas dipesan."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "This uses raw egg. Use very fresh eggs, and skip it if you are pregnant or immunocompromised.",
+          "id": "Ini pakai telur mentah. Pilih telur yang bener-bener segar, dan lewatin aja kalau lagi hamil atau daya tahan tubuhmu lagi turun."
+        },
+        {
+          "en": "Usually made with pre-ground coffee — Kapal Api, Nescafe, or a local roaster's bubuk — which is why the roaster and roast date fields are not asked for.",
+          "id": "Biasanya pakai bubuk jadi, makanya kolom roaster dan tanggal sangrai nggak ditanyain."
+        }
+      ]
+    },
+    "kopiKhop": {
+      "what": {
+        "en": "From Aceh: the glass is served upside down on a saucer, and you drink the coffee as it seeps out, through a straw. The inverted glass keeps it hot for a remarkably long time.",
+        "id": "Dari Aceh: gelasnya disajiin kebalik di atas piring, kopinya diminum pas ngerembes keluar, pakai sedotan. Gelas kebalik bikin panasnya awet lama banget."
+      },
+      "steps": [
+        {
+          "en": "Brew strong coffee and pour it into a small glass.",
+          "id": "Seduh kopi pekat, tuang ke gelas kecil."
+        },
+        {
+          "en": "Cover the glass with a saucer and invert the whole thing in one movement.",
+          "id": "Tutup gelasnya pakai piring, balik semuanya sekali gerak."
+        },
+        {
+          "en": "Lift the glass slightly so a little coffee escapes onto the saucer.",
+          "id": "Angkat gelasnya dikit biar kopinya keluar ke piring."
+        },
+        {
+          "en": "Drink from the saucer with a straw, or sip directly.",
+          "id": "Minum dari piring pakai sedotan, atau seruput langsung."
+        },
+        {
+          "en": "The seal keeps it hot far longer than an open cup.",
+          "id": "Karena rapat, panasnya awet jauh lebih lama daripada cangkir biasa."
+        }
+      ],
+      "faults": [
+        {
+          "symptom": {
+            "en": "It all spilled",
+            "id": "Tumpah semua"
+          },
+          "cause": {
+            "en": "The flip was hesitant. It has to be one confident motion.",
+            "id": "Baliknya ragu-ragu. Harus sekali gerak yang mantap."
+          }
+        },
+        {
+          "symptom": {
+            "en": "Nothing comes out",
+            "id": "Nggak ada yang keluar"
+          },
+          "cause": {
+            "en": "The seal is too good — tilt the glass very slightly.",
+            "id": "Kerapatannya kelewat bagus — miringin gelasnya dikit aja."
+          }
+        }
+      ],
+      "gear": [
+        {
+          "tier": {
+            "en": "Starting out",
+            "id": "Baru mulai"
+          },
+          "what": {
+            "en": "A small thick glass and a flat saucer. The glass must have a smooth rim to seal.",
+            "id": "Gelas kecil yang tebal sama piring datar. Bibir gelasnya harus rata biar bisa rapat."
+          }
+        },
+        {
+          "tier": {
+            "en": "Serious home",
+            "id": "Serius di rumah"
+          },
+          "what": {
+            "en": "Nothing to add; the method is the equipment.",
+            "id": "Nggak ada tambahan; metodenya ya alatnya."
+          }
+        },
+        {
+          "tier": {
+            "en": "Professional",
+            "id": "Profesional"
+          },
+          "what": {
+            "en": "Served across West Aceh, where the flip is done with practised speed.",
+            "id": "Ada di seluruh Aceh Barat, dan baliknya dilakuin cepat banget karena udah biasa."
+          }
+        }
+      ],
+      "notes": [
+        {
+          "en": "Grounds stay in the glass, which is part of why it works — they are held against the saucer.",
+          "id": "Ampasnya tetap di gelas, dan justru itu yang bikin cara ini bisa jalan — ampasnya ketahan di piring."
+        },
+        {
+          "en": "Usually made with pre-ground coffee — Kapal Api, Nescafe, or a local roaster's bubuk — which is why the roaster and roast date fields are not asked for.",
+          "id": "Biasanya pakai bubuk jadi, makanya kolom roaster dan tanggal sangrai nggak ditanyain."
+        }
+      ]
+    }
+  }
+}

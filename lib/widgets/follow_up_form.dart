@@ -51,7 +51,8 @@ List<BrewFormField> formFields(
   }
 
   return [
-    for (final f in schema.core) resolve(f, core),
+    for (final f in schema.core)
+      if (!spec.hideCore.contains(f.name)) resolve(f, core),
     for (final f in spec.fields) resolve(f, methodData),
   ];
 }
@@ -70,9 +71,15 @@ Map<FieldGroup, List<BrewFormField>> groupedFields(List<BrewFormField> fields) {
 /// The whole form: every field, grouped, and **nothing compulsory**. Leave all
 /// of it untouched and the entry still saves.
 class BrewForm extends StatefulWidget {
-  const BrewForm({super.key, required this.fields, required this.onChanged});
+  const BrewForm({
+    super.key,
+    required this.fields,
+    required this.onChanged,
+    required this.schema,
+  });
 
   final List<BrewFormField> fields;
+  final BrewSchema schema;
   final ValueChanged<Map<String, Object?>> onChanged;
 
   @override
@@ -172,7 +179,12 @@ class _BrewFormState extends State<BrewForm> {
           initialValue: f.values.contains(current) ? current as String? : null,
           items: [
             for (final v in f.values)
-              DropdownMenuItem(value: v, child: Text(v)),
+              // The id stays the stored value; only the label is translated,
+              // so what lands in the database never depends on the language.
+              DropdownMenuItem(
+                value: v,
+                child: Text(widget.schema.valueLabel(v)),
+              ),
           ],
           onChanged: (v) => _set(f.name, v),
         ),

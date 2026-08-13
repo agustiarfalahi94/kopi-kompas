@@ -125,6 +125,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: BrewForm(
+              schema: schema,
               fields: formFields(schema, method, core, methodData, sticky),
               onChanged: (v) => latest = v,
             ),

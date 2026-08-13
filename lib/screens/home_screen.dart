@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 
+import '../data/brew_guide.dart';
 import '../data/brew_schema.dart';
 import '../models/brew_entry.dart';
 import '../services/brew_database.dart';
 import '../services/kopi_client.dart';
+import '../services/auth_service.dart';
+import '../services/backup_service.dart';
+import '../services/log_filter.dart';
 import '../services/reminder_service.dart';
 import '../strings.dart';
+import '../widgets/log_filter_bar.dart';
 import 'edit_entry_screen.dart';
 import 'entry_detail_screen.dart';
 import 'full_log_screen.dart';
+import 'guide_screen.dart';
 import 'new_entry_screen.dart';
 import 'settings_screen.dart';
 
@@ -55,12 +61,18 @@ class HomeScreen extends StatefulWidget {
     required this.schema,
     required this.client,
     required this.reminder,
+    required this.guides,
+    required this.auth,
+    required this.backup,
   });
 
   final BrewDatabase db;
   final BrewSchema schema;
   final KopiClient client;
   final ReminderService reminder;
+  final BrewGuides guides;
+  final AuthService? auth;
+  final BackupService? backup;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -69,11 +81,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<BrewEntry>> _entries = widget.db.liveEntries();
 
+  /// Held here rather than in the bar, so opening a brew and coming back
+  /// leaves the list exactly as you left it. `_reload` deliberately does not
+  /// touch it: a save must refresh the entries without dropping the filter.
+  LogFilter _filter = const LogFilter();
+
   void _reload() {
     setState(() => _entries = widget.db.liveEntries());
     // Anything that changes today's entries changes when the next nudge is
     // due, so this runs after every save, delete, restore and edit.
     widget.reminder.reschedule();
+    // Fire-and-forget: the entry is already saved locally, and a failed
+    // backup must never surface as a failed save.
+    widget.backup?.pushAll();
   }
 
   Future<void> _newEntry() async {
@@ -165,6 +185,13 @@ class _HomeScreenState extends State<HomeScreen> {
               _open(FullLogScreen(db: widget.db, schema: widget.schema)),
         ),
         IconButton(
+          tooltip: AppStrings.guidesTitle,
+          icon: const Icon(Icons.menu_book_outlined),
+          onPressed: () => _open(
+            GuideListScreen(schema: widget.schema, guides: widget.guides),
+          ),
+        ),
+        IconButton(
           tooltip: AppStrings.settingsTitle,
           icon: const Icon(Icons.settings_outlined),
           onPressed: () => _open(
@@ -172,6 +199,8 @@ class _HomeScreenState extends State<HomeScreen> {
               db: widget.db,
               schema: widget.schema,
               reminder: widget.reminder,
+              auth: widget.auth,
+              backup: widget.backup,
             ),
           ),
         ),
@@ -191,10 +220,26 @@ class _HomeScreenState extends State<HomeScreen> {
         if (entries.isEmpty) {
           return Center(child: Text(AppStrings.emptyLog));
         }
-        return ListView.separated(
-          itemCount: entries.length,
-          separatorBuilder: (_, _) => const Divider(height: 1),
-          itemBuilder: (context, i) => _tile(entries[i]),
+        final shown = _filter.apply(entries, widget.schema);
+        return Column(
+          children: [
+            LogFilterBar(
+              schema: widget.schema,
+              filter: _filter,
+              shown: shown.length,
+              total: entries.length,
+              onChanged: (f) => setState(() => _filter = f),
+            ),
+            Expanded(
+              child: shown.isEmpty
+                  ? Center(child: Text(AppStrings.noMatches))
+                  : ListView.separated(
+                      itemCount: shown.length,
+                      separatorBuilder: (_, _) => const Divider(height: 1),
+                      itemBuilder: (context, i) => _tile(shown[i]),
+                    ),
+            ),
+          ],
         );
       },
     ),
