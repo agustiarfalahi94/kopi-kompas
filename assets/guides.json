@@ -59,7 +59,7 @@
           },
           "cause": {
             "en": "Channelling. Water found a crack and skipped most of the puck. Better distribution, not a finer grind.",
-            "id": "Channeling — air nemu celah dan lewat begitu saja. Yang perlu dibenerin distribusinya, bukan gilingannya."
+            "id": "Channeling — air nemu celah dan lewat begitu saja. Yang perlu diperbaiki distribusinya, bukan gilingannya."
           }
         },
         {
@@ -81,7 +81,7 @@
           },
           "what": {
             "en": "A single-boiler machine with a decent portafilter, plus a hand grinder. The grinder matters more than the machine — a great machine cannot fix an uneven grind.",
-            "id": "Mesin single boiler yang portafilternya layak, plus grinder manual. Grinder lebih menentukan daripada mesinnya — mesin mahal nggak bisa nolongin gilingan yang nggak rata."
+            "id": "Mesin single boiler yang portafilternya layak, plus grinder manual. Grinder lebih menentukan daripada mesinnya — mesin mahal nggak bisa nutupin gilingan yang nggak rata."
           }
         },
         {
@@ -101,7 +101,7 @@
           },
           "what": {
             "en": "Multi-boiler with PID and pressure profiling, on-demand commercial grinder. Buys repeatability across hundreds of shots a day, not a better single shot.",
-            "id": "Multi-boiler dengan PID dan pressure profiling, grinder komersial on-demand. Yang kamu beli itu kemampuan ngulang ratusan shot sehari, bukan satu shot yang lebih enak."
+            "id": "Multi-boiler dengan PID dan pressure profiling, grinder komersial on-demand. Yang kamu bayar itu kemampuan ngulang ratusan shot sehari, bukan satu shot yang lebih enak."
           }
         }
       ],
@@ -112,14 +112,14 @@
         },
         {
           "en": "Pressurised (dual-wall) baskets create back-pressure artificially, so they forgive a bad grinder but flatten the flavour and cannot be dialled in. Non-pressurised (single-wall) baskets reward a good grinder and are what you want once you have one.",
-          "id": "Basket pressurized (dinding dobel) bikin tekanan balik secara buatan. Enaknya, grinder seadanya masih jalan; nggak enaknya, rasanya jadi datar dan nggak bisa di-dial in. Kalau grinder-mu sudah bagus, pindah ke non-pressurized."
+          "id": "Basket pressurized (dinding dobel) bikin tekanan balik secara buatan. Enaknya, grinder seadanya masih bisa dipakai. Nggak enaknya, rasanya jadi datar dan nggak bisa di-dial in. Begitu grinder-mu udah bagus, pindah ke non-pressurized."
         }
       ]
     },
     "coneDripper": {
       "what": {
         "en": "A conical dripper with a large single hole — V60, Origami, Kono. You control the flow with your pour, which is what makes it expressive and unforgiving.",
-        "id": "Dripper kerucut dengan satu lubang besar — V60, Origami, Kono. Alirannya kamu yang atur lewat cara nuang, jadi hasilnya ekspresif tapi nggak ngasih ampun."
+        "id": "Dripper kerucut dengan satu lubang besar — V60, Origami, Kono. Alirannya kamu yang atur lewat cara nuang, jadi karakternya keluar banget, tapi salah dikit langsung kelihatan."
       },
       "steps": [
         {
@@ -225,7 +225,7 @@
     "flatBottomDripper": {
       "what": {
         "en": "A flat bed with small restricted holes — Kalita Wave, Stagg [X], Orea, April. The flat bed extracts more evenly than a cone, so it is more forgiving of an imperfect pour.",
-        "id": "Dasarnya rata, lubangnya kecil-kecil jadi alirannya tertahan — Kalita Wave, Stagg [X], Orea, April. Karena permukaannya rata, ekstraksinya lebih merata dan lebih maklum sama tuangan yang berantakan."
+        "id": "Dasarnya rata, lubangnya kecil-kecil jadi alirannya tertahan — Kalita Wave, Stagg [X], Orea, April. Karena permukaannya rata, ekstraksinya lebih merata dan tuangan yang kurang rapi masih aman."
       },
       "steps": [
         {
@@ -306,7 +306,7 @@
       "notes": [
         {
           "en": "Kalita's three small holes restrict flow by design, so it runs longer than a cone. That is not a fault to correct.",
-          "id": "Tiga lubang kecil Kalita memang sengaja nahan aliran, jadi wajar lebih lama daripada kerucut. Itu bukan yang perlu dibenerin."
+          "id": "Tiga lubang kecil Kalita memang sengaja nahan aliran, jadi wajar lebih lama daripada kerucut. Jadi jangan dianggap salah."
         },
         {
           "en": "Wave filters are dearer and less widely stocked than cone papers — worth checking before you commit.",
@@ -317,7 +317,7 @@
     "chemex": {
       "what": {
         "en": "A conical brewer with a filter roughly three times the thickness of a normal paper. That filter is the whole point: it strips oils and fines, giving an unusually clean, tea-like cup.",
-        "id": "Alat kerucut dengan kertas tiga kali lebih tebal dari biasanya. Kertas itu justru intinya: minyak dan bubuk halus ketahan, hasilnya bersih banget, mirip teh."
+        "id": "Alat kerucut dengan kertas tiga kali lebih tebal dari biasanya. Justru kertasnya itu intinya: minyak dan bubuk halus ketahan, hasilnya bersih banget, mirip teh."
       },
       "steps": [
         {
@@ -447,7 +447,7 @@
           },
           "cause": {
             "en": "The machine is not getting hot enough. No grind change fixes this.",
-            "id": "Mesinnya kurang panas. Diapain gilingannya juga nggak bakal nolong."
+            "id": "Mesinnya kurang panas. Mau diapain gilingannya juga percuma."
           }
         },
         {
@@ -479,7 +479,7 @@
           },
           "what": {
             "en": "Any brewer that actually hits temperature. Certification by a coffee body is a reasonable shortcut.",
-            "id": "Mesin apa pun yang beneran nyampe suhunya. Sertifikasi lembaga kopi bisa jadi patokan cepat."
+            "id": "Mesin apa pun yang beneran nyampe suhunya. Cek aja yang udah disertifikasi lembaga kopi, itu patokan paling cepat."
           }
         },
         {
@@ -513,7 +513,7 @@
     "aeropress": {
       "what": {
         "en": "Immersion plus pressure through a paper filter. Forgiving, fast, and almost impossible to make undrinkable — which is why it travels so well.",
-        "id": "Rendam plus tekanan, lewat kertas. Gampang, cepat, dan hampir mustahil bikin yang nggak enak — makanya enak dibawa jalan."
+        "id": "Rendam plus tekanan, lewat kertas. Gampang, cepat, dan susah bikin yang nggak enak — makanya sering dibawa jalan."
       },
       "steps": [
         {
@@ -597,7 +597,7 @@
           },
           "what": {
             "en": "Nothing meaningful. The AeroPress does not scale up, which is part of its charm.",
-            "id": "Nggak ada yang berarti. AeroPress emang nggak bisa dibikin banyak sekaligus, dan itu bagian dari asyiknya."
+            "id": "Nggak ada. AeroPress emang cuma buat porsi kecil, dan itu justru enaknya."
           }
         }
       ],
@@ -679,7 +679,7 @@
           },
           "what": {
             "en": "Any press and a kettle. The most forgiving brewer there is.",
-            "id": "Pres apa aja sama teko. Alat paling maklum yang ada."
+            "id": "Pres apa aja sama teko. Alat paling gampang yang ada."
           }
         },
         {
@@ -718,7 +718,7 @@
       "steps": [
         {
           "en": "Grind coarse. Fines turn cold brew muddy and there is no filter fast enough to save it.",
-          "id": "Giling kasar. Bubuk halus bikin cold brew keruh, dan nggak ada saringan yang cukup cepat buat nolongin."
+          "id": "Giling kasar. Bubuk halus bikin cold brew keruh, dan dan nggak ada saringan yang bisa nyelametin."
         },
         {
           "en": "Combine at roughly 1:8 for a concentrate, 1:15 to drink straight.",
@@ -777,7 +777,7 @@
           },
           "what": {
             "en": "A jar and a paper filter. Nothing else is required.",
-            "id": "Toples sama kertas saring. Udah, itu aja."
+            "id": "Toples sama kertas saring. Udah, cuma itu."
           }
         },
         {
@@ -804,7 +804,7 @@
       "notes": [
         {
           "en": "A hot bloom — wetting the grounds with a little hot water first — brings out more aroma before the long cold steep. Worth trying; there is a field for it.",
-          "id": "Bloom panas — bubuknya dibasahin sedikit air panas dulu — bikin aromanya lebih keluar sebelum direndam dingin lama. Boleh dicoba; kolomnya udah ada."
+          "id": "Bloom panas — bubuknya dibasahin sedikit air panas dulu — bikin aromanya lebih keluar sebelum direndam dingin lama. Boleh dicoba — kolomnya udah disediain."
         }
       ]
     },
@@ -951,7 +951,7 @@
           },
           "cause": {
             "en": "Too coarse. Steep time cannot rescue a grind that is too big.",
-            "id": "Kekasaran. Lama ngerendam nggak bisa nolongin gilingan yang kegedean."
+            "id": "Kekasaran. Direndam lama pun percuma kalau gilingannya kegedean."
           }
         }
       ],
@@ -983,21 +983,21 @@
           },
           "what": {
             "en": "Not a café brewer, but excellent for tasting several coffees side by side.",
-            "id": "Bukan alat kafe, tapi enak banget buat nyicip beberapa kopi barengan."
+            "id": "Bukan alat kafe, tapi pas banget buat nyicip beberapa kopi sekaligus."
           }
         }
       ],
       "notes": [
         {
           "en": "Because extraction happens during the steep, grind affects taste less here than in a pour-over — which makes it a forgiving place to start.",
-          "id": "Karena ekstraksinya pas ngerendam, gilingan nggak sepenting di pour-over — makanya ini tempat mulai yang enak."
+          "id": "Karena ekstraksinya pas ngerendam, gilingan nggak sepenting di pour-over — makanya cocok banget buat yang baru mulai."
         }
       ]
     },
     "siphon": {
       "what": {
         "en": "Vapour pressure pushes water into an upper chamber, it brews there, and a vacuum pulls it back down through a filter as it cools. Theatrical, and genuinely very clean.",
-        "id": "Uap ndorong air ke ruang atas, kopinya diseduh di situ, terus vakum nariknya turun lewat filter pas mendingin. Keren dilihat, dan hasilnya emang bersih banget."
+        "id": "Uap ndorong air ke ruang atas, kopinya diseduh di situ, terus vakum nariknya turun lewat filter pas mendingin. Seru dilihat, dan hasilnya emang bersih banget."
       },
       "steps": [
         {
@@ -1081,7 +1081,7 @@
           },
           "what": {
             "en": "A multi-station siphon bar. Almost entirely about presentation.",
-            "id": "Bar siphon banyak stasiun. Hampir seluruhnya soal pertunjukan."
+            "id": "Bar siphon banyak stasiun. Hampir semuanya soal tampilan."
           }
         }
       ],
@@ -1149,7 +1149,7 @@
           },
           "what": {
             "en": "A glass and a kettle. That is the entire method, and it is why it is everywhere.",
-            "id": "Gelas sama teko. Itu seluruh metodenya, makanya ada di mana-mana."
+            "id": "Gelas sama teko. Cuma itu metodenya, makanya ada di mana-mana."
           }
         },
         {
@@ -1169,7 +1169,7 @@
           },
           "what": {
             "en": "Not a café method, though some specialty shops serve it to make a point.",
-            "id": "Bukan metode kafe, walau ada kedai specialty yang nyajiin buat nyindir."
+            "id": "Bukan metode kafe, walau ada juga kedai specialty yang nyajiin."
           }
         }
       ],
@@ -1261,14 +1261,14 @@
           },
           "what": {
             "en": "Standard kit in a warung, where the sock is used continuously and rinsed constantly.",
-            "id": "Perlengkapan standar warung, kainnya kepakai terus dan dicuci terus."
+            "id": "Perlengkapan standar warung — kainnya dipakai terus, dicuci terus."
           }
         }
       ],
       "notes": [
         {
           "en": "Cloth care is the whole method. A neglected sock ruins good coffee more reliably than any grind error.",
-          "id": "Ngurus kainnya itu inti metodenya. Kain yang diabaikan lebih pasti ngerusak kopi bagus daripada salah giling."
+          "id": "Ngerawat kainnya itu inti metodenya. Kain yang diabaikan lebih pasti ngerusak kopi bagus daripada salah giling."
         }
       ]
     },
@@ -1349,7 +1349,7 @@
           },
           "what": {
             "en": "A street cart with a permanent charcoal fire, which is where it belongs.",
-            "id": "Gerobak kaki lima yang baranya nyala terus, dan di situ emang tempatnya."
+            "id": "Gerobak kaki lima yang baranya nyala terus, dan emang di situ tempatnya."
           }
         }
       ],
@@ -1550,7 +1550,7 @@
       "notes": [
         {
           "en": "Grounds stay in the glass, which is part of why it works — they are held against the saucer.",
-          "id": "Ampasnya tetap di gelas, dan itu bagian dari kenapa cara ini jalan — ampasnya ketahan di piring."
+          "id": "Ampasnya tetap di gelas, dan justru itu yang bikin cara ini bisa jalan — ampasnya ketahan di piring."
         },
         {
           "en": "Usually made with pre-ground coffee — Kapal Api, Nescafe, or a local roaster's bubuk — which is why the roaster and roast date fields are not asked for.",

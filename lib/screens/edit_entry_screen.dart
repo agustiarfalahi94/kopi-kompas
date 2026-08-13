@@ -99,6 +99,25 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
   Map<String, Object?> _answers = const {};
   bool _busy = false;
 
+  /// What the form reported when it first rendered, before anything was
+  /// touched. Comparing against this is what tells us an edit is real.
+  Map<String, Object?>? _initial;
+
+  /// True when the form now says exactly what it said on arrival.
+  ///
+  /// Saving an unchanged entry would re-score it for nothing — a Gemini
+  /// request, a new number that may differ by a point or two, and a fresh
+  /// scoredAt on a brew nobody actually edited.
+  bool get _unchanged {
+    final start = _initial;
+    if (start == null) return true;
+    if (start.length != _answers.length) return false;
+    for (final e in _answers.entries) {
+      if (start[e.key] != e.value) return false;
+    }
+    return true;
+  }
+
   Map<String, Object?> get _core => {
     'beanOrigin': widget.entry.beanOrigin,
     'roaster': widget.entry.roaster,
@@ -187,13 +206,20 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                       widget.entry.methodData,
                       const {},
                     ),
-                    onChanged: (v) => _answers = v,
+                    onChanged: (v) => setState(() {
+                      _answers = v;
+                      _initial ??= Map.of(v);
+                    }),
                   ),
                 ),
                 const SizedBox(height: 8),
                 FilledButton(
-                  onPressed: _save,
-                  child: Text(AppStrings.saveButton),
+                  // Disabled until something actually differs, so an edit
+                  // opened out of curiosity costs nothing.
+                  onPressed: _unchanged ? null : _save,
+                  child: Text(
+                    _unchanged ? AppStrings.noChanges : AppStrings.saveButton,
+                  ),
                 ),
               ],
             ),

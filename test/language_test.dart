@@ -45,16 +45,29 @@ void main() {
     expect(origin.label, 'Bean origin', reason: 'must switch back too');
   });
 
-  test('category and method labels follow the language too', () {
+  test('method names stay in English in both languages', () {
+    // Names of techniques and equipment are not translated. "Dripper dasar
+    // rata" is a phrase nobody says, and "Kopi saring" as the filter category
+    // collided with kopiSaring the method, which is a different thing.
+    final s = BrewSchema.parse(
+      File('schema/brew_schema.json').readAsStringSync(),
+    );
+    for (final id in s.methodIds) {
+      AppStrings.language = 'en';
+      final en = s.method(id).label;
+      AppStrings.language = 'id';
+      expect(s.method(id).label, en, reason: '$id was translated');
+    }
+  });
+
+  test('categories keep English names except Nusantara', () {
     final s = BrewSchema.parse(
       File('schema/brew_schema.json').readAsStringSync(),
     );
     AppStrings.language = 'id';
     expect(s.categoryOf('kopiTubruk').label, 'Nusantara');
-    expect(s.method('coneDripper').label, 'Dripper kerucut');
-    AppStrings.language = 'en';
-    expect(s.categoryOf('kopiTubruk').label, 'Indonesian');
-    expect(s.method('coneDripper').label, 'Cone dripper');
+    expect(s.categoryOf('coneDripper').label, 'Filter');
+    expect(s.categoryOf('aeropress').label, 'Hybrid');
   });
 
   test('defaults to English', () {

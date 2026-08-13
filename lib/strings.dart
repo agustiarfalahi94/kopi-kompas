@@ -27,6 +27,7 @@ class AppStrings {
   static String get parsing => _s('Reading your brew…', 'Membaca seduhan…');
   static String get scoring => _s('Scoring…', 'Menilai…');
   static String get saveButton => _s('Save', 'Simpan');
+  static String get noChanges => _s('Nothing changed', 'Nggak ada yang diubah');
   static String get doneButton => _s('Done', 'Selesai');
   static String get emptyLog =>
       _s('No brews yet. Tap + to log one.', 'Belum ada. Ketuk + untuk mulai.');
@@ -51,7 +52,13 @@ class AppStrings {
   static String get byHand => _s('Fill in by hand', 'Isi manual');
   static String get pickMethod =>
       _s('What did you brew it with?', 'Pakai alat apa?');
-  static String get rateThis => _s('What did you think?', 'Menurutmu gimana?');
+
+  /// Deliberately a question about *enjoyment*, not quality. The number
+  /// above it is the app's opinion; this is the only place the brewer's own
+  /// taste gets recorded, and "What did you think?" was vague enough that it
+  /// read as a second score.
+  static String get rateThis =>
+      _s('Did you enjoy this coffee?', 'Kamu suka nggak sama kopi ini?');
   static String get scoreThisBrew => _s('Score this brew', 'Nilai seduhan ini');
   static String get whatYouTyped => _s('What you typed', 'Yang kamu tulis');
   static String get deleteTitle =>
@@ -236,6 +243,7 @@ class AppStrings {
     'rememberedTitle': rememberedTitle,
     'rememberedSubtitle': rememberedSubtitle,
     'rememberedEmpty': rememberedEmpty,
+    'noChanges': noChanges,
     'guidesTitle': guidesTitle,
     'guidesIntro': guidesIntro,
     'guideTargets': guideTargets,

@@ -135,7 +135,7 @@
     "filter": {
       "label": {
         "en": "Filter coffee",
-        "id": "Kopi saring"
+        "id": "Filter"
       },
       "methods": [
         "coneDripper",
@@ -147,7 +147,7 @@
     "immersion": {
       "label": {
         "en": "Immersion",
-        "id": "Rendam"
+        "id": "Immersion"
       },
       "methods": [
         "frenchPress",
@@ -158,7 +158,7 @@
     "hybrid": {
       "label": {
         "en": "Hybrid",
-        "id": "Hibrida"
+        "id": "Hybrid"
       },
       "methods": [
         "aeropress",
@@ -463,7 +463,7 @@
       "scored": true,
       "label": {
         "en": "Cone dripper",
-        "id": "Dripper kerucut"
+        "id": "Cone dripper"
       },
       "fields": {
         "brewer": {
@@ -605,7 +605,7 @@
       "scored": true,
       "label": {
         "en": "Flat-bottom dripper",
-        "id": "Dripper dasar rata"
+        "id": "Flat-bottom dripper"
       },
       "fields": {
         "brewer": {
@@ -876,7 +876,7 @@
       "scored": true,
       "label": {
         "en": "Batch brewer",
-        "id": "Mesin drip"
+        "id": "Batch brewer"
       },
       "fields": {
         "machine": {
@@ -1112,7 +1112,7 @@
       "scored": false,
       "label": {
         "en": "Turkish / ibrik",
-        "id": "Kopi Turki / ibrik"
+        "id": "Turkish / ibrik"
       },
       "fields": {
         "waterGrams": {

@@ -2,10 +2,17 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kopi_kompas/data/brew_schema.dart';
+import 'package:kopi_kompas/services/brew_database.dart';
+import 'package:kopi_kompas/services/kopi_client.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:kopi_kompas/models/brew_entry.dart';
+import 'package:flutter/material.dart';
 import 'package:kopi_kompas/screens/edit_entry_screen.dart';
+import 'package:kopi_kompas/strings.dart';
 
 late BrewSchema schema;
+late BrewDatabase db;
+late KopiClient client;
 
 BrewEntry original({
   String method = 'espresso',
@@ -33,7 +40,17 @@ void main() {
     schema = BrewSchema.parse(
       File('schema/brew_schema.json').readAsStringSync(),
     );
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
   });
+
+  setUp(() async {
+    db = await BrewDatabase.open(path: inMemoryDatabasePath);
+    // Points nowhere on purpose: these tests never save, and a widget test
+    // must not reach the network.
+    client = KopiClient(endpoint: 'http://127.0.0.1:1', installId: 't');
+  });
+  tearDown(() => db.close());
 
   test('keeps the identity of the entry', () {
     final e = applyEdits(
@@ -108,5 +125,59 @@ void main() {
     final e = applyEdits(original(), {'doseGrams': 19.0}, schema, DateTime(0));
     expect(e.overallScore, 93);
     expect(e.scoreRubric, 'r2');
+  });
+
+  testWidgets('Save is disabled until something actually changes', (
+    tester,
+  ) async {
+    // Opening an entry out of curiosity and backing out must not re-score it.
+    // A pointless re-score costs a Gemini request and can move the number by
+    // a point or two on a brew nobody edited.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: EditEntryScreen(
+          db: db,
+          schema: schema,
+          client: client,
+          entry: original(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    expect(button.onPressed, isNull, reason: 'Save should start disabled');
+    expect(find.text(AppStrings.noChanges), findsOneWidget);
+  });
+
+  testWidgets('Save enables once a field is edited', (tester) async {
+    // Tall surface so the dose row is on screen; the form is long by design.
+    tester.view.physicalSize = const Size(1200, 6000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: EditEntryScreen(
+          db: db,
+          schema: schema,
+          client: client,
+          entry: original(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.enterText(
+      find
+          .ancestor(of: find.text('Dose (g)'), matching: find.byType(TextField))
+          .first,
+      '19',
+    );
+    await tester.pump();
+
+    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    expect(button.onPressed, isNotNull);
+    expect(find.text(AppStrings.saveButton), findsOneWidget);
   });
 }
