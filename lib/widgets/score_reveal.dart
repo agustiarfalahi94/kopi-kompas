@@ -7,7 +7,9 @@ import '../data/brew_schema.dart';
 import '../models/brew_entry.dart';
 import '../screens/home_screen.dart' show displayLabel;
 import '../screens/new_entry_screen.dart' show shouldCelebrate;
+import '../data/guide_photo.dart';
 import '../strings.dart';
+import 'guide_photo_card.dart';
 
 /// The number, the reasons that produced it, and confetti at 90 or above.
 ///
@@ -21,6 +23,7 @@ class ScoreReveal extends StatefulWidget {
     required this.method,
     required this.onRated,
     required this.onDone,
+    this.photo,
   });
 
   final BrewEntry entry;
@@ -30,6 +33,10 @@ class ScoreReveal extends StatefulWidget {
   /// Fires only when a star is actually tapped. Never rating is a real state,
   /// and reporting 0 would make "unrated" read as "hated it" in every average
   /// the app ever computes.
+  /// The same photograph the guide shows for this method, so the reveal
+  /// looks like the coffee you just made. Null for the methods without one.
+  final GuidePhoto? photo;
+
   final ValueChanged<int> onRated;
 
   final VoidCallback onDone;
@@ -82,6 +89,11 @@ class _ScoreRevealState extends State<ScoreReveal> {
             Expanded(
               child: ListView(
                 children: [
+                  if (widget.photo case final p?)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: GuidePhotoCard(photo: p, height: 140),
+                    ),
                   for (final reason in entry.scoreReasons)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6),

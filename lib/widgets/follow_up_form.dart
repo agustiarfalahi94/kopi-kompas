@@ -160,7 +160,33 @@ class _BrewFormState extends State<BrewForm> {
     );
   }
 
+  /// Advice that depends on another answer, shown under the field that
+  /// triggers it.
+  ///
+  /// Deliberately a named special case rather than a general mechanism in the
+  /// schema: there is exactly one of these, and a framework for one rule is
+  /// harder to read than the rule.
+  String? _noteFor(FieldSpec f) =>
+      f.name == 'basketType' && _values['basketType'] == 'pressurised'
+      ? AppStrings.pressurisedNote
+      : null;
+
   Widget _row(BrewFormField field) {
+    final note = _noteFor(field.spec);
+    if (note == null) return _control(field);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _control(field),
+        Padding(
+          padding: const EdgeInsets.only(top: 4, bottom: 8),
+          child: Text(note, style: Theme.of(context).textTheme.bodySmall),
+        ),
+      ],
+    );
+  }
+
+  Widget _control(BrewFormField field) {
     final f = field.spec;
     final label = f.unit == null ? f.label : '${f.label} (${f.unit})';
     final current = _values[f.name];

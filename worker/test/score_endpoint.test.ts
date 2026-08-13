@@ -48,7 +48,7 @@ describe('POST /score', () => {
     expect(body.score).toBe(88);
     expect(body.reasons).toEqual(['Ratio 2.0:1 — on target']);
     expect(body.model).toBe('gemini-3.5-flash');
-    expect(body.rubric).toBe('r2');
+    expect(body.rubric).toBe('r3');
   });
 
   it('sends the rubric for the entry\'s own method', async () => {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/brew_schema.dart';
+import '../data/guide_photo.dart';
 import '../services/auth_service.dart';
 import '../services/backup_service.dart';
 import '../services/brew_database.dart';
@@ -8,6 +9,7 @@ import '../services/reminder_service.dart';
 import '../services/settings_store.dart';
 import '../services/sticky_defaults.dart';
 import '../strings.dart';
+import 'credits_screen.dart';
 import 'deleted_entries_screen.dart';
 import 'sign_in_screen.dart';
 
@@ -20,6 +22,7 @@ class SettingsScreen extends StatefulWidget {
     super.key,
     required this.db,
     required this.schema,
+    required this.photos,
     required this.reminder,
     required this.auth,
     required this.backup,
@@ -27,6 +30,7 @@ class SettingsScreen extends StatefulWidget {
 
   final BrewDatabase db;
   final BrewSchema schema;
+  final GuidePhotos photos;
   final ReminderService reminder;
   final AuthService? auth;
   final BackupService? backup;
@@ -222,6 +226,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
             selected: {AppStrings.language},
             onSelectionChanged: (v) => _setLanguage(v.first),
+          ),
+        ),
+        const Divider(),
+        // Attribution has to be reachable from inside the app; a line in a
+        // repository file is not something a phone user can read.
+        ListTile(
+          leading: const Icon(Icons.photo_library_outlined),
+          title: Text(AppStrings.creditsTitle),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => CreditsScreen(photos: widget.photos),
+            ),
           ),
         ),
         const Divider(),

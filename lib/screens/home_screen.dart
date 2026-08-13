@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/brew_guide.dart';
 import '../data/brew_schema.dart';
+import '../data/guide_photo.dart';
 import '../models/brew_entry.dart';
 import '../services/brew_database.dart';
 import '../services/kopi_client.dart';
@@ -62,6 +63,7 @@ class HomeScreen extends StatefulWidget {
     required this.client,
     required this.reminder,
     required this.guides,
+    required this.photos,
     required this.auth,
     required this.backup,
   });
@@ -71,6 +73,7 @@ class HomeScreen extends StatefulWidget {
   final KopiClient client;
   final ReminderService reminder;
   final BrewGuides guides;
+  final GuidePhotos photos;
   final AuthService? auth;
   final BackupService? backup;
 
@@ -103,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
           db: widget.db,
           schema: widget.schema,
           client: widget.client,
+          photos: widget.photos,
         ),
       ),
     );
@@ -188,7 +192,11 @@ class _HomeScreenState extends State<HomeScreen> {
           tooltip: AppStrings.guidesTitle,
           icon: const Icon(Icons.menu_book_outlined),
           onPressed: () => _open(
-            GuideListScreen(schema: widget.schema, guides: widget.guides),
+            GuideListScreen(
+              schema: widget.schema,
+              guides: widget.guides,
+              photos: widget.photos,
+            ),
           ),
         ),
         IconButton(
@@ -198,6 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
             SettingsScreen(
               db: widget.db,
               schema: widget.schema,
+              photos: widget.photos,
               reminder: widget.reminder,
               auth: widget.auth,
               backup: widget.backup,

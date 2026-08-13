@@ -121,6 +121,32 @@ class _LogFilterBarState extends State<LogFilterBar> {
     widget.onChanged(const LogFilter());
   }
 
+  /// A chip that says what it does before you touch it.
+  ///
+  /// A bare word — "Method" — reads as a label, not a control, and a log of
+  /// six entries gives nobody a reason to try tapping it. The icon says what
+  /// it filters, the caret says it opens something, and the checkmark
+  /// [FilterChip] would otherwise draw is turned off so the icon survives
+  /// being selected.
+  Widget _chip({
+    required IconData icon,
+    required String text,
+    required bool on,
+    required VoidCallback onTap,
+  }) => FilterChip(
+    avatar: Icon(icon, size: 18),
+    showCheckmark: false,
+    label: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(text),
+        Icon(on ? Icons.close : Icons.arrow_drop_down, size: 18),
+      ],
+    ),
+    selected: on,
+    onSelected: (_) => onTap(),
+  );
+
   @override
   Widget build(BuildContext context) {
     final f = widget.filter;
@@ -158,24 +184,22 @@ class _LogFilterBarState extends State<LogFilterBar> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      FilterChip(
-                        label: Text(
-                          f.methodId == null
-                              ? AppStrings.filterMethod
-                              : widget.schema.method(f.methodId!).label,
-                        ),
-                        selected: f.methodId != null,
-                        onSelected: (_) => _pickMethod(),
+                      _chip(
+                        icon: Icons.coffee_outlined,
+                        text: f.methodId == null
+                            ? AppStrings.filterMethod
+                            : widget.schema.method(f.methodId!).label,
+                        on: f.methodId != null,
+                        onTap: _pickMethod,
                       ),
                       const SizedBox(width: 8),
-                      FilterChip(
-                        label: Text(
-                          f.minRating == null
-                              ? AppStrings.filterRating
-                              : AppStrings.atLeastStars(f.minRating!),
-                        ),
-                        selected: f.minRating != null,
-                        onSelected: (_) => _pickRating(),
+                      _chip(
+                        icon: Icons.star_outline,
+                        text: f.minRating == null
+                            ? AppStrings.filterRating
+                            : AppStrings.atLeastStars(f.minRating!),
+                        on: f.minRating != null,
+                        onTap: _pickRating,
                       ),
                     ],
                   ),

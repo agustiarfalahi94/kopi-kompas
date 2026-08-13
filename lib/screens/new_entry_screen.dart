@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/brew_schema.dart';
+import '../data/guide_photo.dart';
 import '../models/brew_entry.dart';
 import '../services/brew_database.dart';
 import '../services/kopi_client.dart';
@@ -84,11 +85,13 @@ class NewEntryScreen extends StatefulWidget {
     required this.db,
     required this.schema,
     required this.client,
+    required this.photos,
   });
 
   final BrewDatabase db;
   final BrewSchema schema;
   final KopiClient client;
+  final GuidePhotos photos;
 
   @override
   State<NewEntryScreen> createState() => _NewEntryScreenState();
@@ -272,6 +275,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
         _Stage.revealed => ScoreReveal(
           entry: _saved!,
           schema: widget.schema,
+          photo: widget.photos.forMethod(_saved!.brewMethod),
           method: widget.schema.method(_saved!.brewMethod),
           onRated: _rate,
           onDone: () => Navigator.of(context).pop(true),
