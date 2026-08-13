@@ -159,6 +159,20 @@ class AppStrings {
   static String codeSentTo(String phone) =>
       _s('Code sent to $phone', 'Kode dikirim ke $phone');
 
+  static String get searchHint => _s('Search your brews', 'Cari di catatanmu');
+  static String get filterMethod => _s('Method', 'Metode');
+  static String get filterRating => _s('Rating', 'Bintang');
+  static String get filterAny => _s('Any', 'Semua');
+  static String get filterClear => _s('Clear', 'Hapus filter');
+  static String get noMatches =>
+      _s('Nothing matches that.', 'Tidak ada yang cocok.');
+
+  /// Shown whenever a filter is on, so a short list never reads as data loss.
+  static String matchCount(int shown, int total) =>
+      _s('$shown of $total', '$shown dari $total');
+  static String atLeastStars(int n) =>
+      _s('${'★' * n} and up', '${'★' * n} ke atas');
+
   static String get guidesTitle => _s('How to brew', 'Cara menyeduh');
   static String get guidesIntro => _s(
     'Targets here are the same ones the app scores against, so following a '
@@ -244,6 +258,12 @@ class AppStrings {
     'rememberedSubtitle': rememberedSubtitle,
     'rememberedEmpty': rememberedEmpty,
     'noChanges': noChanges,
+    'searchHint': searchHint,
+    'filterMethod': filterMethod,
+    'filterRating': filterRating,
+    'filterAny': filterAny,
+    'filterClear': filterClear,
+    'noMatches': noMatches,
     'guidesTitle': guidesTitle,
     'guidesIntro': guidesIntro,
     'guideTargets': guideTargets,

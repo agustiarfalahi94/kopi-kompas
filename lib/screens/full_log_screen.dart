@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../data/brew_schema.dart';
 import '../models/brew_entry.dart';
 import '../services/brew_database.dart';
+import '../services/log_filter.dart';
 import '../strings.dart';
 import '../theme.dart';
+import '../widgets/log_filter_bar.dart';
 import 'entry_detail_screen.dart' show detailRows;
 import 'home_screen.dart' show displayLabel;
 
@@ -33,6 +35,7 @@ class FullLogScreen extends StatefulWidget {
 
 class _FullLogScreenState extends State<FullLogScreen> {
   late final Future<List<BrewEntry>> _entries = widget.db.liveEntries();
+  LogFilter _filter = const LogFilter();
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +54,29 @@ class _FullLogScreenState extends State<FullLogScreen> {
           if (entries.isEmpty) {
             return Center(child: Text(AppStrings.emptyLog));
           }
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: entries.length,
-            separatorBuilder: (_, _) => Divider(height: 40, color: ink),
-            itemBuilder: (context, i) => _entry(theme, ink, entries[i]),
+          final shown = _filter.apply(entries, widget.schema);
+          return Column(
+            children: [
+              LogFilterBar(
+                schema: widget.schema,
+                filter: _filter,
+                shown: shown.length,
+                total: entries.length,
+                onChanged: (f) => setState(() => _filter = f),
+              ),
+              Expanded(
+                child: shown.isEmpty
+                    ? Center(child: Text(AppStrings.noMatches))
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: shown.length,
+                        separatorBuilder: (_, _) =>
+                            Divider(height: 40, color: ink),
+                        itemBuilder: (context, i) =>
+                            _entry(theme, ink, shown[i]),
+                      ),
+              ),
+            ],
           );
         },
       ),

@@ -7,8 +7,10 @@ import '../services/brew_database.dart';
 import '../services/kopi_client.dart';
 import '../services/auth_service.dart';
 import '../services/backup_service.dart';
+import '../services/log_filter.dart';
 import '../services/reminder_service.dart';
 import '../strings.dart';
+import '../widgets/log_filter_bar.dart';
 import 'edit_entry_screen.dart';
 import 'entry_detail_screen.dart';
 import 'full_log_screen.dart';
@@ -78,6 +80,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<BrewEntry>> _entries = widget.db.liveEntries();
+
+  /// Held here rather than in the bar, so opening a brew and coming back
+  /// leaves the list exactly as you left it. `_reload` deliberately does not
+  /// touch it: a save must refresh the entries without dropping the filter.
+  LogFilter _filter = const LogFilter();
 
   void _reload() {
     setState(() => _entries = widget.db.liveEntries());
@@ -213,10 +220,26 @@ class _HomeScreenState extends State<HomeScreen> {
         if (entries.isEmpty) {
           return Center(child: Text(AppStrings.emptyLog));
         }
-        return ListView.separated(
-          itemCount: entries.length,
-          separatorBuilder: (_, _) => const Divider(height: 1),
-          itemBuilder: (context, i) => _tile(entries[i]),
+        final shown = _filter.apply(entries, widget.schema);
+        return Column(
+          children: [
+            LogFilterBar(
+              schema: widget.schema,
+              filter: _filter,
+              shown: shown.length,
+              total: entries.length,
+              onChanged: (f) => setState(() => _filter = f),
+            ),
+            Expanded(
+              child: shown.isEmpty
+                  ? Center(child: Text(AppStrings.noMatches))
+                  : ListView.separated(
+                      itemCount: shown.length,
+                      separatorBuilder: (_, _) => const Divider(height: 1),
+                      itemBuilder: (context, i) => _tile(shown[i]),
+                    ),
+            ),
+          ],
         );
       },
     ),
