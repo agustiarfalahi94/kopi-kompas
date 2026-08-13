@@ -82,7 +82,7 @@ brews
   roastLevel      TEXT               light | medium | medium-dark | dark
   doseGrams       REAL
   grindSize       TEXT
-  brewDate        TEXT NOT NULL      ISO-8601, local time with offset
+  brewDate        TEXT NOT NULL      local wall clock, no zone — see below
   notes           TEXT
   rawInputText    TEXT NOT NULL      what you actually typed, always kept
   methodData      TEXT NOT NULL      JSON object, shape keyed by brewMethod
@@ -439,7 +439,7 @@ leave the whole form untouched and the entry still saves.
 
 *Score.* Submitting the completed form runs a loading animation while
 `/score` works, then reveals the number with its reasons — **confetti at 90 or
-above** — and writes the entry. For the five unscored methods this stage is
+above** — and writes the entry. For the ten unscored methods this stage is
 skipped entirely: the entry saves immediately and reads "not scored".
 
 Failure is a first-class path at both stages. A Worker that is unreachable,
@@ -510,7 +510,7 @@ pasted run of this cannot.
 
 | Test | Covers |
 |---|---|
-| `scoring_test.dart` | The score client and its state machine: a valid score stored with rubric and model; out-of-range, non-integer and missing-reasons responses rejected as `failed`; the five unscored methods never issuing a request; retry moving `failed` → `scored`; the confetti threshold firing at 90 and not at 89 |
+| `scoring_test.dart` | The score client and its state machine: a valid score stored with rubric and model; out-of-range, non-integer and missing-reasons responses rejected as `failed`; the ten unscored methods never issuing a request; retry moving `failed` → `scored`; the confetti threshold firing at 90 and not at 89 |
 | `schema_test.dart` | `brew_schema.json` parity across the Worker, the Dart model and the form; every field has EN and ID labels |
 | `parser_test.dart` | The client against a real local HTTP server: valid parse, malformed JSON, unknown method, missing fields, 429, timeout, and that a score appearing in a parse response is discarded |
 | `database_test.dart` | `sqflite_common_ffi`: insert, query, soft delete and restore, deleted rows absent from Home and the full log but present on the Deleted page, the has-a-brew-today check across a day boundary and ignoring deleted entries, schema migration |
@@ -579,11 +579,74 @@ setup, and this specs directory.
 
 ## 14. Out of scope for v1
 
-Charts, trends and statistics · cloud sync, accounts, multi-user · scoring for
-`frenchPress` and the four Indonesian methods · bulk rescore after a rubric
-revision · offline scoring of any kind · iOS polish · Play Store release ·
-photos of the cup.
+**Written before v1 shipped, and half of it has since been built.** Left here
+rather than quietly rewritten, because a scope list that only ever agrees with
+the present teaches nothing about what was hard to predict.
 
-The first fast-follow is expected to be scoring the remaining five methods.
-Nothing structural blocks it: it is a rubric written for those methods and a
-change to which methods call `/score`.
+Still out of scope: charts, trends and statistics · scoring for the ten
+unscored methods · bulk rescore after a rubric revision · offline scoring of
+any kind · iOS polish · Play Store release.
+
+Shipped after this was written — see section 15 for each:
+
+- **Cloud sync and accounts**, in v0.2.0. Optional, and the app still works
+  entirely signed out, which was the condition of building it at all.
+- **Photos of the cup**, in v0.3.0. Not photos you take — one licensed
+  photograph per method, alongside the how-to guides.
+
+The remaining fast-follow is still scoring the other ten methods. Nothing
+structural blocks it: a rubric written for those methods, and a change to
+which ones call `/score`.
+
+## 15. What shipped after the spec
+
+The design above describes v0.1. These are the decisions taken since, recorded
+here because this file is where the README sends anyone asking *why*.
+
+**How-to guides, v0.2.0.** One per method, bilingual, with gear tiers and a
+troubleshooting table. Their target numbers come from `brew_schema.json` —
+the same file the rubric reads — so a guide and a score cannot disagree about
+what a good espresso is.
+
+**Sign-in and Firestore backup, v0.2.0.** Google, email and phone.
+Deliberately optional: SQLite stays the source of truth, Firestore is a
+mirror, and a backup failure is never a save failure. Deleted rows are
+mirrored *as deleted*, so a restore cannot resurrect what you threw away, and
+a newer local entry always wins a restore.
+
+**Search and filter, v0.3.0.** On both Home and the full log. Stored ids are
+expanded to their labels before matching, so "Kalita Wave" finds a row the
+database stores as `kalitaWave`, and the search follows the selected language.
+The filter lives in each screen's state rather than in the bar, which is what
+keeps it applied while you open a brew and come back.
+
+**`brewDate` means when the coffee was brewed, v0.3.0.** It previously held
+the moment Save was pressed — the same value as `createdAt`, from the same
+clock — so a stated brew time was thrown away. The app now sends its own wall
+clock with each `/parse` call (the Worker runs in UTC, which is the wrong day
+for anyone far from Greenwich) and the model resolves "yesterday at 11.30" or
+"kemarin sore" against it. Both screens carry a picker. `createdAt` keeps the
+second meaning, untouched by edits.
+
+**Espresso baskets split, and rubric `r3`, v0.3.0.** Capacity in grams is what
+interacts with dose and what the rubric judges; diameter is fixed by the
+portafilter and is never a fault. Basket type became a two-value enum, and
+puck preparation is now weighted by it: a pressurised basket makes its
+pressure at an orifice in the second wall rather than through the bed, so WDT
+and distribution have almost nothing to act on. `r2` deducted for skipping
+them anyway, marking down every shot pulled on the basket most machines ship
+with. An `r2` score and an `r3` score are not the same measurement.
+
+**A re-score is announced, v0.3.0.** Editing a brew changed the number in
+silence, which reads as the app having second thoughts rather than as a
+consequence of the edit. A dialog now shows the old number beside the new one.
+It also discloses two things the obvious version gets wrong: a re-score that
+failed kept the old number and looked identical to one that agreed with it,
+and an entry last scored under an older rubric may have moved because the
+rules changed rather than because of the edit.
+
+**Guide photographs, v0.3.0.** Fifteen of sixteen methods, from Wikimedia
+Commons and Openverse under CC0, CC BY or CC BY-SA. `kopiTalua` has none —
+no archive holds a freely licensed one. See `ASSET_CREDITS.md`; attribution is
+a licence condition, so the credit is welded into the widget that draws the
+photo and there is no code path that shows one without it.

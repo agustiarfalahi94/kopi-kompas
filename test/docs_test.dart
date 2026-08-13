@@ -97,6 +97,92 @@ void main() {
     }
   });
 
+  test('the two agent files have not drifted apart', () {
+    // They differ only in their own title and in which file they point at.
+    // Everything else must be byte-identical, because the drift that matters
+    // is a rule added to one and forgotten in the other.
+    List<String> body(String name) => docs[name]!
+        .readAsLinesSync()
+        .skip(1)
+        .map((l) => l.replaceAll('AGENTS.md', 'X').replaceAll('CLAUDE.md', 'X'))
+        .toList();
+    expect(body('CLAUDE.md'), body('AGENTS.md'));
+  });
+
+  test('the Worker README names the rubric version that ships', () {
+    // A document illustrating the versioning rule with a version that is two
+    // behind teaches the rule and misstates the fact.
+    final version = RegExp(
+      r"RUBRIC_VERSION = '(\w+)'",
+    ).firstMatch(File('worker/src/prompts.ts').readAsStringSync())!.group(1)!;
+    expect(
+      File('worker/README.md').readAsStringSync(),
+      contains(version),
+      reason: 'worker/README.md does not mention $version',
+    );
+  });
+
+  test('the spec agrees with the schema about how many are unscored', () {
+    final unscored = methods.length - scored.length;
+    const words = {10: 'ten', 9: 'nine', 8: 'eight', 5: 'five'};
+    expect(
+      File(
+        'docs/superpowers/specs/2026-08-12-kopi-kompas-design.md',
+      ).readAsStringSync(),
+      contains('${words[unscored]} unscored'),
+      reason: 'the spec does not say "${words[unscored]} unscored"',
+    );
+  });
+
+  test('the spec does not call a shipped feature out of scope', () {
+    // Accounts and photographs were both listed as out of scope for v1 and
+    // both shipped. A scope list that contradicts the app is worse than none.
+    final spec = File(
+      'docs/superpowers/specs/2026-08-12-kopi-kompas-design.md',
+    ).readAsStringSync();
+    final stillOut = spec
+        .split('Still out of scope:')[1]
+        .split('Shipped after this was written')[0];
+    for (final shipped in ['cloud sync', 'accounts', 'photos of the cup']) {
+      expect(
+        stillOut.toLowerCase(),
+        isNot(contains(shipped)),
+        reason: '"$shipped" ships but the spec calls it out of scope',
+      );
+    }
+  });
+
+  test('the credits document lists exactly what the app credits', () {
+    final credited =
+        (jsonDecode(File('assets/guide_credits.json').readAsStringSync())
+                as List)
+            .cast<Map<String, dynamic>>();
+    final doc = File('ASSET_CREDITS.md').readAsStringSync();
+    expect(
+      doc,
+      contains('${credited.length} photographs'),
+      reason: 'ASSET_CREDITS.md does not say ${credited.length} photographs',
+    );
+    for (final c in credited) {
+      expect(doc, contains(c['author'] as String), reason: '${c['method']}');
+    }
+  });
+
+  test('the README describes the features that actually ship', () {
+    // It sat a whole phase behind: no sign-in, no backup, no guides, no
+    // search, while all four were in the app.
+    final readme = File('README.md').readAsStringSync().toLowerCase();
+    for (final feature in [
+      'sign-in',
+      'backup',
+      'guide',
+      'search and filter',
+      'reminder',
+    ]) {
+      expect(readme, contains(feature), reason: 'README omits $feature');
+    }
+  });
+
   // The master logo staying out of the APK is checked by icon_test.dart,
   // which inspects only the asset list — pubspec mentions the path in a
   // comment explaining why it is absent, so a whole-file search is wrong.
