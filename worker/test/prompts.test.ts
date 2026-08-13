@@ -116,6 +116,45 @@ describe('buildScoreResponseSchema', () => {
 });
 
 describe('rubric version', () => {
-  it('is r2, because the targets moved', () =>
-    expect(RUBRIC_VERSION).toBe('r2'));
+  // Pinned so a scoring change cannot land without moving the version. An
+  // r2 score and an r3 score of the same shot are not comparable, and a
+  // stored score records which produced it.
+  it('is r3, because espresso puck prep now depends on the basket', () =>
+    expect(RUBRIC_VERSION).toBe('r3'));
+});
+
+describe('espresso puck preparation by basket type', () => {
+  const r = scoreInstruction('espresso', 'en');
+
+  it('tells the model to read basketType before weighting puck prep', () => {
+    // The whole rule hangs on this: a rubric that lists two weights without
+    // saying which applies is worse than one weight.
+    expect(r).toContain('basketType');
+    expect(r.toLowerCase()).toContain('weighted by baskettype');
+  });
+
+  it('keeps puck prep at weight 20 for a non-pressurised basket', () => {
+    expect(r).toMatch(/nonPressurised[^]*weight 20/);
+  });
+
+  it('drops it to 5 for a pressurised basket and says where the rest goes', () => {
+    expect(r).toMatch(/pressurised — weight 5/);
+    expect(r).toContain('ratio and brew time');
+  });
+
+  it('forbids deducting for WDT on a pressurised basket', () => {
+    // The bug in r2: a beginner on the basket that ships with the machine was
+    // marked down for skipping a step that does nothing on it.
+    expect(r).toContain('Do NOT deduct for puckPrepWdt');
+  });
+
+  it('still asks for a level bed, by either tool', () => {
+    expect(r).toContain('puckPrepTamp AND puckPrepDistribution are both');
+  });
+
+  it('never treats basket diameter as a fault', () => {
+    // It is the portafilter you own, not a choice you made about this shot.
+    expect(r).toContain('basketDiameterMm');
+    expect(r).toContain('never a fault');
+  });
 });

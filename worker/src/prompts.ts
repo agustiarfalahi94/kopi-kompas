@@ -4,7 +4,13 @@ import { brewSchema, METHODS, type BrewMethod } from './schema';
 /// pressure, agitation and drawdown all change the verdict, and the espresso
 /// ratio band now moves with shot style — an r1 score and an r2 score are not
 /// the same measurement. Every stored score records which produced it.
-export const RUBRIC_VERSION = 'r2';
+///
+/// r3 splits espresso puck preparation by basket type. A pressurised basket
+/// makes its pressure at an orifice in the second wall rather than through
+/// the bed, so WDT and distribution have almost nothing to act on — r2
+/// deducted for skipping them anyway, and marked down every shot pulled on
+/// the basket most beginners own.
+export const RUBRIC_VERSION = 'r3';
 
 export type Locale = 'en' | 'id';
 
@@ -122,16 +128,34 @@ const TARGETS: Record<string, string[]> = {
     'Brew time (brewTimeSeconds), weight 20. Target 25 to 32 seconds.',
     '  Judge it together with the ratio: 20 seconds at 1:2 means the grind',
     '  ran fast, which is a real fault; 36 seconds at 1:1.5 is choked.',
-    'Puck preparation, weight 20. puckPrepWdt, puckPrepDistribution and',
-    '  puckPrepTamp are worth up to 7 each. Deduct only where the value is',
-    '  false, meaning the step was deliberately skipped.',
+    '**Puck preparation is weighted by basketType. Read it first.**',
+    '',
+    'If basketType is nonPressurised, or is null — weight 20. puckPrepWdt,',
+    '  puckPrepDistribution and puckPrepTamp are worth up to 7 each. Deduct',
+    '  only where the value is false, meaning the step was deliberately',
+    '  skipped. Flow is governed by the bed, so preparing it is most of the',
+    '  technique.',
+    '',
+    'If basketType is pressurised — weight 5, and the other 15 goes to',
+    '  ratio and brew time. A pressurised basket makes its pressure at a',
+    '  small orifice in the second wall, not through the coffee, so the bed',
+    '  barely governs flow. Do NOT deduct for puckPrepWdt or',
+    '  puckPrepDistribution being false; on this basket they have almost',
+    '  nothing to act on, and saying otherwise sends someone to buy a tool',
+    '  that will not change their coffee. Levelling still matters a little,',
+    '  so deduct only if puckPrepTamp AND puckPrepDistribution are both',
+    '  false — either one levels the bed. Do not praise a tamp for building',
+    '  resistance here; it does not.',
+    '',
     'Water temperature (waterTempC), weight 10. Target 90 to 96 for medium',
     '  roast; light roast tolerates the upper end, dark roast the lower.',
     'Machine setup (pre-infusion, pressure, basket), weight 10.',
     '  preInfusionSeconds 3 to 10 where recorded;',
     '  pressureBars 6 to 9. A basketSizeGrams far above doseGrams means an',
     '  under-dosed basket, which channels — 18 g in a 22 g basket is a real',
-    '  fault, 18 g in an 18 g basket is correct.',
+    '  fault, 18 g in an 18 g basket is correct. On a pressurised basket',
+    '  this matters less: judge it, but do not call it a large fault.',
+    '  basketDiameterMm is the portafilter it fits and is never a fault.',
     'Coherence, weight 10. Do the dose, basket and machine make sense',
     '  together, and does anything in notes contradict the numbers?',
   ],

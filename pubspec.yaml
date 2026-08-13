@@ -2,7 +2,7 @@ name: kopi_kompas
 description: "Kopi Kompas — a personal coffee-brewing logbook."
 publish_to: 'none'
 
-version: 0.2.1+3
+version: 0.3.0+4
 
 environment:
   sdk: ^3.11.4
@@ -53,6 +53,12 @@ flutter:
     # those live in brew_schema.json so the guide and the scorer cannot
     # disagree about what a good espresso is.
     - assets/guides.json
+
+    # One photograph per guide, 720 px, plus the attribution each licence
+    # requires. Both are listed because a photo that ships without its credit
+    # is a licence breach; ASSET_CREDITS.md carries the full table.
+    - assets/guide_credits.json
+    - assets/guides/
 
   # assets/branding/ is deliberately NOT listed. The master logo is
   # build-time input for tool/generate_icon.dart; listing it would ship a

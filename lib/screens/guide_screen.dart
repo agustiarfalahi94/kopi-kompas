@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../data/brew_guide.dart';
 import '../data/brew_schema.dart';
+import '../data/guide_photo.dart';
 import '../strings.dart';
+import '../widgets/guide_photo_card.dart';
 
 /// Every guide, grouped by the same five categories as the method picker.
 class GuideListScreen extends StatelessWidget {
@@ -10,10 +12,12 @@ class GuideListScreen extends StatelessWidget {
     super.key,
     required this.schema,
     required this.guides,
+    required this.photos,
   });
 
   final BrewSchema schema;
   final BrewGuides guides;
+  final GuidePhotos photos;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -46,6 +50,7 @@ class GuideListScreen extends StatelessWidget {
                   builder: (_) => GuideScreen(
                     method: schema.method(id),
                     guide: guides.forMethod(id),
+                    photo: photos.forMethod(id),
                   ),
                 ),
               ),
@@ -58,10 +63,19 @@ class GuideListScreen extends StatelessWidget {
 
 /// How to brew one method, and what to do when it goes wrong.
 class GuideScreen extends StatelessWidget {
-  const GuideScreen({super.key, required this.method, required this.guide});
+  const GuideScreen({
+    super.key,
+    required this.method,
+    required this.guide,
+    this.photo,
+  });
 
   final MethodSpec method;
   final BrewGuide? guide;
+
+  /// Null for the three methods Commons has no usable photograph of. The
+  /// guide renders without one rather than with a picture of another drink.
+  final GuidePhoto? photo;
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +89,7 @@ class GuideScreen extends StatelessWidget {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                if (photo case final p?) GuidePhotoCard(photo: p),
                 Text(g.what, style: theme.textTheme.bodyLarge),
                 const SizedBox(height: 24),
 

@@ -162,6 +162,31 @@ class AppStrings {
   /// The brew's own timestamp. Deliberately not "date added": the entry
   /// records when the coffee was made, and when it was written down is
   /// separate — and less interesting.
+  /// Shown under the basket picker when a pressurised basket is chosen.
+  ///
+  /// The scorer already stops deducting for skipped WDT there, but a number
+  /// that quietly declines to punish you teaches nothing. This says why.
+  static String get pressurisedNote => _s(
+    'On a pressurised basket the pressure comes from the hole in the second '
+        'wall, not from the coffee. WDT and distribution have little to do '
+        'here — levelling the bed is enough, by tamp or distributor. Not '
+        'scored against you.',
+    'Di basket pressurized, tekanan datang dari lubang di dinding kedua, '
+        'bukan dari kopinya. WDT dan distribusi nggak banyak ngaruh di sini '
+        '— yang penting bubuknya rata, mau pakai tamper atau distributor. '
+        'Nggak dihitung mengurangi nilai.',
+  );
+
+  static String get creditsTitle => _s('Photo credits', 'Kredit foto');
+  static String get creditsIntro => _s(
+    'Every photograph here comes from Wikimedia Commons and is used under '
+        'its own licence. Naming the author is a condition of that licence, '
+        'not a courtesy.',
+    'Semua foto di sini dari Wikimedia Commons dan dipakai sesuai lisensinya '
+        'masing-masing. Mencantumkan fotografernya itu syarat lisensi, bukan '
+        'sekadar basa-basi.',
+  );
+
   static String get brewedAt => _s('Brewed at', 'Diseduh pada');
   static String get brewedAtFromText =>
       _s('from what you typed', 'dari yang kamu tulis');
@@ -265,6 +290,9 @@ class AppStrings {
     'rememberedSubtitle': rememberedSubtitle,
     'rememberedEmpty': rememberedEmpty,
     'noChanges': noChanges,
+    'pressurisedNote': pressurisedNote,
+    'creditsTitle': creditsTitle,
+    'creditsIntro': creditsIntro,
     'brewedAt': brewedAt,
     'brewedAtFromText': brewedAtFromText,
     'searchHint': searchHint,
