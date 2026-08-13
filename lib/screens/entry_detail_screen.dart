@@ -192,6 +192,8 @@ class EntryDetailScreen extends StatelessWidget {
         : '${row.spec.label} (${row.spec.unit})';
     final value = switch (row.value) {
       final bool b => b ? AppStrings.yes : AppStrings.no,
+      final String v when row.spec.type == FieldType.enumerated =>
+        schema.valueLabel(v),
       final Object v => v.toString(),
       null => '',
     };

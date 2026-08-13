@@ -27,6 +27,7 @@ class AppStrings {
   static String get parsing => _s('Reading your brew…', 'Membaca seduhan…');
   static String get scoring => _s('Scoring…', 'Menilai…');
   static String get saveButton => _s('Save', 'Simpan');
+  static String get noChanges => _s('Nothing changed', 'Nggak ada yang diubah');
   static String get doneButton => _s('Done', 'Selesai');
   static String get emptyLog =>
       _s('No brews yet. Tap + to log one.', 'Belum ada. Ketuk + untuk mulai.');
@@ -51,7 +52,13 @@ class AppStrings {
   static String get byHand => _s('Fill in by hand', 'Isi manual');
   static String get pickMethod =>
       _s('What did you brew it with?', 'Pakai alat apa?');
-  static String get rateThis => _s('What did you think?', 'Menurutmu gimana?');
+
+  /// Deliberately a question about *enjoyment*, not quality. The number
+  /// above it is the app's opinion; this is the only place the brewer's own
+  /// taste gets recorded, and "What did you think?" was vague enough that it
+  /// read as a second score.
+  static String get rateThis =>
+      _s('Did you enjoy this coffee?', 'Kamu suka nggak sama kopi ini?');
   static String get scoreThisBrew => _s('Score this brew', 'Nilai seduhan ini');
   static String get whatYouTyped => _s('What you typed', 'Yang kamu tulis');
   static String get deleteTitle =>
@@ -99,6 +106,98 @@ class AppStrings {
   );
   static String get rememberedEmpty =>
       _s('Nothing yet — log a brew.', 'Belum ada — catat seduhan dulu.');
+
+  static String get signInTitle => _s('Sign in', 'Masuk');
+  static String get signInWhy => _s(
+    'Your log lives on this phone. Sign in to back it up, so a lost or '
+        'reset phone is not a lost logbook.',
+    'Catatanmu ada di HP ini. Masuk untuk mencadangkan, supaya HP hilang '
+        'atau direset tidak menghapus catatanmu.',
+  );
+  static String get signInGoogle =>
+      _s('Continue with Google', 'Lanjut dengan Google');
+  static String get signInEmail => _s('Use email', 'Pakai email');
+  static String get signInPhone => _s('Use phone number', 'Pakai nomor HP');
+  static String get emailLabel => _s('Email', 'Email');
+  static String get passwordLabel => _s('Password', 'Kata sandi');
+  static String get phoneLabel => _s('Phone number', 'Nomor HP');
+  static String get codeLabel => _s('6-digit code', 'Kode 6 digit');
+  static String get sendCode => _s('Send code', 'Kirim kode');
+  static String get confirmCode => _s('Confirm', 'Konfirmasi');
+  static String get createAccount => _s('Create account', 'Buat akun');
+  static String get needAccount => _s('No account yet?', 'Belum punya akun?');
+  static String get haveAccount => _s('Already have one?', 'Sudah punya akun?');
+  static String get forgotPassword => _s('Forgot password', 'Lupa sandi');
+  static String get resetSent =>
+      _s('Reset email sent.', 'Email atur ulang terkirim.');
+  static String get authWrongPassword =>
+      _s('Wrong email or password.', 'Email atau sandi salah.');
+  static String get authNeedsLinking => _s(
+    'That email already has an account. Sign in the way you did before.',
+    'Email itu sudah punya akun. Masuk dengan cara yang dulu kamu pakai.',
+  );
+  static String get authFailed => _s('Could not sign in.', 'Gagal masuk.');
+  static String get backupTitle => _s('Backup', 'Cadangan');
+  static String get backupSignedOut => _s(
+    'Not signed in — this log is only on this phone.',
+    'Belum masuk — catatan ini hanya ada di HP ini.',
+  );
+  static String get backupNever =>
+      _s('Not backed up yet', 'Belum pernah dicadangkan');
+  static String get backupNow => _s('Back up now', 'Cadangkan sekarang');
+  static String get restoreNow =>
+      _s('Restore from backup', 'Pulihkan cadangan');
+  static String get signOut => _s('Sign out', 'Keluar');
+  static String get backupWorking => _s('Backing up…', 'Mencadangkan…');
+  static String get backupFailed =>
+      _s("Couldn't back up — will retry", 'Gagal mencadangkan — akan diulang');
+
+  static String backupDone(int n) =>
+      _s('Backed up $n brews', '$n seduhan dicadangkan');
+  static String restoreDone(int n) =>
+      _s('Restored $n brews', '$n seduhan dipulihkan');
+  static String codeSentTo(String phone) =>
+      _s('Code sent to $phone', 'Kode dikirim ke $phone');
+
+  /// The brew's own timestamp. Deliberately not "date added": the entry
+  /// records when the coffee was made, and when it was written down is
+  /// separate — and less interesting.
+  static String get brewedAt => _s('Brewed at', 'Diseduh pada');
+  static String get brewedAtFromText =>
+      _s('from what you typed', 'dari yang kamu tulis');
+
+  static String get searchHint => _s('Search your brews', 'Cari di catatanmu');
+  static String get filterMethod => _s('Method', 'Metode');
+  static String get filterRating => _s('Rating', 'Bintang');
+  static String get filterAny => _s('Any', 'Semua');
+  static String get filterClear => _s('Clear', 'Hapus filter');
+  static String get noMatches =>
+      _s('Nothing matches that.', 'Tidak ada yang cocok.');
+
+  /// Shown whenever a filter is on, so a short list never reads as data loss.
+  static String matchCount(int shown, int total) =>
+      _s('$shown of $total', '$shown dari $total');
+  static String atLeastStars(int n) =>
+      _s('${'★' * n} and up', '${'★' * n} ke atas');
+
+  static String get guidesTitle => _s('How to brew', 'Cara menyeduh');
+  static String get guidesIntro => _s(
+    'Targets here are the same ones the app scores against, so following a '
+        'guide cannot cost you points.',
+    'Target di sini sama dengan yang dipakai untuk menilai, jadi mengikuti '
+        'panduan tidak akan mengurangi nilaimu.',
+  );
+  static String get guideTargets => _s('Aim for', 'Targetkan');
+  static String get guideRatio => _s('Ratio', 'Rasio');
+  static String get guideTime => _s('Time', 'Waktu');
+  static String get guideTemp => _s('Water', 'Air');
+  static String get guideGrind => _s('Grind', 'Gilingan');
+  static String get guideHow => _s('How to brew it', 'Cara menyeduhnya');
+  static String get guideFaults =>
+      _s('When it goes wrong', 'Kalau hasilnya meleset');
+  static String get guideGear => _s('Gear', 'Peralatan');
+  static String get guideNotes => _s('Worth knowing', 'Perlu diketahui');
+  static String get guideMissing => _s('No guide yet.', 'Belum ada panduan.');
 
   static String groupLabel(FieldGroup g) => switch (g) {
     FieldGroup.coffee => _s('Coffee', 'Kopi'),
@@ -165,5 +264,53 @@ class AppStrings {
     'rememberedTitle': rememberedTitle,
     'rememberedSubtitle': rememberedSubtitle,
     'rememberedEmpty': rememberedEmpty,
+    'noChanges': noChanges,
+    'brewedAt': brewedAt,
+    'brewedAtFromText': brewedAtFromText,
+    'searchHint': searchHint,
+    'filterMethod': filterMethod,
+    'filterRating': filterRating,
+    'filterAny': filterAny,
+    'filterClear': filterClear,
+    'noMatches': noMatches,
+    'guidesTitle': guidesTitle,
+    'guidesIntro': guidesIntro,
+    'guideTargets': guideTargets,
+    'guideRatio': guideRatio,
+    'guideTime': guideTime,
+    'guideTemp': guideTemp,
+    'guideGrind': guideGrind,
+    'guideHow': guideHow,
+    'guideFaults': guideFaults,
+    'guideGear': guideGear,
+    'guideNotes': guideNotes,
+    'guideMissing': guideMissing,
+    'signInTitle': signInTitle,
+    'signInWhy': signInWhy,
+    'signInGoogle': signInGoogle,
+    'signInEmail': signInEmail,
+    'signInPhone': signInPhone,
+    'emailLabel': emailLabel,
+    'passwordLabel': passwordLabel,
+    'phoneLabel': phoneLabel,
+    'codeLabel': codeLabel,
+    'sendCode': sendCode,
+    'confirmCode': confirmCode,
+    'createAccount': createAccount,
+    'needAccount': needAccount,
+    'haveAccount': haveAccount,
+    'forgotPassword': forgotPassword,
+    'resetSent': resetSent,
+    'authWrongPassword': authWrongPassword,
+    'authNeedsLinking': authNeedsLinking,
+    'authFailed': authFailed,
+    'backupTitle': backupTitle,
+    'backupSignedOut': backupSignedOut,
+    'backupNever': backupNever,
+    'backupNow': backupNow,
+    'restoreNow': restoreNow,
+    'signOut': signOut,
+    'backupWorking': backupWorking,
+    'backupFailed': backupFailed,
   };
 }

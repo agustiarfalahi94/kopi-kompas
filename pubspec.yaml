@@ -24,6 +24,10 @@ dependencies:
   confetti: ^0.8.0
   flutter_local_notifications: ^22.3.0
   timezone: ^0.11.1
+  firebase_core: ^4.13.0
+  firebase_auth: ^6.5.7
+  cloud_firestore: ^6.8.0
+  google_sign_in: ^7.2.0
 
 dev_dependencies:
   flutter_test:
@@ -44,6 +48,11 @@ flutter:
     # Worker too. Drives the follow-up form, so adding a method never means
     # editing a widget.
     - schema/brew_schema.json
+
+    # How-to guides, one per brew method. Their target numbers are not here —
+    # those live in brew_schema.json so the guide and the scorer cannot
+    # disagree about what a good espresso is.
+    - assets/guides.json
 
   # assets/branding/ is deliberately NOT listed. The master logo is
   # build-time input for tool/generate_icon.dart; listing it would ship a

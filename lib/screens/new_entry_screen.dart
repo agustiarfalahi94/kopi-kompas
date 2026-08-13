@@ -6,6 +6,7 @@ import '../services/brew_database.dart';
 import '../services/kopi_client.dart';
 import '../services/sticky_defaults.dart';
 import '../strings.dart';
+import '../widgets/brew_date_field.dart';
 import '../widgets/follow_up_form.dart';
 import '../widgets/score_reveal.dart';
 
@@ -25,6 +26,7 @@ BrewEntry buildEntry({
   required String rawInputText,
   required BrewSchema schema,
   required DateTime now,
+  DateTime? brewedAt,
 }) {
   final coreNames = schema.core.map((f) => f.name).toSet();
   final mergedCore = Map<String, Object?>.of(core);
@@ -60,7 +62,10 @@ BrewEntry buildEntry({
     grindSize: mergedCore['grindSize'] as String?,
     waterType: mergedCore['waterType'] as String?,
     notes: mergedCore['notes'] as String?,
-    brewDate: now,
+    // When the coffee was brewed, which is not when it was written down.
+    // `now` is the fallback for a text that said nothing about when, and
+    // createdAt below keeps the second meaning on its own column.
+    brewDate: brewedAt ?? now,
     rawInputText: rawInputText,
     methodData: mergedMethod,
     scoreStatus: schema.isScored(brewMethod)
@@ -102,6 +107,12 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
   Map<String, Object?> _sticky = const {};
   BrewEntry? _saved;
 
+  /// Null until the form opens. Set from the parse when the text said when,
+  /// otherwise to the moment the form appeared — not the moment Save is
+  /// pressed, so a long fill-in does not drift the timestamp.
+  DateTime? _brewedAt;
+  bool _brewedAtFromText = false;
+
   @override
   void initState() {
     super.initState();
@@ -142,13 +153,20 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
           _stage = _Stage.describe;
           _error = _messageFor(kind);
         });
-      case ParseOk(:final brewMethod, :final core, :final methodData):
+      case ParseOk(
+        :final brewMethod,
+        :final core,
+        :final methodData,
+        :final brewedAt,
+      ):
         // Always show the form, however complete the parse was. A field
         // nobody is shown is a field nobody knows exists.
         setState(() {
           _brewMethod = brewMethod;
           _core = core;
           _methodData = methodData;
+          _brewedAt = brewedAt ?? DateTime.now();
+          _brewedAtFromText = brewedAt != null;
           _stage = _Stage.fillGaps;
         });
     }
@@ -178,6 +196,10 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
     _brewMethod = methodId;
     _core = const {};
     _methodData = const {};
+    // Filling in by hand means no parse ran, so there is nothing to have
+    // found — now, adjustable, is the only honest default.
+    _brewedAt = DateTime.now();
+    _brewedAtFromText = false;
     _stage = _Stage.fillGaps;
   });
 
@@ -195,6 +217,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
       rawInputText: _text.text.trim(),
       schema: widget.schema,
       now: DateTime.now(),
+      brewedAt: _brewedAt,
     );
 
     if (entry.scoreStatus == ScoreStatus.pending) {
@@ -316,8 +339,19 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
         '${widget.schema.method(_brewMethod).label}',
         style: Theme.of(context).textTheme.titleMedium,
       ),
+      // Above the groups rather than inside one: this is the entry's own
+      // timestamp, not a property of the coffee, the grind or the water.
+      BrewDateField(
+        value: _brewedAt ?? DateTime.now(),
+        fromText: _brewedAtFromText,
+        onChanged: (t) => setState(() {
+          _brewedAt = t;
+          _brewedAtFromText = false;
+        }),
+      ),
       Expanded(
         child: BrewForm(
+          schema: widget.schema,
           fields: formFields(
             widget.schema,
             _brewMethod,

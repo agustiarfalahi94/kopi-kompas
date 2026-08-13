@@ -1,10 +1,20 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Flutter's template declares INTERNET only in the debug and profile
          manifests, so a release build silently has no network at all: every
          call fails as "no connection" while debug works perfectly. The app's
          one network feature is the Cloudflare Worker that parses and scores
          a brew. test/manifest_test.dart keeps this here. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- firebase_auth's dependencies request biometric permissions for
+         reauthentication flows this app does not use. A coffee logbook has no
+         business holding them, so they are stripped from the merged manifest
+         rather than shipped because a library asked. -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"
+        tools:node="remove"/>
+    <uses-permission android:name="android.permission.USE_FINGERPRINT"
+        tools:node="remove"/>
 
     <application
         android:label="Kopi Kompas"

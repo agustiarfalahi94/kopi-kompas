@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
 
+import 'brew_guide.dart' show BrewTargets;
+
 import '../strings.dart' show AppStrings;
 
 /// Both labels, kept so [Labelled.label] can resolve at read time.
@@ -100,6 +102,8 @@ class MethodSpec with Labelled {
     required this.scored,
     required this.labels,
     required this.fields,
+    this.targets,
+    this.hideCore = const [],
   });
 
   final String id;
@@ -107,6 +111,17 @@ class MethodSpec with Labelled {
   @override
   final Map<String, String> labels;
   final List<FieldSpec> fields;
+
+  /// The numbers this method is judged against, shared with the Worker's
+  /// rubric so a guide and a score can never disagree.
+  final BrewTargets? targets;
+
+  /// Core fields this method should not ask about.
+  ///
+  /// Kopi tubruk and its relatives are almost always made from pre-ground
+  /// packaged coffee, so a roast date or a grinder setting is asking about
+  /// something the tin does not say and the brewer never chose.
+  final List<String> hideCore;
 }
 
 /// The sixteen brew methods, their categories and their fields, read from the
@@ -116,9 +131,19 @@ class MethodSpec with Labelled {
 /// edit to that file plus a rubric in the Worker, and the follow-up form
 /// picks it up for free.
 class BrewSchema {
-  BrewSchema._(this._categories, this._core, this._methods);
+  BrewSchema._(this._categories, this._core, this._methods, this._valueLabels);
 
   final List<CategorySpec> _categories;
+  final Map<String, Map<String, String>> _valueLabels;
+
+  /// The human name for an enum value, in the current language.
+  ///
+  /// Dropdowns used to render the raw id, so a form offered "kalitaWave" and
+  /// "wet-hulled" and neither changed with the language.
+  String valueLabel(String value) =>
+      _valueLabels[value]?[AppStrings.language] ??
+      _valueLabels[value]?['en'] ??
+      value;
   final List<FieldSpec> _core;
   final Map<String, MethodSpec> _methods;
 
@@ -183,9 +208,18 @@ class BrewSchema {
         scored: m['scored'] as bool,
         labels: _labels(m['label'] as Map<String, dynamic>),
         fields: fields,
+        hideCore: ((m['hideCore'] as List?) ?? const []).cast<String>(),
+        targets: m['targets'] == null
+            ? null
+            : BrewTargets.fromJson(m['targets'] as Map<String, dynamic>),
       );
     });
 
-    return BrewSchema._(categories, core, methods);
+    final valueLabels = <String, Map<String, String>>{};
+    (root['valueLabels'] as Map<String, dynamic>? ?? {}).forEach((k, v) {
+      valueLabels[k] = (v as Map<String, dynamic>).cast<String, String>();
+    });
+
+    return BrewSchema._(categories, core, methods, valueLabels);
   }
 }

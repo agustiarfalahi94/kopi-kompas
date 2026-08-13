@@ -87,10 +87,14 @@ async function handleParse(
   if (text.length === 0) return error(400, 'text is required');
   if (text.length > MAX_TEXT) return error(400, 'text is too long');
 
+  // The app sends its own wall clock, because the Worker's is UTC and a
+  // brewer's "this morning" is not a UTC morning.
+  const nowLocal = localClock(payload?.now);
+
   const result = await callGemini<any>({
     apiKey: env.GEMINI_API_KEY,
     model: env.GEMINI_PARSE_MODEL ?? DEFAULT_PARSE_MODEL,
-    systemInstruction: parseInstruction(toLocale(payload.locale)),
+    systemInstruction: parseInstruction(toLocale(payload.locale), nowLocal),
     userText: text,
     responseSchema: buildParseResponseSchema(),
     fetchImpl: deps.fetchImpl,
@@ -105,6 +109,8 @@ async function handleParse(
   const method: BrewMethod = raw.brewMethod;
 
   const out: Record<string, unknown> = { brewMethod: method };
+  const brewedAt = sanitiseBrewedAt(raw.brewedAt, nowLocal);
+  if (brewedAt) out.brewedAt = brewedAt;
   for (const name of Object.keys(brewSchema.core)) {
     const value = raw[name];
     if (value !== null && value !== undefined) out[name] = value;
@@ -112,6 +118,41 @@ async function handleParse(
   out.methodData = stripForeignFields(method, raw.methodData ?? {});
 
   return json(out);
+}
+
+/** A local wall clock, `YYYY-MM-DDTHH:MM:SS`, with no zone and no offset. */
+const LOCAL_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/;
+
+/// The app's own clock, accepted only in the exact shape the prompt quotes.
+///
+/// Undefined when absent or malformed, which drops the whole clock block from
+/// the instruction rather than quoting a time that is not the brewer's — a
+/// wrong "now" would silently misdate every relative expression in the text.
+function localClock(value: unknown): string | undefined {
+  if (typeof value !== 'string' || !LOCAL_DATETIME.test(value)) return undefined;
+  return value;
+}
+
+/// What the model returned, or nothing.
+///
+/// Rejects anything that is not a bare local datetime, and anything in the
+/// future: a model that resolves "this morning" against its own idea of today
+/// can hand back tomorrow, and a brew logged for tomorrow would sit at the top
+/// of the log forever and count as an already-logged day for the reminder.
+export function sanitiseBrewedAt(
+  value: unknown,
+  nowLocal: string | undefined,
+): string | undefined {
+  if (typeof value !== 'string' || !LOCAL_DATETIME.test(value)) return undefined;
+  const at = Date.parse(`${value.length === 16 ? `${value}:00` : value}Z`);
+  if (Number.isNaN(at)) return undefined;
+  if (nowLocal !== undefined) {
+    // A minute of slack, so a brew logged the instant it finished is not
+    // rejected for being a few seconds ahead of the clock we were sent.
+    const now = Date.parse(`${nowLocal.length === 16 ? `${nowLocal}:00` : nowLocal}Z`);
+    if (!Number.isNaN(now) && at > now + 60_000) return undefined;
+  }
+  return value.length === 16 ? `${value}:00` : value;
 }
 
 async function handleScore(

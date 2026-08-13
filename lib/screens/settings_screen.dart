@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../data/brew_schema.dart';
+import '../services/auth_service.dart';
+import '../services/backup_service.dart';
 import '../services/brew_database.dart';
 import '../services/reminder_service.dart';
 import '../services/settings_store.dart';
 import '../services/sticky_defaults.dart';
 import '../strings.dart';
 import 'deleted_entries_screen.dart';
+import 'sign_in_screen.dart';
 
 /// Settings.
 ///
@@ -18,11 +21,15 @@ class SettingsScreen extends StatefulWidget {
     required this.db,
     required this.schema,
     required this.reminder,
+    required this.auth,
+    required this.backup,
   });
 
   final BrewDatabase db;
   final BrewSchema schema;
   final ReminderService reminder;
+  final AuthService? auth;
+  final BackupService? backup;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -59,6 +66,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await _settings.setReminderEnabled(value);
     await widget.reminder.reschedule();
     if (mounted) setState(() => _enabled = value);
+  }
+
+  String? _backupNote;
+  bool _backupBusy = false;
+
+  bool get _signedIn => widget.auth?.current is SignedIn;
+
+  String? get _accountLabel => switch (widget.auth?.current) {
+    SignedIn(:final label) => label,
+    _ => null,
+  };
+
+  Future<void> _signIn() async {
+    final ok = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => SignInScreen(auth: widget.auth!)),
+    );
+    if (ok != true || !mounted) return;
+    setState(() {});
+    // A first sign-in should leave the phone and the cloud agreeing, so push
+    // what is here rather than waiting for the next brew.
+    await _backup();
+  }
+
+  Future<void> _backup() async {
+    setState(() {
+      _backupBusy = true;
+      _backupNote = null;
+    });
+    final r = await widget.backup!.pushAll();
+    if (!mounted) return;
+    setState(() {
+      _backupBusy = false;
+      _backupNote = r.ok
+          ? AppStrings.backupDone(r.count)
+          : AppStrings.backupFailed;
+    });
+  }
+
+  Future<void> _restore() async {
+    setState(() {
+      _backupBusy = true;
+      _backupNote = null;
+    });
+    final r = await widget.backup!.restore();
+    if (!mounted) return;
+    setState(() {
+      _backupBusy = false;
+      _backupNote = r.ok
+          ? AppStrings.restoreDone(r.count)
+          : AppStrings.backupFailed;
+    });
+  }
+
+  Future<void> _signOut() async {
+    await widget.auth!.signOut();
+    if (mounted) setState(() => _backupNote = null);
   }
 
   Future<void> _setLanguage(String code) async {
@@ -105,6 +168,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: _pickTime,
           ),
         const Divider(),
+        // Absent entirely when Firebase could not start, rather than shown
+        // as a button that does nothing.
+        if (widget.auth != null && widget.backup != null) ...[
+          ListTile(
+            leading: const Icon(Icons.cloud_outlined),
+            title: Text(AppStrings.backupTitle),
+            subtitle: Text(
+              _backupBusy
+                  ? AppStrings.backupWorking
+                  : _backupNote ??
+                        (_signedIn
+                            ? (_accountLabel ?? AppStrings.backupNever)
+                            : AppStrings.backupSignedOut),
+            ),
+            trailing: _signedIn
+                ? null
+                : FilledButton(
+                    onPressed: _signIn,
+                    child: Text(AppStrings.signInTitle),
+                  ),
+          ),
+          if (_signedIn && !_backupBusy)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  OutlinedButton(
+                    onPressed: _backup,
+                    child: Text(AppStrings.backupNow),
+                  ),
+                  OutlinedButton(
+                    onPressed: _restore,
+                    child: Text(AppStrings.restoreNow),
+                  ),
+                  TextButton(
+                    onPressed: _signOut,
+                    child: Text(AppStrings.signOut),
+                  ),
+                ],
+              ),
+            ),
+          const Divider(),
+        ],
         ListTile(
           leading: const Icon(Icons.language),
           title: Text(AppStrings.languageTitle),
