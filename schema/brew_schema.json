@@ -120,6 +120,30 @@
     "stir": {
       "en": "Stir",
       "id": "Aduk"
+    },
+    "pressurised": {
+      "en": "Pressurised",
+      "id": "Pressurized"
+    },
+    "nonPressurised": {
+      "en": "Non-pressurised",
+      "id": "Non-pressurized"
+    },
+    "mm51": {
+      "en": "51 mm",
+      "id": "51 mm"
+    },
+    "mm53": {
+      "en": "53 mm",
+      "id": "53 mm"
+    },
+    "mm54": {
+      "en": "54 mm",
+      "id": "54 mm"
+    },
+    "mm58": {
+      "en": "58 mm",
+      "id": "58 mm"
     }
   },
   "categories": {
@@ -387,17 +411,36 @@
           "unit": "g",
           "required": false,
           "label": {
-            "en": "Basket size",
-            "id": "Ukuran basket"
+            "en": "Basket capacity",
+            "id": "Kapasitas basket"
+          }
+        },
+        "basketDiameterMm": {
+          "type": "enum",
+          "group": "brew",
+          "values": [
+            "mm51",
+            "mm53",
+            "mm54",
+            "mm58"
+          ],
+          "required": false,
+          "label": {
+            "en": "Basket diameter",
+            "id": "Diameter basket"
           }
         },
         "basketType": {
-          "type": "string",
+          "type": "enum",
           "group": "brew",
+          "values": [
+            "pressurised",
+            "nonPressurised"
+          ],
           "required": false,
           "label": {
-            "en": "Basket",
-            "id": "Basket"
+            "en": "Basket type",
+            "id": "Tipe basket"
           }
         },
         "puckScreen": {
