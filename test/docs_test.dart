@@ -183,6 +183,45 @@ void main() {
     }
   });
 
+  test('the handover file exists and points at files that exist', () {
+    // A new session has no memory of the last one. STATE.md is the handover,
+    // and a handover naming a file that was never written sends the next
+    // session looking for context that does not exist.
+    final state = File('docs/STATE.md');
+    expect(state.existsSync(), isTrue, reason: 'docs/STATE.md is missing');
+    final text = state.readAsStringSync();
+    for (final path in RegExp(r'`(docs/[\w/.-]+\.md)`').allMatches(text)) {
+      final named = path.group(1)!;
+      expect(
+        File(named).existsSync(),
+        isTrue,
+        reason: 'STATE.md points at $named, which does not exist',
+      );
+    }
+  });
+
+  test('both agent files send a new session to the handover first', () {
+    for (final name in ['CLAUDE.md', 'AGENTS.md']) {
+      expect(
+        docs[name]!.readAsStringSync(),
+        contains('docs/STATE.md'),
+        reason: '$name does not mention the handover file',
+      );
+    }
+  });
+
+  test('the handover does not quote a test count that will rot', () {
+    // Numbers that change every commit are the first thing to go stale, and a
+    // stale handover is believed. It must say to run the gate instead.
+    final text = File('docs/STATE.md').readAsStringSync();
+    expect(
+      RegExp(r'\b\d{2,4} (app |Flutter )?tests? pass').hasMatch(text),
+      isFalse,
+      reason: 'STATE.md quotes a test count; point at ./tool/check.sh instead',
+    );
+    expect(text, contains('./tool/check.sh'));
+  });
+
   // The master logo staying out of the APK is checked by icon_test.dart,
   // which inspects only the asset list — pubspec mentions the path in a
   // comment explaining why it is absent, so a whole-file search is wrong.

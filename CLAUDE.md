@@ -5,9 +5,15 @@
 **Kopi Kompas** — a Flutter coffee-brewing logbook, `com.inkpebble.kopi_kompas`,
 v0.3.0+4. Android-first. 16 brew methods in 5 categories; 6 of them scored.
 
-Read: this file → `AGENTS.md` (same instructions, must stay in sync) →
+Read: this file → **`docs/STATE.md`** (what is true right now: what is
+unmerged, what has never run on a phone, and every bug already paid for once)
+→ `AGENTS.md` (same instructions, must stay in sync) →
 `docs/superpowers/specs/2026-08-12-kopi-kompas-design.md` → the relevant plan
 in `docs/superpowers/plans/`.
+
+`docs/STATE.md` is the handover file. Update it whenever a bug is fixed, a
+branch is merged, or something is verified on a device — a new session has no
+memory of this one, and the ledger is how a mistake gets made only once.
 
 ## Working agreement
 
