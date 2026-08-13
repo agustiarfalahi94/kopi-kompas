@@ -25,10 +25,15 @@ sealed class ParseResult {
 }
 
 class ParseOk extends ParseResult {
-  const ParseOk(this.brewMethod, this.core, this.methodData);
+  const ParseOk(this.brewMethod, this.core, this.methodData, {this.brewedAt});
   final String brewMethod;
   final Map<String, Object?> core;
   final Map<String, Object?> methodData;
+
+  /// When the coffee was brewed, if the text said. Null means it did not, and
+  /// the caller falls back to now — it must never be filled in here, or "I
+  /// brewed this yesterday" and "I brewed this" become indistinguishable.
+  final DateTime? brewedAt;
 }
 
 class ParseFailed extends ParseResult {
@@ -68,11 +73,19 @@ class KopiClient {
 
   /// Defaults to the language the app is in, so an Indonesian brew gets the
   /// Worker's Indonesian prompt and Indonesian reasons back.
-  Future<ParseResult> parse(String text, {String? locale}) async {
+  Future<ParseResult> parse(
+    String text, {
+    String? locale,
+    DateTime? now,
+  }) async {
     final r = await _post('/parse', {
       'text': text,
       'locale': locale ?? AppStrings.language,
       'installId': installId,
+      // The phone's wall clock, no zone. The Worker runs in UTC, so without
+      // this "yesterday morning" resolves against the wrong day for anyone
+      // far enough from Greenwich — which is everyone here.
+      'now': _localClock(now ?? DateTime.now()),
     });
     return switch (r) {
       _Err(:final kind, :final detail) => ParseFailed(kind, detail),
@@ -88,7 +101,12 @@ class KopiClient {
 
     final core = <String, Object?>{};
     for (final e in body.entries) {
-      if (e.key != 'brewMethod' && e.key != 'methodData') {
+      // brewedAt is a column on the entry, not a form field. Left in `core` it
+      // would fall through buildEntry's core/methodData split and be filed
+      // under methodData, where nothing would ever read it.
+      if (e.key != 'brewMethod' &&
+          e.key != 'methodData' &&
+          e.key != 'brewedAt') {
         core[e.key] = e.value;
       }
     }
@@ -98,7 +116,18 @@ class KopiClient {
       method,
       core,
       md is Map ? md.cast<String, Object?>() : const {},
+      brewedAt: switch (body['brewedAt']) {
+        final String s => DateTime.tryParse(s),
+        _ => null,
+      },
     );
+  }
+
+  /// `YYYY-MM-DDTHH:MM:SS` in local time, which is the shape the Worker's
+  /// prompt quotes back to the model.
+  static String _localClock(DateTime t) {
+    final local = t.isUtc ? t.toLocal() : t;
+    return local.toIso8601String().substring(0, 19);
   }
 
   Future<ScoreResult> score(BrewEntry entry, {String? locale}) async {

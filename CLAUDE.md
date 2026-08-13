@@ -100,7 +100,11 @@ flutter build apk --release --split-per-abi
   and year boundaries are unit tests rather than a day of waiting.
 - `lib/widgets/follow_up_form.dart` — every field, grouped, nothing
   compulsory. `required` means "shown expanded", not "must answer".
-- `lib/models/brew_entry.dart` — `copyWith` preserves the score; clearing it
+- `lib/models/brew_entry.dart` — `brewDate` is when the coffee was brewed and
+  `createdAt` is when it was written down. They are not the same column and
+  must never be filled from the same clock: both were `now` at first, which
+  silently threw away every "I brewed this yesterday". `copyWith` preserves
+  the score; clearing it
   takes `clearScore: true`, because the default once ate scores on every edit.
 - `lib/services/backup_service.dart` — the Firestore mirror. Push is keyed by
   the entry's uuid so it is idempotent, deleted rows are mirrored *as*

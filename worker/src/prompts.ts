@@ -16,7 +16,32 @@ function languageLine(locale: Locale): string {
     : 'The user writes in English.';
 }
 
-export function parseInstruction(locale: Locale): string {
+/// The clock block, present only when the app sent its local time.
+///
+/// Without it the model has no "now", so every relative expression in the
+/// text — "yesterday at 11.30", "kemarin sore", "roasted last Tuesday" — is
+/// uncomputable and has to be thrown away. That is exactly what used to
+/// happen: the brew time a user stated was silently dropped and the row was
+/// stamped with the moment they pressed Save.
+function clockLines(nowLocal: string): string[] {
+  return [
+    '',
+    `The brewer's local clock reads ${nowLocal}. Use it only to turn`,
+    'relative wording into absolute dates.',
+    '',
+    '- brewedAt: when the coffee was brewed, as a local datetime',
+    '  YYYY-MM-DDTHH:MM:SS, with no zone suffix and no offset. Resolve',
+    '  "yesterday at 11.30 am", "tadi pagi jam 6", "kemarin sore" against',
+    '  the clock above.',
+    '- If the text gives a day but no time, use 12:00:00. Midday stands for',
+    '  an unknown hour; do not invent a plausible one.',
+    '- If the text says nothing at all about when it was brewed, return',
+    '  null. Do not default it to the current time.',
+    '- Never return a moment later than the clock above.',
+  ];
+}
+
+export function parseInstruction(locale: Locale, nowLocal?: string): string {
   const methods = METHODS.map((m) => {
     const fields = Object.keys(brewSchema.methods[m].fields).join(', ');
     return `- ${m}: ${fields}`;
@@ -58,12 +83,18 @@ export function parseInstruction(locale: Locale): string {
     '- Numbers are plain numbers without units. "15.5g" is 15.5.',
     '- A ratio written as "1:16" is the number 16.',
     '- Times are seconds unless the field name says minutes or hours.',
-    '- roastDate is an ISO date, YYYY-MM-DD. "roasted last Tuesday" is not a',
-    '  date you can compute; leave it null.',
+    // Only computable once the model has a clock. Without one this rule read
+    // "leave it null", which is the honest answer to a question you cannot
+    // answer — and the wrong one the moment you can.
+    '- roastDate is an ISO date, YYYY-MM-DD.',
+    ...(nowLocal === undefined
+      ? ['  "roasted last Tuesday" is not a date you can compute; leave it', '  null.']
+      : ['  Resolve relative wording against the clock below.']),
     '- notes holds the drinker\'s impressions only (taste, body, what they',
     '  would change), never restated measurements.',
     '- Do not score the brew. Do not return any score, rating or quality',
     '  judgement. Something else does that.',
+    ...(nowLocal === undefined ? [] : clockLines(nowLocal)),
   ].join('\n');
 }
 

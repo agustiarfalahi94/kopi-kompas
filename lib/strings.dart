@@ -159,6 +159,13 @@ class AppStrings {
   static String codeSentTo(String phone) =>
       _s('Code sent to $phone', 'Kode dikirim ke $phone');
 
+  /// The brew's own timestamp. Deliberately not "date added": the entry
+  /// records when the coffee was made, and when it was written down is
+  /// separate — and less interesting.
+  static String get brewedAt => _s('Brewed at', 'Diseduh pada');
+  static String get brewedAtFromText =>
+      _s('from what you typed', 'dari yang kamu tulis');
+
   static String get searchHint => _s('Search your brews', 'Cari di catatanmu');
   static String get filterMethod => _s('Method', 'Metode');
   static String get filterRating => _s('Rating', 'Bintang');
@@ -258,6 +265,8 @@ class AppStrings {
     'rememberedSubtitle': rememberedSubtitle,
     'rememberedEmpty': rememberedEmpty,
     'noChanges': noChanges,
+    'brewedAt': brewedAt,
+    'brewedAtFromText': brewedAtFromText,
     'searchHint': searchHint,
     'filterMethod': filterMethod,
     'filterRating': filterRating,
