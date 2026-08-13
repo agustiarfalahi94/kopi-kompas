@@ -3,7 +3,7 @@
 ## Start here
 
 **Kopi Kompas** — a Flutter coffee-brewing logbook, `com.inkpebble.kopi_kompas`,
-v0.2.1+3. Android-first. 16 brew methods in 5 categories; 6 of them scored.
+v0.3.0+4. Android-first. 16 brew methods in 5 categories; 6 of them scored.
 
 Read: this file → `CLAUDE.md` (same instructions, must stay in sync) →
 `docs/superpowers/specs/2026-08-12-kopi-kompas-design.md` → the relevant plan
