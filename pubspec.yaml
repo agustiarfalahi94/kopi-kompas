@@ -54,6 +54,12 @@ flutter:
     # disagree about what a good espresso is.
     - assets/guides.json
 
+    # One photograph per guide, 720 px, plus the attribution each licence
+    # requires. Both are listed because a photo that ships without its credit
+    # is a licence breach; ASSET_CREDITS.md carries the full table.
+    - assets/guide_credits.json
+    - assets/guides/
+
   # assets/branding/ is deliberately NOT listed. The master logo is
   # build-time input for tool/generate_icon.dart; listing it would ship a
   # megabyte of PNG inside the APK. test/icon_test.dart enforces this.

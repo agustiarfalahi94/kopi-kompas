@@ -177,6 +177,16 @@ class AppStrings {
         'Nggak dihitung mengurangi nilai.',
   );
 
+  static String get creditsTitle => _s('Photo credits', 'Kredit foto');
+  static String get creditsIntro => _s(
+    'Every photograph here comes from Wikimedia Commons and is used under '
+        'its own licence. Naming the author is a condition of that licence, '
+        'not a courtesy.',
+    'Semua foto di sini dari Wikimedia Commons dan dipakai sesuai lisensinya '
+        'masing-masing. Mencantumkan fotografernya itu syarat lisensi, bukan '
+        'sekadar basa-basi.',
+  );
+
   static String get brewedAt => _s('Brewed at', 'Diseduh pada');
   static String get brewedAtFromText =>
       _s('from what you typed', 'dari yang kamu tulis');
@@ -281,6 +291,8 @@ class AppStrings {
     'rememberedEmpty': rememberedEmpty,
     'noChanges': noChanges,
     'pressurisedNote': pressurisedNote,
+    'creditsTitle': creditsTitle,
+    'creditsIntro': creditsIntro,
     'brewedAt': brewedAt,
     'brewedAtFromText': brewedAtFromText,
     'searchHint': searchHint,

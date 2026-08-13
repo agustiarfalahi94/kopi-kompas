@@ -74,6 +74,16 @@ flutter build apk --release --split-per-abi
 - **Bump `RUBRIC_VERSION` whenever a scoring number moves.** Every stored score
   records the rubric and model that produced it; leaving the version alone
   makes old scores silently wrong rather than merely old.
+- **Photographs are licensed, and the licence has conditions.** Guide photos
+  come from Wikimedia Commons under CC0, CC BY or CC BY-SA. NonCommercial and
+  NoDerivatives are excluded: ND forbids the resize, NC binds the app.
+  ShareAlike is fine — shipping a work inside an app distributes a
+  *collection*, which does not put the app under the work's licence; the
+  resized files in `assets/guides/` carry the obligation, never the code.
+  Every photo must appear in `ASSET_CREDITS.md` **and** in Settings → Photo
+  credits, because naming the author is a licence condition rather than a
+  courtesy. `test/asset_credits_test.dart` fails the build if the images, the
+  credits data and the document disagree.
 - Every user-facing string goes through `AppStrings`, in both languages.
 - The master logo is build-time only and must never enter `pubspec.yaml`.
 
