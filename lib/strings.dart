@@ -177,6 +177,36 @@ class AppStrings {
         'Nggak dihitung mengurangi nilai.',
   );
 
+  /// Shown after an edit re-scores a brew.
+  ///
+  /// The number used to change in silence, which reads as the app having
+  /// second thoughts rather than as a consequence of the edit.
+  static String get scoreChangedTitle => _s('Score changed', 'Nilai berubah');
+  static String get scoreSameTitle =>
+      _s('Score unchanged', 'Nilai tidak berubah');
+  static String get scoreChangedWhy => _s(
+    'You changed the brew, so it was scored again.',
+    'Kamu mengubah seduhannya, jadi dinilai ulang.',
+  );
+  static String get scoreSameWhy => _s(
+    'Scored again after your edit, and it landed on the same number.',
+    'Dinilai ulang setelah kamu ubah, dan hasilnya sama.',
+  );
+
+  /// The honest caveat when the rubric moved underneath an old entry: the
+  /// difference may be the scale, not the coffee.
+  static String get scoreRubricMoved => _s(
+    'The scoring rules also changed since this brew was last scored, so part '
+        'of the difference is the rules rather than your edit.',
+    'Aturan penilaiannya juga berubah sejak terakhir dinilai, jadi sebagian '
+        'selisihnya karena aturan, bukan karena editanmu.',
+  );
+  static String get scoreRetryFailed => _s(
+    'Could not score it again — the previous score is kept.',
+    'Gagal menilai ulang — nilai sebelumnya dipertahankan.',
+  );
+  static String get ok => _s('OK', 'OK');
+
   static String get creditsTitle => _s('Photo credits', 'Kredit foto');
   static String get creditsIntro => _s(
     'Every photograph here comes from Wikimedia Commons and is used under '
@@ -291,6 +321,12 @@ class AppStrings {
     'rememberedEmpty': rememberedEmpty,
     'noChanges': noChanges,
     'pressurisedNote': pressurisedNote,
+    'scoreChangedTitle': scoreChangedTitle,
+    'scoreSameTitle': scoreSameTitle,
+    'scoreChangedWhy': scoreChangedWhy,
+    'scoreSameWhy': scoreSameWhy,
+    'scoreRubricMoved': scoreRubricMoved,
+    'scoreRetryFailed': scoreRetryFailed,
     'creditsTitle': creditsTitle,
     'creditsIntro': creditsIntro,
     'brewedAt': brewedAt,

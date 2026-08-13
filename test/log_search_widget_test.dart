@@ -117,6 +117,21 @@ void main() {
     expect(find.text(AppStrings.matchCount(1, 3)), findsOneWidget);
   });
 
+  testWidgets('a chip never draws a cross it cannot honour', (tester) async {
+    // A chip has one tap target, so a ✕ inside it opened the picker rather
+    // than clearing anything. Clearing belongs to the button at the end of
+    // the row; the chip only ever offers to open its own list.
+    await pump(tester);
+    await tester.tap(find.text(AppStrings.filterRating));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(AppStrings.atLeastStars(2)));
+    await tester.pumpAndSettle();
+
+    expect(find.text(AppStrings.atLeastStars(2)), findsOneWidget);
+    expect(find.byIcon(Icons.close), findsNothing);
+    expect(find.byIcon(Icons.arrow_drop_down), findsNWidgets(2));
+  });
+
   testWidgets('clearing brings everything back', (tester) async {
     await pump(tester);
     await tester.enterText(find.byType(TextField), 'toraja');
