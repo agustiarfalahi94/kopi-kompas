@@ -78,8 +78,11 @@ There is a checklist for all of this, in the order it should be run, at
 - **Old scores are `r2`, new ones `r3`.** Every row records which produced it,
   so nothing is silently wrong, but a pressurised-basket shot scored before
   2026-08-13 is not comparable to one scored after. There is no bulk rescore.
-- **The global git email is a placeholder** (`your@email.com`), so commits are
-  attributed to an address that does not exist.
+- **Commits up to and including the `v0.4.0` tag carry `your@email.com`.** The
+  global git email was a placeholder until 2026-08-13; it is now the GitHub
+  noreply address, so commits from here on attribute correctly. The earlier
+  ones are not being rewritten — the history is pushed and `v0.4.0` is tagged
+  on it, and rewriting a published tag costs more than a wrong author field.
 
 ---
 
