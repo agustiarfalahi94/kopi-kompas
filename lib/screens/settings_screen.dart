@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/brew_schema.dart';
+import '../build_info.dart';
 import '../data/guide_photo.dart';
 import '../services/auth_service.dart';
 import '../services/backup_service.dart';
@@ -227,6 +228,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             selected: {AppStrings.language},
             onSelectionChanged: (v) => _setLanguage(v.first),
           ),
+        ),
+        const Divider(),
+        // Which build this is. Two APKs with the same version number and the
+        // same signature are otherwise impossible to tell apart on a phone.
+        ListTile(
+          leading: const Icon(Icons.info_outline),
+          title: Text(AppStrings.buildTitle),
+          subtitle: Text(buildLabel),
         ),
         const Divider(),
         // Attribution has to be reachable from inside the app; a line in a

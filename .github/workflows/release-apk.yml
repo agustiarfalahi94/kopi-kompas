@@ -135,7 +135,10 @@ jobs:
         run: |
           flutter pub get
           flutter build apk --release --split-per-abi \
-            --dart-define=KOPI_ENDPOINT=$KOPI_ENDPOINT
+            --dart-define=KOPI_ENDPOINT=$KOPI_ENDPOINT \
+            --dart-define=APP_VERSION=$(grep -m1 '^version:' pubspec.yaml | awk '{print $2}') \
+            --dart-define=BUILD_COMMIT=$(git rev-parse --short HEAD) \
+            --dart-define=BUILD_SOURCE=github
 
       - name: Name the APKs
         run: |

@@ -207,6 +207,8 @@ class AppStrings {
   );
   static String get ok => _s('OK', 'OK');
 
+  static String get buildTitle => _s('Build', 'Versi terpasang');
+
   static String get creditsTitle => _s('Photo credits', 'Kredit foto');
   static String get creditsIntro => _s(
     'Every photograph here comes from Wikimedia Commons and is used under '
@@ -327,6 +329,7 @@ class AppStrings {
     'scoreSameWhy': scoreSameWhy,
     'scoreRubricMoved': scoreRubricMoved,
     'scoreRetryFailed': scoreRetryFailed,
+    'buildTitle': buildTitle,
     'creditsTitle': creditsTitle,
     'creditsIntro': creditsIntro,
     'brewedAt': brewedAt,
