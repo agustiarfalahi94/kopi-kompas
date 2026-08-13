@@ -32,19 +32,22 @@ const deps = (fetchImpl: any) => ({ fetchImpl, now: () => Date.now() });
 
 const NOW = '2026-08-13T14:00:00';
 
-function req(brewedAt: unknown, now: string | undefined = NOW) {
-  return post({
+/// `now` defaults to the fixed clock; pass undefined for an older app build
+/// that sends none.
+async function parseWith(brewedAt: unknown, now: string | undefined = NOW) {
+  const f = geminiReturning({
+    brewMethod: 'espresso',
+    brewedAt,
+    methodData: {},
+  });
+  const request = post({
     text: 'espresso yesterday at 11.30 am',
     locale: 'en',
     installId: 'install-a',
     ...(now === undefined ? {} : { now }),
   });
-}
-
-async function parseWith(brewedAt: unknown, now?: string) {
-  const f = geminiReturning({ brewMethod: 'espresso', brewedAt, methodData: {} });
-  const res = await handleRequest(req(brewedAt, now), env(), deps(f));
-  return { body: await res.json() as any, sent: f };
+  const res = await handleRequest(request, env(), deps(f));
+  return { body: (await res.json()) as any, sent: f };
 }
 
 describe('the response schema', () => {
@@ -139,7 +142,7 @@ describe('POST /parse brewedAt', () => {
       env(),
       deps(f),
     );
-    const sent = JSON.parse(f.mock.calls[0][1].body as string);
+    const sent = JSON.parse((f as any).mock.calls[0][1].body);
     expect(sent.systemInstruction.parts[0].text).not.toContain('tuesday');
   });
 });

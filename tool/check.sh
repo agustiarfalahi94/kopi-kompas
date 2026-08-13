@@ -46,6 +46,21 @@ else
   echo "skipped — run 'cd worker && npm install' first"
 fi
 
+# vitest transpiles without typechecking, so a type error passes here and
+# fails in CI. That is exactly what happened to v0.2.0: the gate printed
+# "PASS — safe to commit" over a tree that could not compile.
+step "worker typecheck"
+if [ -d worker/node_modules ]; then
+  if tsc_out=$( (cd worker && npx tsc --noEmit 2>&1) ); then
+    echo "No issues found!"
+  else
+    echo "${tsc_out:-tsc failed with no output}"
+    echo "WORKER TYPECHECK FAILED"; fail=1
+  fi
+else
+  echo "skipped — run 'cd worker && npm install' first"
+fi
+
 # The ground truth, printed rather than remembered. Every one of these has
 # been stated wrongly by an assistant working from a directory name or from
 # an earlier conversation instead of from the files.
