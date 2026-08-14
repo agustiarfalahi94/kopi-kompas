@@ -7,7 +7,7 @@ have already been paid for once.
 
 Keep it current. A stale state file is worse than none, because it is believed.
 
-Last updated: 2026-08-13, after cutting v0.4.0.
+Last updated: 2026-08-14, after cutting v0.4.1.
 
 ---
 
@@ -15,14 +15,14 @@ Last updated: 2026-08-13, after cutting v0.4.0.
 
 | | |
 |---|---|
-| Version | `0.4.0+5` — see `pubspec.yaml`, which is the arbiter |
-| Latest GitHub release | **v0.4.0**, cut 2026-08-13; `main` and `develop` are level |
-| Working branch | `feature/localized-reminder-notification` (off `develop`) |
+| Version | `0.4.1+6` — see `pubspec.yaml`, which is the arbiter |
+| Latest GitHub release | **v0.4.1**, cut 2026-08-14; `main` and `develop` are level |
+| Working branch | `develop` |
 | Worker deployed | rubric `r3`, verified live |
 | App tests | run `./tool/check.sh` for the real number; never quote one from here |
 
-**Unmerged work:**
-- `feature/localized-reminder-notification`: notification title/body now follow the active language setting (`AppStrings`) and reschedule on language switch.
+**Nothing is unmerged.** v0.4.1 carries:
+- reminder notification title and body now follow the active language setting (`AppStrings`) and reschedule on language switch
 
 v0.4.0 carries everything that had accumulated on `develop` since v0.3.0:
 

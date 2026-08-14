@@ -2,7 +2,7 @@ name: kopi_kompas
 description: "Kopi Kompas — a personal coffee-brewing logbook."
 publish_to: 'none'
 
-version: 0.4.0+5
+version: 0.4.1+6
 
 environment:
   sdk: ^3.11.4
