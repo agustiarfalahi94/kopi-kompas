@@ -87,6 +87,8 @@ class AppStrings {
     'Notifikasi aplikasi ini dimatikan di pengaturan Android.',
   );
   static String get reminderTime => _s('Remind me at', 'Ingatkan pukul');
+  static String get notificationBody =>
+      _s('No coffee logged yet today.', 'Belum ada kopi dicatat hari ini.');
   static String get languageTitle => _s('Language', 'Bahasa');
   static String get deletedTitle => _s('Deleted entries', 'Catatan terhapus');
   static String get deletedSubtitle =>
@@ -309,6 +311,7 @@ class AppStrings {
     'reminderSubtitle': reminderSubtitle,
     'reminderBlocked': reminderBlocked,
     'reminderTime': reminderTime,
+    'notificationBody': notificationBody,
     'languageTitle': languageTitle,
     'deletedTitle': deletedTitle,
     'deletedSubtitle': deletedSubtitle,

@@ -132,6 +132,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _setLanguage(String code) async {
     await _settings.setLanguage(code);
     AppStrings.language = code;
+    // The pending notification carries the old language's text; reschedule
+    // replaces it with the new one.
+    await widget.reminder.reschedule();
     // Rebuild the whole tree: labels come from the schema and the strings
     // file, and both read the language at build time.
     if (mounted) setState(() {});

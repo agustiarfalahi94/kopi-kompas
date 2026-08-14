@@ -2,6 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../strings.dart';
 import 'brew_database.dart';
 import 'reminder_schedule.dart';
 import 'settings_store.dart';
@@ -65,11 +66,12 @@ class ReminderService {
     );
     if (next == null) return;
 
-    await notifications.scheduleAt(next, _title, _body);
+    await notifications.scheduleAt(
+      next,
+      AppStrings.appName,
+      AppStrings.notificationBody,
+    );
   }
-
-  static const _title = 'Kopi Kompas';
-  static const _body = 'No coffee logged yet today.';
 }
 
 /// The real plugin, behind the same three methods.
