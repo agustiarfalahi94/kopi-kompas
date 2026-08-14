@@ -7,7 +7,7 @@ have already been paid for once.
 
 Keep it current. A stale state file is worse than none, because it is believed.
 
-Last updated: 2026-08-13, after cutting v0.4.0.
+Last updated: 2026-08-14, after cutting v0.4.1.
 
 ---
 
@@ -15,14 +15,16 @@ Last updated: 2026-08-13, after cutting v0.4.0.
 
 | | |
 |---|---|
-| Version | `0.4.0+5` — see `pubspec.yaml`, which is the arbiter |
-| Latest GitHub release | **v0.4.0**, cut 2026-08-13; `main` and `develop` are level |
+| Version | `0.4.1+6` — see `pubspec.yaml`, which is the arbiter |
+| Latest GitHub release | **v0.4.1**, cut 2026-08-14; `main` and `develop` are level |
 | Working branch | `develop` |
 | Worker deployed | rubric `r3`, verified live |
 | App tests | run `./tool/check.sh` for the real number; never quote one from here |
 
-**Nothing is unmerged.** v0.4.0 carries everything that had accumulated on
-`develop` since v0.3.0:
+**Nothing is unmerged.** v0.4.1 carries:
+- reminder notification title and body now follow the active language setting (`AppStrings`) and reschedule on language switch
+
+v0.4.0 carries everything that had accumulated on `develop` since v0.3.0:
 
 - the filter chip no longer draws a ✕ it cannot honour
 - editing announces the new score instead of changing it silently
@@ -115,6 +117,7 @@ the point of the list: it is a record of what a green suite does not prove.
 | A pressurised basket was marked down for skipping WDT | The rubric was internally consistent; it was just wrong about espresso | Puck prep weighted by `basketType`; rubric `r3` |
 | The gate printed "PASS" over a tree that could not compile | `check.sh` ran vitest, which transpiles without typechecking | `tsc --noEmit` added to the gate, and proven to fail |
 | The espresso guide advised better distribution for channelling | Guide text and rubric text were never compared | Guide aligned with `r3`; targets already come from `brew_schema.json` |
+| Reminder notification fired in English regardless of language | Title and body were hardcoded constants in ReminderService and reschedule() wasn't called on language change | Read title and body from `AppStrings` and reschedule on language switch |
 
 ### Process failures worth not repeating
 

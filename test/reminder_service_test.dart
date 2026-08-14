@@ -4,12 +4,15 @@ import 'package:kopi_kompas/models/brew_entry.dart';
 import 'package:kopi_kompas/services/brew_database.dart';
 import 'package:kopi_kompas/services/reminder_service.dart';
 import 'package:kopi_kompas/services/settings_store.dart';
+import 'package:kopi_kompas/strings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class FakeNotifications implements Notifications {
   final calls = <String>[];
   DateTime? scheduled;
+  String? scheduledTitle;
+  String? scheduledBody;
   bool grant = true;
 
   @override
@@ -28,6 +31,8 @@ class FakeNotifications implements Notifications {
   Future<void> scheduleAt(DateTime when, String title, String body) async {
     calls.add('schedule');
     scheduled = when;
+    scheduledTitle = title;
+    scheduledBody = body;
   }
 }
 
@@ -129,4 +134,21 @@ void main() {
     // Still cancels, so an old notification from before the denial goes away.
     expect(notes.calls, contains('cancel'));
   });
+
+  test('notification text follows the language setting', () async {
+    // The bug: even with Indonesian selected, the notification fired in
+    // English because the title and body were hardcoded constants.
+    AppStrings.language = 'id';
+    final s = service(DateTime(2026, 8, 12, 6));
+    await s.ensurePermission();
+    await s.reschedule();
+    expect(notes.scheduledTitle, 'Kopi Kompas');
+    expect(notes.scheduledBody, 'Belum ada kopi dicatat hari ini.');
+
+    AppStrings.language = 'en';
+    await s.reschedule();
+    expect(notes.scheduledBody, 'No coffee logged yet today.');
+  });
+
+  tearDown(() => AppStrings.language = 'en');
 }
