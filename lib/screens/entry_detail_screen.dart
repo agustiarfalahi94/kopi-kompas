@@ -72,6 +72,15 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
   bool _scoring = false;
   String? _scoreError;
 
+  /// The rating as shown, which the tap updates before the save returns.
+  ///
+  /// Read straight off `widget.entry` this used to never change while the
+  /// screen was open: tapping a star saved the rating and left the icons
+  /// exactly as they were until you backed out and the list reloaded, so the
+  /// tap read as having missed. The reveal has always held it locally for the
+  /// same reason.
+  late int? _stars = widget.entry.myRating;
+
   Future<void> _rescore() async {
     setState(() {
       _scoring = true;
@@ -214,13 +223,12 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
           for (var i = 1; i <= 5; i++)
             IconButton(
               key: ValueKey('detail-rating-$i'),
-              icon: Icon(
-                (widget.entry.myRating ?? 0) >= i
-                    ? Icons.star
-                    : Icons.star_border,
-              ),
+              icon: Icon((_stars ?? 0) >= i ? Icons.star : Icons.star_border),
               color: theme.colorScheme.primary,
-              onPressed: () => widget.onRate(i),
+              onPressed: () {
+                setState(() => _stars = i);
+                widget.onRate(i);
+              },
             ),
         ],
       ),

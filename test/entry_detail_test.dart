@@ -17,10 +17,12 @@ BrewEntry entryWith({
   double? doseGrams,
   ScoreStatus status = ScoreStatus.scored,
   int? score = 93,
+  int? myRating,
   String raw = '18g in, 36g out',
 }) => BrewEntry(
   id: 'a',
   brewMethod: method,
+  myRating: myRating,
   beanOrigin: beanOrigin,
   roastLevel: roastLevel,
   doseGrams: doseGrams,
@@ -95,6 +97,7 @@ void main() {
       WidgetTester tester,
       BrewEntry entry, {
       Future<String?> Function()? onRescore,
+      ValueChanged<int>? onRate,
     }) => tester.pumpWidget(
       MaterialApp(
         home: EntryDetailScreen(
@@ -103,7 +106,7 @@ void main() {
           onEdit: () {},
           onDelete: () {},
           onRescore: onRescore ?? () async => null,
-          onRate: (_) {},
+          onRate: onRate ?? (_) {},
         ),
       ),
     );
@@ -175,6 +178,40 @@ void main() {
       await tester.tap(find.widgetWithText(OutlinedButton, 'Score this brew'));
       await tester.pumpAndSettle();
       expect(find.text('The scorer is busy.'), findsOneWidget);
+    });
+
+    testWidgets('a tapped star fills in straight away', (tester) async {
+      // The stars used to read straight off widget.entry, which never
+      // changes while the screen is open: the tap saved the rating and the
+      // icons stayed empty until you backed out and the list reloaded,
+      // which reads as the tap not registering.
+      await pump(tester, entryWith(myRating: null));
+      await tester.tap(find.byKey(const ValueKey('detail-rating-4')));
+      await tester.pump();
+      expect(find.byIcon(Icons.star), findsNWidgets(4));
+      expect(find.byIcon(Icons.star_border), findsNWidgets(1));
+    });
+
+    testWidgets('a tapped star still reports the rating', (tester) async {
+      // Showing it locally must not replace saving it.
+      int? rated;
+      await pump(
+        tester,
+        entryWith(myRating: null),
+        onRate: (stars) => rated = stars,
+      );
+      await tester.tap(find.byKey(const ValueKey('detail-rating-2')));
+      await tester.pump();
+      expect(rated, 2);
+    });
+
+    testWidgets('changing an existing rating down redraws it', (tester) async {
+      // Going 5 -> 2 has to clear three stars, not just fill some.
+      await pump(tester, entryWith(myRating: 5));
+      await tester.tap(find.byKey(const ValueKey('detail-rating-2')));
+      await tester.pump();
+      expect(find.byIcon(Icons.star), findsNWidgets(2));
+      expect(find.byIcon(Icons.star_border), findsNWidgets(3));
     });
   });
 }

@@ -167,6 +167,7 @@ the point of the list: it is a record of what a green suite does not prove.
 | An untouched switch reported nothing rather than `false` | The test that claimed to cover it tapped the switch twice, returning it to its original state | Booleans seeded `false`, and the form reports on first build |
 | `ExpansionTile` keyed by `PageStorageKey` inside a `ListView` | Nothing in a widget test reads a scroll offset | `ValueKey` instead |
 | Release build failed only at `assembleRelease` | Desugaring is not needed for debug | `coreLibraryDesugaring` enabled |
+| Rating a brew from the log did nothing visible — the stars stayed as they were until you left the screen and came back, so the tap read as having missed | `_rating` drew from `widget.entry.myRating`, which cannot change while the screen is open; the test tapped a star and asserted the callback fired, which it did. Nothing asserted what was on screen afterwards | The state holds `_stars` and the tap sets it before saving, as `ScoreReveal` always has. Three tests now assert the icons, including a rating revised *downwards* |
 | HyperOS refuses every first-time install | Not a code problem at all | Turn on "Install via USB" |
 
 ### Found by reading output instead of assuming
