@@ -113,6 +113,11 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
   List<BrewEntry> _history = const [];
   BrewEntry? _saved;
 
+  /// Why the score failed, kept so the reveal can say. `_save` used to
+  /// discard this, which made an overloaded Gemini, being offline and hitting
+  /// the daily limit all render as the same nothing.
+  KopiError? _scoreError;
+
   /// Null until the form opens. Set from the parse when the text said when,
   /// otherwise to the moment the form appeared — not the moment Save is
   /// pressed, so a long fill-in does not drift the timestamp.
@@ -137,6 +142,14 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
     KopiError.network => AppStrings.offline,
     KopiError.rateLimited => AppStrings.rateLimited,
     _ => AppStrings.parseFailed,
+  };
+
+  /// The parse step's messages do not all fit the score step: its fallback
+  /// says "could not read that", which is a sentence about text.
+  String _scoreMessageFor(KopiError kind) => switch (kind) {
+    KopiError.network => AppStrings.offline,
+    KopiError.rateLimited => AppStrings.rateLimited,
+    _ => AppStrings.scoreUnavailable,
   };
 
   Future<void> _parse() async {
@@ -198,6 +211,43 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
     if (mounted) setState(() => _saved = rated);
   }
 
+  /// Tries the score again from the reveal, so a brew that failed upstream
+  /// does not need two navigations to rescue. Reuses the scoring stage as the
+  /// busy state, which is why the reveal needs no spinner of its own.
+  Future<void> _rescore() async {
+    final entry = _saved;
+    if (entry == null) return;
+    setState(() => _stage = _Stage.scoring);
+
+    final result = await widget.client.score(entry);
+    if (!mounted) return;
+
+    switch (result) {
+      case ScoreOk(:final score, :final reasons, :final rubric, :final model):
+        final scored = entry.copyWith(
+          overallScore: score,
+          scoreReasons: reasons,
+          scoreStatus: ScoreStatus.scored,
+          scoreRubric: rubric,
+          scoreModel: model,
+          scoredAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+        await widget.db.update(scored);
+        if (!mounted) return;
+        setState(() {
+          _saved = scored;
+          _scoreError = null;
+          _stage = _Stage.revealed;
+        });
+      case ScoreFailed(:final kind):
+        setState(() {
+          _scoreError = kind;
+          _stage = _Stage.revealed;
+        });
+    }
+  }
+
   void _pickMethod(String methodId) => setState(() {
     _brewMethod = methodId;
     _core = const {};
@@ -238,7 +288,8 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
             scoreModel: model,
             scoredAt: DateTime.now(),
           );
-        case ScoreFailed():
+        case ScoreFailed(:final kind):
+          _scoreError = kind;
           // Saving still happens. A brew that could not be scored is worth
           // far more than no brew at all, and the detail screen can retry.
           entry = entry.copyWith(
@@ -281,6 +332,10 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
           method: widget.schema.method(_saved!.brewMethod),
           onRated: _rate,
           onDone: () => Navigator.of(context).pop(true),
+          onRescore: _rescore,
+          failureMessage: _scoreError == null
+              ? null
+              : _scoreMessageFor(_scoreError!),
         ),
       },
     ),
