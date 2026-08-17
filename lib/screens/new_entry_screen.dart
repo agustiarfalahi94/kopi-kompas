@@ -77,6 +77,21 @@ BrewEntry buildEntry({
   );
 }
 
+/// The score step's failure message, in the user's language.
+///
+/// A top-level function rather than a private method, like [shouldCelebrate]
+/// and [buildEntry] above, so a test can call it with no widget pump.
+///
+/// Not the same table as the parse step's: its fallback says "could not
+/// read that", which is a sentence about text and is false for a scoring
+/// failure — the score step already has the entry, it just could not be
+/// judged.
+String scoreMessageFor(KopiError kind) => switch (kind) {
+  KopiError.network => AppStrings.offline,
+  KopiError.rateLimited => AppStrings.rateLimited,
+  _ => AppStrings.scoreUnavailable,
+};
+
 enum _Stage { describe, pickMethod, fillGaps, scoring, revealed }
 
 class NewEntryScreen extends StatefulWidget {
@@ -142,14 +157,6 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
     KopiError.network => AppStrings.offline,
     KopiError.rateLimited => AppStrings.rateLimited,
     _ => AppStrings.parseFailed,
-  };
-
-  /// The parse step's messages do not all fit the score step: its fallback
-  /// says "could not read that", which is a sentence about text.
-  String _scoreMessageFor(KopiError kind) => switch (kind) {
-    KopiError.network => AppStrings.offline,
-    KopiError.rateLimited => AppStrings.rateLimited,
-    _ => AppStrings.scoreUnavailable,
   };
 
   Future<void> _parse() async {
@@ -335,7 +342,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
           onRescore: _rescore,
           failureMessage: _scoreError == null
               ? null
-              : _scoreMessageFor(_scoreError!),
+              : scoreMessageFor(_scoreError!),
         ),
       },
     ),
