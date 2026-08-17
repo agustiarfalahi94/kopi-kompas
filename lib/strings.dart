@@ -60,6 +60,14 @@ class AppStrings {
   static String get rateThis =>
       _s('Did you enjoy this coffee?', 'Kamu suka nggak sama kopi ini?');
   static String get scoreThisBrew => _s('Score this brew', 'Nilai seduhan ini');
+
+  /// Shown under a field the app filled in from an earlier brew.
+  ///
+  /// A remembered value is saved data that nobody has confirmed. With four
+  /// fields that was survivable; with forty it is not, and it must not look
+  /// identical to something you typed.
+  static String get remembered => _s('remembered', 'diingat');
+  static String get fromYourText => _s('from your text', 'dari teks kamu');
   static String get whatYouTyped => _s('What you typed', 'Yang kamu tulis');
   static String get deleteTitle =>
       _s('Delete this brew?', 'Hapus seduhan ini?');
@@ -288,6 +296,8 @@ class AppStrings {
     'pickMethod': pickMethod,
     'rateThis': rateThis,
     'scoreThisBrew': scoreThisBrew,
+    'remembered': remembered,
+    'fromYourText': fromYourText,
     'whatYouTyped': whatYouTyped,
     'deleteTitle': deleteTitle,
     'deleteBody': deleteBody,

@@ -89,6 +89,10 @@ class BrewForm extends StatefulWidget {
 class _BrewFormState extends State<BrewForm> {
   final _values = <String, Object?>{};
 
+  /// Fields the user has actually edited. The source marker is only honest
+  /// while nobody has touched the value.
+  final _touched = <String>{};
+
   @override
   void initState() {
     super.initState();
@@ -112,6 +116,7 @@ class _BrewFormState extends State<BrewForm> {
 
   void _set(String name, Object? value) {
     setState(() {
+      _touched.add(name);
       if (value == null) {
         _values.remove(name);
       } else {
@@ -171,6 +176,16 @@ class _BrewFormState extends State<BrewForm> {
       ? AppStrings.pressurisedNote
       : null;
 
+  /// Where this value came from, or null once the user has touched it.
+  String? _sourceNote(BrewFormField field) {
+    if (_touched.contains(field.spec.name)) return null;
+    return switch (field.source) {
+      FieldSource.sticky => AppStrings.remembered,
+      FieldSource.parsed => AppStrings.fromYourText,
+      FieldSource.empty => null,
+    };
+  }
+
   Widget _row(BrewFormField field) {
     final note = _noteFor(field.spec);
     if (note == null) return _control(field);
@@ -190,18 +205,20 @@ class _BrewFormState extends State<BrewForm> {
     final f = field.spec;
     final label = f.unit == null ? f.label : '${f.label} (${f.unit})';
     final current = _values[f.name];
+    final from = _sourceNote(field);
 
     return switch (f.type) {
       FieldType.boolean => SwitchListTile(
         contentPadding: EdgeInsets.zero,
         title: Text(f.label),
+        subtitle: from == null ? null : Text(from),
         value: current as bool? ?? false,
         onChanged: (v) => _set(f.name, v),
       ),
       FieldType.enumerated => Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: DropdownButtonFormField<String>(
-          decoration: InputDecoration(labelText: label),
+          decoration: InputDecoration(labelText: label, helperText: from),
           initialValue: f.values.contains(current) ? current as String? : null,
           items: [
             for (final v in f.values)
@@ -219,18 +236,29 @@ class _BrewFormState extends State<BrewForm> {
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: TextFormField(
           initialValue: current?.toString(),
-          decoration: InputDecoration(labelText: label, hintText: 'YYYY-MM-DD'),
+          decoration: InputDecoration(
+            labelText: label,
+            hintText: 'YYYY-MM-DD',
+            helperText: from,
+          ),
           keyboardType: TextInputType.datetime,
           onChanged: (t) => _set(f.name, _asDate(t)),
         ),
       ),
-      FieldType.integer => _text(f, label, current, TextInputType.number, [
-        FilteringTextInputFormatter.digitsOnly,
-      ], (t) => int.tryParse(t)),
+      FieldType.integer => _text(
+        f,
+        label,
+        current,
+        from,
+        TextInputType.number,
+        [FilteringTextInputFormatter.digitsOnly],
+        (t) => int.tryParse(t),
+      ),
       FieldType.number => _text(
         f,
         label,
         current,
+        from,
         const TextInputType.numberWithOptions(decimal: true),
         const [],
         (t) => double.tryParse(t),
@@ -239,6 +267,7 @@ class _BrewFormState extends State<BrewForm> {
         f,
         label,
         current,
+        from,
         TextInputType.text,
         const [],
         (t) => t.trim().isEmpty ? null : t.trim(),
@@ -250,6 +279,7 @@ class _BrewFormState extends State<BrewForm> {
     FieldSpec f,
     String label,
     Object? current,
+    String? note,
     TextInputType keyboard,
     List<TextInputFormatter> formatters,
     Object? Function(String) parse,
@@ -257,7 +287,7 @@ class _BrewFormState extends State<BrewForm> {
     padding: const EdgeInsets.symmetric(vertical: 6),
     child: TextFormField(
       initialValue: current?.toString(),
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(labelText: label, helperText: note),
       keyboardType: keyboard,
       inputFormatters: formatters,
       onChanged: (t) => _set(f.name, parse(t)),

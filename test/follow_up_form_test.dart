@@ -198,5 +198,33 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Grinder'), findsOneWidget);
     });
+
+    testWidgets('a remembered value says so', (tester) async {
+      await pumpAndRead(tester, 'espresso', sticky: {'doseGrams': 18.0});
+      expect(find.text('remembered'), findsWidgets);
+    });
+
+    testWidgets('a parsed value says where it came from', (tester) async {
+      await pumpAndRead(tester, 'espresso', core: {'beanOrigin': 'Ethiopian'});
+      expect(find.text('from your text'), findsWidgets);
+    });
+
+    testWidgets('an untouched empty field claims nothing', (tester) async {
+      await pumpAndRead(tester, 'espresso');
+      expect(find.text('remembered'), findsNothing);
+      expect(find.text('from your text'), findsNothing);
+    });
+
+    testWidgets('editing a field clears its marker', (tester) async {
+      // The marker means "nobody has confirmed this". Once you have typed in
+      // the box, somebody has.
+      await pumpAndRead(tester, 'espresso', sticky: {'doseGrams': 18.0});
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Dose (g)'),
+        '20',
+      );
+      await tester.pump();
+      expect(find.text('remembered'), findsNothing);
+    });
   });
 }
