@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -90,19 +91,22 @@ void main() {
   });
 
   group('EntryDetailScreen', () {
-    Future<void> pump(WidgetTester tester, BrewEntry entry) =>
-        tester.pumpWidget(
-          MaterialApp(
-            home: EntryDetailScreen(
-              schema: schema,
-              entry: entry,
-              onEdit: () {},
-              onDelete: () {},
-              onRescore: () {},
-              onRate: (_) {},
-            ),
-          ),
-        );
+    Future<void> pump(
+      WidgetTester tester,
+      BrewEntry entry, {
+      Future<String?> Function()? onRescore,
+    }) => tester.pumpWidget(
+      MaterialApp(
+        home: EntryDetailScreen(
+          schema: schema,
+          entry: entry,
+          onEdit: () {},
+          onDelete: () {},
+          onRescore: onRescore ?? () async => null,
+          onRate: (_) {},
+        ),
+      ),
+    );
 
     testWidgets('shows the score, its reasons and its provenance', (
       tester,
@@ -144,6 +148,33 @@ void main() {
       await tester.tap(find.byIcon(Icons.delete_outline));
       await tester.pumpAndSettle();
       expect(find.textContaining('Deleted entries'), findsOneWidget);
+    });
+
+    testWidgets('the retry shows it is working', (tester) async {
+      final done = Completer<String?>();
+      await pump(
+        tester,
+        entryWith(status: ScoreStatus.failed, score: null),
+        onRescore: () => done.future,
+      );
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Score this brew'));
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      done.complete(null);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('a retry that fails says so', (tester) async {
+      // It used to await up to 45 seconds and then do nothing at all: no
+      // spinner, no message, the button simply sitting there.
+      await pump(
+        tester,
+        entryWith(status: ScoreStatus.failed, score: null),
+        onRescore: () async => 'The scorer is busy.',
+      );
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Score this brew'));
+      await tester.pumpAndSettle();
+      expect(find.text('The scorer is busy.'), findsOneWidget);
     });
   });
 }

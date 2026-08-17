@@ -42,7 +42,7 @@ List<DetailRow> detailRows(BrewSchema schema, BrewEntry entry) {
 ///
 /// Takes callbacks rather than a database so it can be pumped in a test
 /// without one; the wiring lives in the screen that pushes it.
-class EntryDetailScreen extends StatelessWidget {
+class EntryDetailScreen extends StatefulWidget {
   const EntryDetailScreen({
     super.key,
     required this.schema,
@@ -57,8 +57,33 @@ class EntryDetailScreen extends StatelessWidget {
   final BrewEntry entry;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
-  final VoidCallback onRescore;
+
+  /// Returns null when the score succeeded, or a message saying why it did
+  /// not. A VoidCallback could not report failure, which is why this screen
+  /// used to wait up to 45 seconds and then show nothing.
+  final Future<String?> Function() onRescore;
   final ValueChanged<int> onRate;
+
+  @override
+  State<EntryDetailScreen> createState() => _EntryDetailScreenState();
+}
+
+class _EntryDetailScreenState extends State<EntryDetailScreen> {
+  bool _scoring = false;
+  String? _scoreError;
+
+  Future<void> _rescore() async {
+    setState(() {
+      _scoring = true;
+      _scoreError = null;
+    });
+    final failure = await widget.onRescore();
+    if (!mounted) return;
+    setState(() {
+      _scoring = false;
+      _scoreError = failure;
+    });
+  }
 
   Future<void> _confirmDelete(BuildContext context) async {
     final ok = await showDialog<bool>(
@@ -80,19 +105,22 @@ class EntryDetailScreen extends StatelessWidget {
         ],
       ),
     );
-    if (ok == true) onDelete();
+    if (ok == true) widget.onDelete();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final rows = detailRows(schema, entry);
+    final rows = detailRows(widget.schema, widget.entry);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(displayLabel(schema, entry)),
+        title: Text(displayLabel(widget.schema, widget.entry)),
         actions: [
-          IconButton(onPressed: onEdit, icon: const Icon(Icons.edit_outlined)),
+          IconButton(
+            onPressed: widget.onEdit,
+            icon: const Icon(Icons.edit_outlined),
+          ),
           IconButton(
             onPressed: () => _confirmDelete(context),
             icon: const Icon(Icons.delete_outline),
@@ -103,7 +131,7 @@ class EntryDetailScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           Center(child: _score(theme)),
-          for (final reason in entry.scoreReasons)
+          for (final reason in widget.entry.scoreReasons)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
@@ -114,23 +142,34 @@ class EntryDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
-          if (entry.scoreRubric != null)
+          if (widget.entry.scoreRubric != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                'rubric ${entry.scoreRubric} · ${entry.scoreModel}',
+                'rubric ${widget.entry.scoreRubric} · ${widget.entry.scoreModel}',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall,
               ),
             ),
           // Only a failed score can be retried. An unscored method has no
           // rubric, so offering it would promise something the Worker refuses.
-          if (entry.scoreStatus == ScoreStatus.failed)
+          if (widget.entry.scoreStatus == ScoreStatus.failed)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
-              child: OutlinedButton(
-                onPressed: onRescore,
-                child: Text(AppStrings.scoreThisBrew),
+              child: _scoring
+                  ? const Center(child: CircularProgressIndicator())
+                  : OutlinedButton(
+                      onPressed: _rescore,
+                      child: Text(AppStrings.scoreThisBrew),
+                    ),
+            ),
+          if (_scoreError case final why?)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                why,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium,
               ),
             ),
           const SizedBox(height: 8),
@@ -141,7 +180,7 @@ class EntryDetailScreen extends StatelessWidget {
           Text(AppStrings.whatYouTyped, style: theme.textTheme.labelMedium),
           const SizedBox(height: 4),
           Text(
-            entry.rawInputText,
+            widget.entry.rawInputText,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: kopiArchiveColor(theme.brightness),
             ),
@@ -151,9 +190,9 @@ class EntryDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _score(ThemeData theme) => switch (entry.scoreStatus) {
+  Widget _score(ThemeData theme) => switch (widget.entry.scoreStatus) {
     ScoreStatus.scored => Text(
-      '${entry.overallScore}',
+      '${widget.entry.overallScore}',
       style: theme.textTheme.displayMedium?.copyWith(
         color: theme.colorScheme.primary,
         fontWeight: FontWeight.bold,
@@ -176,10 +215,12 @@ class EntryDetailScreen extends StatelessWidget {
             IconButton(
               key: ValueKey('detail-rating-$i'),
               icon: Icon(
-                (entry.myRating ?? 0) >= i ? Icons.star : Icons.star_border,
+                (widget.entry.myRating ?? 0) >= i
+                    ? Icons.star
+                    : Icons.star_border,
               ),
               color: theme.colorScheme.primary,
-              onPressed: () => onRate(i),
+              onPressed: () => widget.onRate(i),
             ),
         ],
       ),
@@ -193,7 +234,7 @@ class EntryDetailScreen extends StatelessWidget {
     final value = switch (row.value) {
       final bool b => b ? AppStrings.yes : AppStrings.no,
       final String v when row.spec.type == FieldType.enumerated =>
-        schema.valueLabel(v),
+        widget.schema.valueLabel(v),
       final Object v => v.toString(),
       null => '',
     };

@@ -142,24 +142,28 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           onRescore: () async {
             final result = await widget.client.score(e);
-            if (result case ScoreOk(
-              :final score,
-              :final reasons,
-              :final rubric,
-              :final model,
-            )) {
-              await widget.db.update(
-                e.copyWith(
-                  overallScore: score,
-                  scoreReasons: reasons,
-                  scoreStatus: ScoreStatus.scored,
-                  scoreRubric: rubric,
-                  scoreModel: model,
-                  scoredAt: DateTime.now(),
-                  updatedAt: DateTime.now(),
-                ),
-              );
-              navigator.pop();
+            switch (result) {
+              case ScoreOk(
+                :final score,
+                :final reasons,
+                :final rubric,
+                :final model,
+              ):
+                await widget.db.update(
+                  e.copyWith(
+                    overallScore: score,
+                    scoreReasons: reasons,
+                    scoreStatus: ScoreStatus.scored,
+                    scoreRubric: rubric,
+                    scoreModel: model,
+                    scoredAt: DateTime.now(),
+                    updatedAt: DateTime.now(),
+                  ),
+                );
+                navigator.pop();
+                return null;
+              case ScoreFailed(:final kind):
+                return scoreMessageFor(kind);
             }
           },
           onRate: (stars) async {
