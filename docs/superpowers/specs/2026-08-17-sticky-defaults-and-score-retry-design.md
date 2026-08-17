@@ -100,6 +100,24 @@ A pure function is also the point of the signature: no `Future`, no
 `SharedPreferences.getInstance()`, no database. Every rule in section 3 is a
 unit test over a hand-built list.
 
+### 2.1 The other consumer
+
+Settings has a read-only "Remembered for next time" list, which is the second
+caller of the deleted functions and the easy one to miss. It has no method to
+resolve against, so it takes a second export — `rememberedCore(history)`, the
+core layer alone — and labels its rows from `schema.core` instead of
+`AppStrings.stickyLabel`, a hand-written list of four names that could never
+have grown to cover the rest. `stickyLabel` goes.
+
+`machine` disappears from that list, being a method field with no single
+value to show once memory is per-method. What the section promises is what
+gets filled in whatever you brew next, and that is exactly the core layer.
+
+One small thing gets better by accident: the screen already refreshes that
+list after a visit to the deleted-entries screen, and until now that refresh
+could not change anything, because the values lived in a store the database
+could not reach.
+
 ## 3. How a value is chosen
 
 Three layers, built by scanning `history` newest-first and taking the first
@@ -263,7 +281,8 @@ opens pre-filled from history.
 
 | File | Change |
 |---|---|
-| `lib/services/sticky_defaults.dart` | rewritten as `stickyFor`; prefs and `rememberSticky` deleted |
+| `lib/services/sticky_defaults.dart` | rewritten as `stickyFor` and `rememberedCore`; prefs and `rememberSticky` deleted |
+| `lib/screens/settings_screen.dart` | its remembered list reads the core layer from history |
 | `lib/screens/new_entry_screen.dart` | load history, per-method sticky, keep the error kind, wire the reveal's retry |
 | `lib/widgets/follow_up_form.dart` | render `FieldSource`, track touched fields |
 | `lib/widgets/score_reveal.dart` | retry button and failure reason |
