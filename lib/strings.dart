@@ -32,8 +32,22 @@ class AppStrings {
   static String get emptyLog =>
       _s('No brews yet. Tap + to log one.', 'Belum ada. Ketuk + untuk mulai.');
   static String get notScored => _s('Not scored', 'Tidak dinilai');
-  static String get scoreFailed =>
-      _s('Not scored yet — tap to retry', 'Belum dinilai — ketuk untuk ulang');
+
+  /// A status, not an instruction. It used to read "tap to retry" and was
+  /// rendered in three places that had no tap handler between them; the
+  /// action now lives in a real button, and the full log — an archive with
+  /// no honest tap target — simply reports the state.
+  static String get scoreFailed => _s('Not scored yet', 'Belum dinilai');
+
+  /// Why a score failed, when the reason is the Worker rather than the phone.
+  ///
+  /// The parse step has said "no connection" and "daily limit reached" since
+  /// it shipped; the score step discarded the kind and said nothing at all,
+  /// so an overloaded Gemini read exactly like being offline.
+  static String get scoreUnavailable => _s(
+    'The scorer is busy. Your brew is saved — try again in a minute.',
+    'Penilai sedang sibuk. Seduhan kamu aman — coba lagi sebentar.',
+  );
   static String get fillGapsTitle =>
       _s('A few more things', 'Beberapa hal lagi');
   static String get parseFailed => _s(
@@ -60,6 +74,14 @@ class AppStrings {
   static String get rateThis =>
       _s('Did you enjoy this coffee?', 'Kamu suka nggak sama kopi ini?');
   static String get scoreThisBrew => _s('Score this brew', 'Nilai seduhan ini');
+
+  /// Shown under a field the app filled in from an earlier brew.
+  ///
+  /// A remembered value is saved data that nobody has confirmed. With four
+  /// fields that was survivable; with forty it is not, and it must not look
+  /// identical to something you typed.
+  static String get remembered => _s('remembered', 'diingat');
+  static String get fromYourText => _s('from your text', 'dari teks kamu');
   static String get whatYouTyped => _s('What you typed', 'Yang kamu tulis');
   static String get deleteTitle =>
       _s('Delete this brew?', 'Hapus seduhan ini?');
@@ -265,14 +287,6 @@ class AppStrings {
     FieldGroup.water => _s('Water', 'Air'),
   };
 
-  static String stickyLabel(String name) => switch (name) {
-    'grinder' => _s('Grinder', 'Penggiling'),
-    'grindSetting' => _s('Grind setting', 'Setelan giling'),
-    'waterType' => _s('Water', 'Air'),
-    'machine' => _s('Machine', 'Mesin'),
-    _ => name,
-  };
-
   /// Only for `test/language_test.dart`, which checks that nothing was copied
   /// across untranslated.
   static Map<String, String> get all => {
@@ -287,6 +301,7 @@ class AppStrings {
     'emptyLog': emptyLog,
     'notScored': notScored,
     'scoreFailed': scoreFailed,
+    'scoreUnavailable': scoreUnavailable,
     'fillGapsTitle': fillGapsTitle,
     'parseFailed': parseFailed,
     'offline': offline,
@@ -296,6 +311,8 @@ class AppStrings {
     'pickMethod': pickMethod,
     'rateThis': rateThis,
     'scoreThisBrew': scoreThisBrew,
+    'remembered': remembered,
+    'fromYourText': fromYourText,
     'whatYouTyped': whatYouTyped,
     'deleteTitle': deleteTitle,
     'deleteBody': deleteBody,

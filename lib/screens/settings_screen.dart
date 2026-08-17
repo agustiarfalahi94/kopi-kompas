@@ -42,7 +42,10 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final _settings = SettingsStore();
-  late Future<Map<String, Object?>> _sticky = loadStickyDefaults();
+  late Future<Map<String, Object?>> _sticky = _loadRemembered();
+
+  Future<Map<String, Object?>> _loadRemembered() async =>
+      rememberedCore(await widget.db.liveEntries());
   bool _enabled = true;
   TimeOfDay _time = const TimeOfDay(hour: 8, minute: 0);
 
@@ -264,7 +267,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     DeletedEntriesScreen(db: widget.db, schema: widget.schema),
               ),
             );
-            if (mounted) setState(() => _sticky = loadStickyDefaults());
+            if (mounted) setState(() => _sticky = _loadRemembered());
           },
         ),
         const Divider(),
@@ -295,12 +298,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 if (d.isEmpty)
                   ListTile(subtitle: Text(AppStrings.rememberedEmpty))
                 else
-                  for (final name in stickyFieldNames)
-                    if (d[name] != null)
+                  // Labelled from the schema, which already holds both
+                  // languages for every core field. The hand-written list
+                  // this replaces could only name four of them.
+                  for (final f in widget.schema.core)
+                    if (d[f.name] != null)
                       ListTile(
                         dense: true,
-                        title: Text(AppStrings.stickyLabel(name)),
-                        trailing: Text('${d[name]}'),
+                        title: Text(f.label),
+                        trailing: Text(
+                          f.type == FieldType.enumerated
+                              ? widget.schema.valueLabel(d[f.name] as String)
+                              : '${d[f.name]}',
+                        ),
                       ),
               ],
             );

@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kopi_kompas/data/brew_schema.dart';
 import 'package:kopi_kompas/models/brew_entry.dart';
 import 'package:kopi_kompas/screens/new_entry_screen.dart';
+import 'package:kopi_kompas/services/kopi_client.dart';
+import 'package:kopi_kompas/strings.dart';
 
 late BrewSchema schema;
 
@@ -155,5 +157,23 @@ void main() {
     for (final coreOnly in ['roaster', 'grinder', 'waterType']) {
       expect(e.methodData.containsKey(coreOnly), isFalse, reason: coreOnly);
     }
+  });
+
+  test('scoreMessageFor says offline for a network failure', () {
+    expect(scoreMessageFor(KopiError.network), AppStrings.offline);
+  });
+
+  test('scoreMessageFor says the daily limit for rateLimited', () {
+    expect(scoreMessageFor(KopiError.rateLimited), AppStrings.rateLimited);
+  });
+
+  test('scoreMessageFor falls back to scoreUnavailable, not the parse '
+      'step\'s "could not read that"', () {
+    // The real-world bug: Gemini answered 503, the Worker mapped it to
+    // 502, and the client turns that into KopiError.upstream. This must
+    // not read as a sentence about unreadable text.
+    expect(scoreMessageFor(KopiError.upstream), AppStrings.scoreUnavailable);
+    expect(scoreMessageFor(KopiError.notScored), AppStrings.scoreUnavailable);
+    expect(scoreMessageFor(KopiError.badRequest), AppStrings.scoreUnavailable);
   });
 }
