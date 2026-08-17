@@ -117,6 +117,18 @@ There is a checklist for all of this, in the order it should be run, at
 
 ## Open threads
 
+- **`flutter build apk --release --split-per-abi` currently fails, undiagnosed.**
+  Fails in under a second with only `25.0.2` as the message. **This is not a
+  signing failure** — `key.properties` and the keystore are deliberately
+  absent from the repo, and there is no keystore-related message at all.
+  A bare `./gradlew assembleRelease`, run directly and without
+  `--split-per-abi`, succeeds in about five minutes and produces a
+  debug-signed universal APK, so the Gradle project itself is sound; the
+  failure is in the Flutter tool invocation or the local toolchain, not the
+  code. Next step is `--verbose`. **The split-per-ABI APKs already sitting
+  in `build/app/outputs/flutter-apk/` are dated 2026-08-14** — stale, from an
+  earlier session, not evidence this works now; do not mistake them for
+  fresh output.
 - **Kopi talua has no photograph.** Neither Wikimedia Commons nor Openverse
   has a freely licensed one; the only near-matches are `teh talua`, which is
   the tea. Needs a photograph the user takes.
