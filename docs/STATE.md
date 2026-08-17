@@ -117,18 +117,20 @@ There is a checklist for all of this, in the order it should be run, at
 
 ## Open threads
 
-- **`flutter build apk --release --split-per-abi` currently fails, undiagnosed.**
-  Fails in under a second with only `25.0.2` as the message. **This is not a
-  signing failure** — `key.properties` and the keystore are deliberately
-  absent from the repo, and there is no keystore-related message at all.
-  A bare `./gradlew assembleRelease`, run directly and without
-  `--split-per-abi`, succeeds in about five minutes and produces a
-  debug-signed universal APK, so the Gradle project itself is sound; the
-  failure is in the Flutter tool invocation or the local toolchain, not the
-  code. Next step is `--verbose`. **The split-per-ABI APKs already sitting
-  in `build/app/outputs/flutter-apk/` are dated 2026-08-14** — stale, from an
-  earlier session, not evidence this works now; do not mistake them for
-  fresh output.
+- **Every new machine will fail `flutter build apk` until Flutter is pointed
+  at a JDK Gradle can parse, and nothing in the repository does that for
+  you.** The build worked here on 2026-08-17 only after
+  `flutter config --jdk-dir "$(/usr/libexec/java_home -v 17)"`, which writes
+  to Flutter's own config, not to any tracked file — so a fresh clone, a new
+  laptop or a CI runner that picks up Android Studio's bundled JDK meets the
+  same failure with a message that names no cause. See the bug ledger for
+  what it looks like. Whether to pin this in the repo — a `JAVA_HOME` in
+  `gradle.properties`, or a check in `tool/check.sh` — is undecided.
+- **An APK in `build/app/outputs/flutter-apk/` is not evidence of anything
+  until you read its timestamp.** A failed `flutter build apk` empties the
+  directory; a successful one leaves artifacts that outlive the branch they
+  were built from. Stale APKs from an earlier session were nearly mistaken
+  for a working build here.
 - **Kopi talua has no photograph.** Neither Wikimedia Commons nor Openverse
   has a freely licensed one; the only near-matches are `teh talua`, which is
   the tea. Needs a photograph the user takes.
@@ -183,6 +185,7 @@ the point of the list: it is a record of what a green suite does not prove.
 | Reminder notification fired in English regardless of language | Title and body were hardcoded constants in ReminderService and reschedule() wasn't called on language change | Read title and body from `AppStrings` and reschedule on language switch |
 | `AppStrings.scoreFailed` read "Not scored yet — tap to retry" and was rendered in `score_reveal.dart`, `entry_detail_screen.dart` and `full_log_screen.dart` — none of the three had a tap handler | A widget test asserting the string is on screen does not need a handler for the string to render; the only working retry was a differently-named button two navigations away | String reworded to a plain status; the action lives in real buttons, gated to `ScoreStatus.failed` |
 | A failed score discarded its `KopiError` entirely, so an overloaded Gemini read exactly like being offline or hitting the daily limit | Worker tests use a fake Gemini, so the failure branch ran with `ScoreFailed()` and no test asked what the kind was, only that scoring had failed | `scoreMessageFor(KopiError)` maps every kind to a real message; the reveal and detail screen show it |
+| `flutter build apk` failed in under a second with `25.0.2` as the entire message — read as a build-tools or NDK version, and blamed on the absent keystore. It is **the Java version**: Flutter overrides `JAVA_HOME` with Android Studio's bundled JDK 25, and Gradle 8.14 throws `IllegalArgumentException: 25.0.2` parsing it | No test builds an APK, and `./gradlew assembleRelease` succeeded from a shell holding Java 17 — so the two disagreed and the Gradle project looked sound while Flutter looked broken. Both were true | `flutter config --jdk-dir "$(/usr/libexec/java_home -v 17)"`. Setting `JAVA_HOME` does nothing — Flutter prefers Android Studio's JDK over the environment. Undo with `flutter config --jdk-dir ""` |
 
 ### Process failures worth not repeating
 
