@@ -7,7 +7,8 @@ have already been paid for once.
 
 Keep it current. A stale state file is worse than none, because it is believed.
 
-Last updated: 2026-08-14, after cutting v0.4.1.
+Last updated: 2026-08-17, after remembered fields and the score retry landed
+on `feature/sticky-defaults-and-score-retry` (unmerged).
 
 ---
 
@@ -21,7 +22,51 @@ Last updated: 2026-08-14, after cutting v0.4.1.
 | Worker deployed | rubric `r3`, verified live |
 | App tests | run `./tool/check.sh` for the real number; never quote one from here |
 
-**Nothing is unmerged.** v0.4.1 carries:
+**Unmerged: `feature/sticky-defaults-and-score-retry`, off `develop`.** Two
+pieces, both only run in `flutter test` — see "Never verified on a phone"
+below.
+
+- **Remembered fields now come from SQLite, not SharedPreferences.**
+  `stickyFor(schema, method, history)` and `rememberedCore(history)`, in
+  `lib/services/sticky_defaults.dart`, are pure functions over the brews
+  already logged — there is no second store to fall out of sync with an edit,
+  a Firestore restore or a delete, which the old `sticky.*` prefs store could.
+  `loadStickyDefaults`, `rememberSticky` and the `sticky.*` keys are gone,
+  **with no migration** — whatever was sitting in that store is discarded,
+  and for anyone with brews already logged the database hands back the same
+  values immediately, so nothing is actually lost in practice. Three layers,
+  most specific first: the method's own past entries, then its category's,
+  then the core fields from anything at all — filtered to what the target
+  method asks (respecting `hideCore`) and then validated per `FieldSpec`, so
+  a wrong type or an enum value outside `spec.values` is dropped rather than
+  offered. That validation is load-bearing, not defensive: `brewer` exists on
+  coneDripper, flatBottomDripper and smartDripper with value lists that share
+  nothing, and the first two sit in the same category, so the category layer
+  genuinely does try to hand a V60 `brewer` to a Kalita form.
+  - `notes` is never carried forward — it is prose about one cup, not a fact
+    about the setup.
+  - **The old `beanOrigin` exclusion is deliberately reversed.** It used to
+    be left out on the grounds that it changes with every bag. What makes
+    carrying it forward defensible now is the "remembered" marker on the
+    field (below): a wrong answer you can see and correct is not the same
+    failure as a wrong answer offered silently.
+  - **A value never dies.** The newest-first scan stops at the first
+    non-null value per field, so clearing a field today does not stop it
+    being found further back in the history tomorrow. Deliberate — design
+    §3.1 — and the piece of this most likely to read as a bug to someone who
+    did not agree to it going in.
+  - Settings' "Remembered for next time" list now reads `rememberedCore`
+    from the database and labels its rows from `schema.core`;
+    `AppStrings.stickyLabel`, a hand-written four-name list, is deleted.
+    `machine` no longer appears there — it is a method field, with no single
+    core-wide value once memory is per-method.
+  - The form marks every pre-filled value: "remembered" for a carried value,
+    "from your text" for a parsed one ("diingat" / "dari teks kamu"), cleared
+    the instant the field is edited.
+- **The score retry is a real button now**, not a lie — see the two new
+  rows in the bug ledger below.
+
+v0.4.1 carries:
 - reminder notification title and body now follow the active language setting (`AppStrings`) and reschedule on language switch
 
 v0.4.0 carries everything that had accumulated on `develop` since v0.3.0:
@@ -58,6 +103,12 @@ passed every test and were dead on the device.
 - **The brew timestamp** — verified against the deployed Worker with curl,
   never on a phone. The phone sends its own clock, so a timezone mistake would
   only show there.
+- **Remembered fields and the score retry** — everything on
+  `feature/sticky-defaults-and-score-retry` has only run in `flutter test`.
+  Two things specifically only a device can answer: whether a form pre-filled
+  with forty remembered values reads as usable or merely overwhelming, and
+  whether a helper line under every control makes the form unreadable. The
+  retry itself has never been driven against a real failing score.
 
 There is a checklist for all of this, in the order it should be run, at
 `docs/DEVICE_TESTS.md`.
@@ -118,6 +169,8 @@ the point of the list: it is a record of what a green suite does not prove.
 | The gate printed "PASS" over a tree that could not compile | `check.sh` ran vitest, which transpiles without typechecking | `tsc --noEmit` added to the gate, and proven to fail |
 | The espresso guide advised better distribution for channelling | Guide text and rubric text were never compared | Guide aligned with `r3`; targets already come from `brew_schema.json` |
 | Reminder notification fired in English regardless of language | Title and body were hardcoded constants in ReminderService and reschedule() wasn't called on language change | Read title and body from `AppStrings` and reschedule on language switch |
+| `AppStrings.scoreFailed` read "Not scored yet — tap to retry" and was rendered in `score_reveal.dart`, `entry_detail_screen.dart` and `full_log_screen.dart` — none of the three had a tap handler | A widget test asserting the string is on screen does not need a handler for the string to render; the only working retry was a differently-named button two navigations away | String reworded to a plain status; the action lives in real buttons, gated to `ScoreStatus.failed` |
+| A failed score discarded its `KopiError` entirely, so an overloaded Gemini read exactly like being offline or hitting the daily limit | Worker tests use a fake Gemini, so the failure branch ran with `ScoreFailed()` and no test asked what the kind was, only that scoring had failed | `scoreMessageFor(KopiError)` maps every kind to a real message; the reveal and detail screen show it |
 
 ### Process failures worth not repeating
 
