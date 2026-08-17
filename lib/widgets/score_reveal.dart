@@ -24,6 +24,8 @@ class ScoreReveal extends StatefulWidget {
     required this.onRated,
     required this.onDone,
     this.photo,
+    this.onRescore,
+    this.failureMessage,
   });
 
   final BrewEntry entry;
@@ -40,6 +42,13 @@ class ScoreReveal extends StatefulWidget {
   final ValueChanged<int> onRated;
 
   final VoidCallback onDone;
+
+  /// Asks for the score to be tried again. Null where a retry cannot be
+  /// offered. The reveal owns no scoring logic — it only asks.
+  final VoidCallback? onRescore;
+
+  /// Why the score failed, in the user's language. Null when it did not.
+  final String? failureMessage;
 
   @override
   State<ScoreReveal> createState() => _ScoreRevealState();
@@ -85,6 +94,28 @@ class _ScoreRevealState extends State<ScoreReveal> {
             ),
             const SizedBox(height: 16),
             Center(child: _headline(theme, entry)),
+            // Only a failed score can be retried. An unscored method has no
+            // rubric, so offering it would promise something the Worker
+            // refuses — the same rule the detail screen follows.
+            if (entry.scoreStatus == ScoreStatus.failed) ...[
+              if (widget.failureMessage case final why?)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    why,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
+              if (widget.onRescore case final retry?)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: OutlinedButton(
+                    onPressed: retry,
+                    child: Text(AppStrings.scoreThisBrew),
+                  ),
+                ),
+            ],
             const SizedBox(height: 24),
             Expanded(
               child: ListView(

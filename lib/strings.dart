@@ -32,8 +32,22 @@ class AppStrings {
   static String get emptyLog =>
       _s('No brews yet. Tap + to log one.', 'Belum ada. Ketuk + untuk mulai.');
   static String get notScored => _s('Not scored', 'Tidak dinilai');
-  static String get scoreFailed =>
-      _s('Not scored yet — tap to retry', 'Belum dinilai — ketuk untuk ulang');
+
+  /// A status, not an instruction. It used to read "tap to retry" and was
+  /// rendered in three places that had no tap handler between them; the
+  /// action now lives in a real button, and the full log — an archive with
+  /// no honest tap target — simply reports the state.
+  static String get scoreFailed => _s('Not scored yet', 'Belum dinilai');
+
+  /// Why a score failed, when the reason is the Worker rather than the phone.
+  ///
+  /// The parse step has said "no connection" and "daily limit reached" since
+  /// it shipped; the score step discarded the kind and said nothing at all,
+  /// so an overloaded Gemini read exactly like being offline.
+  static String get scoreUnavailable => _s(
+    'The scorer is busy. Your brew is saved — try again in a minute.',
+    'Penilai sedang sibuk. Seduhan kamu aman — coba lagi sebentar.',
+  );
   static String get fillGapsTitle =>
       _s('A few more things', 'Beberapa hal lagi');
   static String get parseFailed => _s(
@@ -287,6 +301,7 @@ class AppStrings {
     'emptyLog': emptyLog,
     'notScored': notScored,
     'scoreFailed': scoreFailed,
+    'scoreUnavailable': scoreUnavailable,
     'fillGapsTitle': fillGapsTitle,
     'parseFailed': parseFailed,
     'offline': offline,

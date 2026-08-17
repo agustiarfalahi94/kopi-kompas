@@ -34,7 +34,12 @@ void main() {
     );
   });
 
-  Future<int?> pump(WidgetTester tester, BrewEntry entry) async {
+  Future<int?> pump(
+    WidgetTester tester,
+    BrewEntry entry, {
+    VoidCallback? onRescore,
+    String? failureMessage,
+  }) async {
     int? rated;
     await tester.pumpWidget(
       MaterialApp(
@@ -45,6 +50,8 @@ void main() {
             method: schema.method(entry.brewMethod),
             onRated: (v) => rated = v,
             onDone: () {},
+            onRescore: onRescore,
+            failureMessage: failureMessage,
           ),
         ),
       ),
@@ -104,5 +111,66 @@ void main() {
   testWidgets('the rating appears when scoring failed', (tester) async {
     await pump(tester, entryWith(status: ScoreStatus.failed));
     expect(find.byIcon(Icons.star_border), findsNWidgets(5));
+  });
+
+  testWidgets('a failed score offers a button, not a sentence', (tester) async {
+    // The whole bug: "Not scored yet — tap to retry" was a plain Text with no
+    // tap handler anywhere in this file, and the only real retry was a
+    // differently-named button on another screen.
+    await pump(tester, entryWith(status: ScoreStatus.failed), onRescore: () {});
+    expect(
+      find.widgetWithText(OutlinedButton, 'Score this brew'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('tapping the retry asks for a rescore', (tester) async {
+    var asked = 0;
+    await pump(
+      tester,
+      entryWith(status: ScoreStatus.failed),
+      onRescore: () => asked++,
+    );
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Score this brew'));
+    await tester.pump();
+    expect(asked, 1);
+  });
+
+  testWidgets('a failed score says why', (tester) async {
+    await pump(
+      tester,
+      entryWith(status: ScoreStatus.failed),
+      onRescore: () {},
+      failureMessage: 'The scorer is busy.',
+    );
+    expect(find.text('The scorer is busy.'), findsOneWidget);
+  });
+
+  testWidgets('a scored brew offers no retry', (tester) async {
+    await pump(tester, entryWith(score: 93), onRescore: () {});
+    expect(
+      find.widgetWithText(OutlinedButton, 'Score this brew'),
+      findsNothing,
+    );
+  });
+
+  testWidgets('an unscored method offers no retry', (tester) async {
+    // Kopi joss has no rubric. Offering a retry would promise something the
+    // Worker refuses.
+    await pump(
+      tester,
+      entryWith(method: 'kopiJoss', status: ScoreStatus.notApplicable),
+      onRescore: () {},
+    );
+    expect(
+      find.widgetWithText(OutlinedButton, 'Score this brew'),
+      findsNothing,
+    );
+  });
+
+  testWidgets('the status text no longer tells you to tap it', (tester) async {
+    // It is rendered in three places and none of them has a tap handler.
+    await pump(tester, entryWith(status: ScoreStatus.failed));
+    expect(find.textContaining('tap to retry'), findsNothing);
   });
 }
