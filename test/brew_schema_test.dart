@@ -124,4 +124,20 @@ void main() {
   test('an unknown method id throws rather than returning empty', () {
     expect(() => schema.method('pourover'), throwsArgumentError);
   });
+
+  test('no core field name is also a method field name', () {
+    // stickyFor merges a core layer with a method layer into one map. If a
+    // name ever appeared in both, one would silently shadow the other and
+    // the form would show a value from the wrong bucket.
+    final core = schema.core.map((f) => f.name).toSet();
+    for (final id in schema.methodIds) {
+      for (final f in schema.method(id).fields) {
+        expect(
+          core.contains(f.name),
+          isFalse,
+          reason: '$id.${f.name} collides with the core field of that name',
+        );
+      }
+    }
+  });
 }

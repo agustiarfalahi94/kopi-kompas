@@ -107,7 +107,10 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
   Map<String, Object?> _core = const {};
   Map<String, Object?> _methodData = const {};
   Map<String, Object?> _answers = const {};
-  Map<String, Object?> _sticky = const {};
+
+  /// Every live brew, newest first, for the remembered-field layers. Loaded
+  /// once: the form is filled and saved long before this could go stale.
+  List<BrewEntry> _history = const [];
   BrewEntry? _saved;
 
   /// Null until the form opens. Set from the parse when the text said when,
@@ -119,8 +122,8 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
   @override
   void initState() {
     super.initState();
-    loadStickyDefaults().then((d) {
-      if (mounted) setState(() => _sticky = d);
+    widget.db.liveEntries().then((h) {
+      if (mounted) setState(() => _history = h);
     });
   }
 
@@ -248,7 +251,6 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
     // Written before the reveal, so a crash during the celebration cannot
     // lose the brew.
     await widget.db.insert(entry);
-    await rememberSticky(entry);
     if (!mounted) return;
     setState(() {
       _saved = entry;
@@ -361,7 +363,7 @@ class _NewEntryScreenState extends State<NewEntryScreen> {
             _brewMethod,
             _core,
             _methodData,
-            _sticky,
+            stickyFor(widget.schema, _brewMethod, _history),
           ),
           onChanged: (v) => _answers = v,
         ),

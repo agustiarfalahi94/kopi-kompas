@@ -265,14 +265,6 @@ class AppStrings {
     FieldGroup.water => _s('Water', 'Air'),
   };
 
-  static String stickyLabel(String name) => switch (name) {
-    'grinder' => _s('Grinder', 'Penggiling'),
-    'grindSetting' => _s('Grind setting', 'Setelan giling'),
-    'waterType' => _s('Water', 'Air'),
-    'machine' => _s('Machine', 'Mesin'),
-    _ => name,
-  };
-
   /// Only for `test/language_test.dart`, which checks that nothing was copied
   /// across untranslated.
   static Map<String, String> get all => {
