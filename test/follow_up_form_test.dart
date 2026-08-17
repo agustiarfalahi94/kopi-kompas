@@ -226,5 +226,24 @@ void main() {
       await tester.pump();
       expect(find.text('remembered'), findsNothing);
     });
+
+    testWidgets('a remembered dropdown value shows the marker', (tester) async {
+      await pumpAndRead(tester, 'espresso', sticky: {'roastLevel': 'medium'});
+      expect(find.text('remembered'), findsWidgets);
+    });
+
+    testWidgets('a remembered date value shows the marker', (tester) async {
+      await pumpAndRead(
+        tester,
+        'espresso',
+        sticky: {'roastDate': '2026-08-01'},
+      );
+      expect(find.text('remembered'), findsWidgets);
+    });
+
+    testWidgets('a remembered switch value shows the marker', (tester) async {
+      await pumpAndRead(tester, 'espresso', sticky: {'puckPrepWdt': true});
+      expect(find.text('remembered'), findsWidgets);
+    });
   });
 }
