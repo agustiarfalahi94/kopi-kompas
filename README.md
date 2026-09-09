@@ -65,6 +65,37 @@ that fails is never a save that fails.
 ships a Worker URL, which is not a secret; the Gemini key it stands in front
 of is, and it is a Worker secret. See `worker/README.md`.
 
+## Architecture & Security
+
+Kopi Kompas is local-first: SQLite is the source of truth and Firestore is an
+optional authenticated mirror. The AI path is deliberately server-side:
+
+```text
+Flutter app → Cloudflare Worker → Gemini API
+                  ↘ KV rate limit
+```
+
+The Worker owns the prompts, response schemas and rubric. `GEMINI_API_KEY` is
+stored as a Cloudflare secret and never enters the repository, APK or client
+request. The app sends an opaque install ID only for abuse control. Worker
+inputs are bounded, malformed responses are rejected, and rate-limit or
+upstream failures are returned as typed errors instead of being treated as a
+successful brew save.
+
+Firestore rules deny access by default and allow a signed-in user to read or
+write only their own `/users/{uid}` tree, with a per-document size cap. The
+same rules are the access boundary; client-side checks are not authorization.
+
+Local development uses a git-ignored `worker/.dev.vars` file. Production
+deployment uses `wrangler secret put GEMINI_API_KEY`. `KOPI_ENDPOINT` is a
+public Worker URL and may be supplied through `--dart-define` or a GitHub
+Actions variable; it is not a secret.
+
+Pull requests run Flutter analysis, formatting, Flutter tests, Worker type
+checks and Worker tests. Tagged releases restore Firebase configuration and
+signing material from GitHub Actions secrets, verify that no Gemini key is
+tracked, then build signed APKs.
+
 ## Run it
 
 ```sh
