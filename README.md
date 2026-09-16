@@ -20,6 +20,13 @@ grouped into coffee, grind, brew and water, pre-filled from the parse and from
 what it remembered last time. Nothing is compulsory: leave all of it blank and
 the entry still saves.
 
+**Roast Date formats itself.** Type eight digits, for example `20260916`, and
+the field inserts the separators: `2026-` → `2026-09-` → `2026-09-16`.
+Pasting a compact or already-formatted date also works. Committed input is
+limited to eight digits; backspace crosses the automatic separators. The
+date stays optional: an empty, incomplete, or impossible calendar date is
+omitted from the saved entry, not silently rolled into a different day.
+
 **Get a score you can argue with.** Six methods are scored — espresso and the
 four filter methods, plus AeroPress — each against explicit target ranges. The
 reasons are always shown, because a number with no argument attached is a

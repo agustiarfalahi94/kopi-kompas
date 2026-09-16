@@ -30,13 +30,20 @@ BrewEntry buildEntry({
   DateTime? brewedAt,
 }) {
   final coreNames = schema.core.map((f) => f.name).toSet();
+  final dateNames = schema.core
+      .where((f) => f.type == FieldType.date)
+      .map((f) => f.name)
+      .toSet();
   final mergedCore = Map<String, Object?>.of(core);
   final mergedMethod = Map<String, Object?>.of(methodData);
 
   answers.forEach((name, value) {
-    // A null answer means the user left the row alone; it must never erase
-    // something the parse already found.
-    if (value == null) return;
+    // The date control explicitly reports null when cleared or invalid.
+    // Other null answers still leave the original parse untouched.
+    if (value == null) {
+      if (dateNames.contains(name)) mergedCore.remove(name);
+      return;
+    }
     if (coreNames.contains(name)) {
       mergedCore[name] = value;
     } else {

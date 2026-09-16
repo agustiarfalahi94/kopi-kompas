@@ -188,10 +188,27 @@ Expect: It saves. It may not score, and it won't back up, but the brew is kept.
 Why: A backup failure must never surface as a save failure.
 
 
+## Roast Date input
+
+**37. Automatic date formatting in new and edited entries**
+
+Do: In Roast Date, type `20260916` one digit at a time. Paste `2026-09-16`
+and an overlong digit string. Backspace to empty, then change the month in
+the middle of an existing date. Repeat on the Edit screen.
+
+Expect: `2026-` after year, `2026-09-` after month, and `2026-09-16` when
+complete. No more than eight committed digits, backspace never gets stuck,
+and the cursor stays near the edit. Save a valid date and confirm it survives
+reopening. Blank/partial input and `2026-02-30` must not become a stored date
+or block saving.
+
+Status: Unverified on an Android device; automated widget tests cover these
+input and reporting paths, but not the physical keyboard or APK.
+
+
 ## The one that wipes the phone — do this last
 
 **36. The real test: reinstall and get it back**  
 Do: Back up. Uninstall the app. Reinstall, sign in, restore.  
 Expect: Your whole log returns, scores and ratings intact.  
 Why: Do this last, and only once you're happy the backup works — an uninstall wipes the SQLite file, so the cloud copy is all there is.
-

@@ -7,8 +7,28 @@ have already been paid for once.
 
 Keep it current. A stale state file is worse than none, because it is believed.
 
-Last updated: 2026-08-17, after remembered fields and the score retry landed
-on `feature/sticky-defaults-and-score-retry` (unmerged).
+Last updated: 2026-09-16, after the Roast Date input change on
+`codex/roast-date-input` (awaiting PR integration).
+
+## Latest change: Roast Date input (unreleased)
+
+- The shared new/edit form inserts hyphens after year/month and caps committed
+  input at eight digits (`YYYY-MM-DD`). Paste, backspace, cursor/selection edits,
+  and keyboard composition are covered in `test/roast_date_input_test.dart`.
+- Calendar validation no longer accepts Dart's rolled-over dates (for example,
+  February 30). Blank, incomplete, or invalid dates are omitted; Save remains
+  optional and non-blocking as before.
+- Date controls explicitly report `null` for invalid/cleared dates. New-entry
+  merging respects that explicit empty answer rather than resurrecting an
+  AI-parsed date. Other field types keep their existing null-merge behaviour.
+- Android-device behaviour is **unverified**: no Android device is connected.
+  Run [device check 37](DEVICE_TESTS.md#roast-date-input) on the updated build.
+- Local APK packaging is **unverified**. Flutter is configured to an absent
+  Java `17.0.20` directory; installed Java is `17.0.20.1`. Running Gradle with
+  that installed Java compiles Flutter, then packaging fails because this
+  checkout lacks `google-services.json`. No global configuration was changed.
+- The older release/branch notes below are the 2026-08-17 handover, not a new
+  verification of their merge or device-test status.
 
 ---
 
