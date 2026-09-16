@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../data/brew_schema.dart';
 import '../strings.dart';
+import 'iso_date_input_formatter.dart';
 
 /// Where a field's current value came from.
 ///
@@ -99,7 +100,12 @@ class _BrewFormState extends State<BrewForm> {
     for (final f in widget.fields) {
       // A switch drawn off is already answering, so seed booleans false. And
       // anything already known — parsed or remembered — is an answer too.
-      if (f.value != null) {
+      if (f.spec.type == FieldType.date) {
+        final date = _asDate(f.value?.toString() ?? '');
+        // Explicit null distinguishes a cleared/invalid date from a field
+        // never offered by this form, so Save cannot resurrect a parsed date.
+        _values[f.spec.name] = date;
+      } else if (f.value != null) {
         _values[f.spec.name] = f.value;
       } else if (f.spec.type == FieldType.boolean) {
         _values[f.spec.name] = false;
@@ -114,10 +120,10 @@ class _BrewFormState extends State<BrewForm> {
     }
   }
 
-  void _set(String name, Object? value) {
+  void _set(String name, Object? value, {bool keepNull = false}) {
     setState(() {
       _touched.add(name);
-      if (value == null) {
+      if (value == null && !keepNull) {
         _values.remove(name);
       } else {
         _values[name] = value;
@@ -179,6 +185,9 @@ class _BrewFormState extends State<BrewForm> {
   /// Where this value came from, or null once the user has touched it.
   String? _sourceNote(BrewFormField field) {
     if (_touched.contains(field.spec.name)) return null;
+    if (field.spec.type == FieldType.date && _values[field.spec.name] == null) {
+      return null;
+    }
     return switch (field.source) {
       FieldSource.sticky => AppStrings.remembered,
       FieldSource.parsed => AppStrings.fromYourText,
@@ -241,8 +250,9 @@ class _BrewFormState extends State<BrewForm> {
             hintText: 'YYYY-MM-DD',
             helperText: from,
           ),
-          keyboardType: TextInputType.datetime,
-          onChanged: (t) => _set(f.name, _asDate(t)),
+          keyboardType: TextInputType.number,
+          inputFormatters: const [IsoDateInputFormatter()],
+          onChanged: (t) => _set(f.name, _asDate(t), keepNull: true),
         ),
       ),
       FieldType.integer => _text(
@@ -298,7 +308,11 @@ class _BrewFormState extends State<BrewForm> {
   /// and storing it would put a nonsense value in the column.
   static String? _asDate(String raw) {
     final t = raw.trim();
-    if (t.length != 10) return null;
-    return DateTime.tryParse(t) == null ? null : t;
+    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(t)) return null;
+    final date = DateTime.tryParse(t);
+    // Dart normalises out-of-range days/months instead of rejecting them.
+    return date != null && date.toIso8601String().substring(0, 10) == t
+        ? t
+        : null;
   }
 }
