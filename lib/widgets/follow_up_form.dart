@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../data/brew_schema.dart';
 import '../strings.dart';
+import 'iso_date_input_formatter.dart';
 
 /// Where a field's current value came from.
 ///
@@ -89,13 +90,22 @@ class BrewForm extends StatefulWidget {
 class _BrewFormState extends State<BrewForm> {
   final _values = <String, Object?>{};
 
+  /// Fields the user has actually edited. The source marker is only honest
+  /// while nobody has touched the value.
+  final _touched = <String>{};
+
   @override
   void initState() {
     super.initState();
     for (final f in widget.fields) {
       // A switch drawn off is already answering, so seed booleans false. And
       // anything already known — parsed or remembered — is an answer too.
-      if (f.value != null) {
+      if (f.spec.type == FieldType.date) {
+        final date = _asDate(f.value?.toString() ?? '');
+        // Explicit null distinguishes a cleared/invalid date from a field
+        // never offered by this form, so Save cannot resurrect a parsed date.
+        _values[f.spec.name] = date;
+      } else if (f.value != null) {
         _values[f.spec.name] = f.value;
       } else if (f.spec.type == FieldType.boolean) {
         _values[f.spec.name] = false;
@@ -110,9 +120,10 @@ class _BrewFormState extends State<BrewForm> {
     }
   }
 
-  void _set(String name, Object? value) {
+  void _set(String name, Object? value, {bool keepNull = false}) {
     setState(() {
-      if (value == null) {
+      _touched.add(name);
+      if (value == null && !keepNull) {
         _values.remove(name);
       } else {
         _values[name] = value;
@@ -171,6 +182,19 @@ class _BrewFormState extends State<BrewForm> {
       ? AppStrings.pressurisedNote
       : null;
 
+  /// Where this value came from, or null once the user has touched it.
+  String? _sourceNote(BrewFormField field) {
+    if (_touched.contains(field.spec.name)) return null;
+    if (field.spec.type == FieldType.date && _values[field.spec.name] == null) {
+      return null;
+    }
+    return switch (field.source) {
+      FieldSource.sticky => AppStrings.remembered,
+      FieldSource.parsed => AppStrings.fromYourText,
+      FieldSource.empty => null,
+    };
+  }
+
   Widget _row(BrewFormField field) {
     final note = _noteFor(field.spec);
     if (note == null) return _control(field);
@@ -190,18 +214,20 @@ class _BrewFormState extends State<BrewForm> {
     final f = field.spec;
     final label = f.unit == null ? f.label : '${f.label} (${f.unit})';
     final current = _values[f.name];
+    final from = _sourceNote(field);
 
     return switch (f.type) {
       FieldType.boolean => SwitchListTile(
         contentPadding: EdgeInsets.zero,
         title: Text(f.label),
+        subtitle: from == null ? null : Text(from),
         value: current as bool? ?? false,
         onChanged: (v) => _set(f.name, v),
       ),
       FieldType.enumerated => Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: DropdownButtonFormField<String>(
-          decoration: InputDecoration(labelText: label),
+          decoration: InputDecoration(labelText: label, helperText: from),
           initialValue: f.values.contains(current) ? current as String? : null,
           items: [
             for (final v in f.values)
@@ -219,18 +245,30 @@ class _BrewFormState extends State<BrewForm> {
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: TextFormField(
           initialValue: current?.toString(),
-          decoration: InputDecoration(labelText: label, hintText: 'YYYY-MM-DD'),
-          keyboardType: TextInputType.datetime,
-          onChanged: (t) => _set(f.name, _asDate(t)),
+          decoration: InputDecoration(
+            labelText: label,
+            hintText: 'YYYY-MM-DD',
+            helperText: from,
+          ),
+          keyboardType: TextInputType.number,
+          inputFormatters: const [IsoDateInputFormatter()],
+          onChanged: (t) => _set(f.name, _asDate(t), keepNull: true),
         ),
       ),
-      FieldType.integer => _text(f, label, current, TextInputType.number, [
-        FilteringTextInputFormatter.digitsOnly,
-      ], (t) => int.tryParse(t)),
+      FieldType.integer => _text(
+        f,
+        label,
+        current,
+        from,
+        TextInputType.number,
+        [FilteringTextInputFormatter.digitsOnly],
+        (t) => int.tryParse(t),
+      ),
       FieldType.number => _text(
         f,
         label,
         current,
+        from,
         const TextInputType.numberWithOptions(decimal: true),
         const [],
         (t) => double.tryParse(t),
@@ -239,6 +277,7 @@ class _BrewFormState extends State<BrewForm> {
         f,
         label,
         current,
+        from,
         TextInputType.text,
         const [],
         (t) => t.trim().isEmpty ? null : t.trim(),
@@ -250,6 +289,7 @@ class _BrewFormState extends State<BrewForm> {
     FieldSpec f,
     String label,
     Object? current,
+    String? note,
     TextInputType keyboard,
     List<TextInputFormatter> formatters,
     Object? Function(String) parse,
@@ -257,7 +297,7 @@ class _BrewFormState extends State<BrewForm> {
     padding: const EdgeInsets.symmetric(vertical: 6),
     child: TextFormField(
       initialValue: current?.toString(),
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(labelText: label, helperText: note),
       keyboardType: keyboard,
       inputFormatters: formatters,
       onChanged: (t) => _set(f.name, parse(t)),
@@ -268,7 +308,11 @@ class _BrewFormState extends State<BrewForm> {
   /// and storing it would put a nonsense value in the column.
   static String? _asDate(String raw) {
     final t = raw.trim();
-    if (t.length != 10) return null;
-    return DateTime.tryParse(t) == null ? null : t;
+    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(t)) return null;
+    final date = DateTime.tryParse(t);
+    // Dart normalises out-of-range days/months instead of rejecting them.
+    return date != null && date.toIso8601String().substring(0, 10) == t
+        ? t
+        : null;
   }
 }

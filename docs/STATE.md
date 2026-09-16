@@ -7,7 +7,28 @@ have already been paid for once.
 
 Keep it current. A stale state file is worse than none, because it is believed.
 
-Last updated: 2026-08-14, after cutting v0.4.1.
+Last updated: 2026-09-16, after the Roast Date input change on
+`codex/roast-date-input` (awaiting PR integration).
+
+## Latest change: Roast Date input (unreleased)
+
+- The shared new/edit form inserts hyphens after year/month and caps committed
+  input at eight digits (`YYYY-MM-DD`). Paste, backspace, cursor/selection edits,
+  and keyboard composition are covered in `test/roast_date_input_test.dart`.
+- Calendar validation no longer accepts Dart's rolled-over dates (for example,
+  February 30). Blank, incomplete, or invalid dates are omitted; Save remains
+  optional and non-blocking as before.
+- Date controls explicitly report `null` for invalid/cleared dates. New-entry
+  merging respects that explicit empty answer rather than resurrecting an
+  AI-parsed date. Other field types keep their existing null-merge behaviour.
+- Android-device behaviour is **unverified**: no Android device is connected.
+  Run [device check 37](DEVICE_TESTS.md#roast-date-input) on the updated build.
+- Local APK packaging is **unverified**. Flutter is configured to an absent
+  Java `17.0.20` directory; installed Java is `17.0.20.1`. Running Gradle with
+  that installed Java compiles Flutter, then packaging fails because this
+  checkout lacks `google-services.json`. No global configuration was changed.
+- The older release/branch notes below are the 2026-08-17 handover, not a new
+  verification of their merge or device-test status.
 
 ---
 
@@ -21,7 +42,51 @@ Last updated: 2026-08-14, after cutting v0.4.1.
 | Worker deployed | rubric `r3`, verified live |
 | App tests | run `./tool/check.sh` for the real number; never quote one from here |
 
-**Nothing is unmerged.** v0.4.1 carries:
+**Unmerged: `feature/sticky-defaults-and-score-retry`, off `develop`.** Two
+pieces, both only run in `flutter test` — see "Never verified on a phone"
+below.
+
+- **Remembered fields now come from SQLite, not SharedPreferences.**
+  `stickyFor(schema, method, history)` and `rememberedCore(history)`, in
+  `lib/services/sticky_defaults.dart`, are pure functions over the brews
+  already logged — there is no second store to fall out of sync with an edit,
+  a Firestore restore or a delete, which the old `sticky.*` prefs store could.
+  `loadStickyDefaults`, `rememberSticky` and the `sticky.*` keys are gone,
+  **with no migration** — whatever was sitting in that store is discarded,
+  and for anyone with brews already logged the database hands back the same
+  values immediately, so nothing is actually lost in practice. Three layers,
+  most specific first: the method's own past entries, then its category's,
+  then the core fields from anything at all — filtered to what the target
+  method asks (respecting `hideCore`) and then validated per `FieldSpec`, so
+  a wrong type or an enum value outside `spec.values` is dropped rather than
+  offered. That validation is load-bearing, not defensive: `brewer` exists on
+  coneDripper, flatBottomDripper and smartDripper with value lists that share
+  nothing, and the first two sit in the same category, so the category layer
+  genuinely does try to hand a V60 `brewer` to a Kalita form.
+  - `notes` is never carried forward — it is prose about one cup, not a fact
+    about the setup.
+  - **The old `beanOrigin` exclusion is deliberately reversed.** It used to
+    be left out on the grounds that it changes with every bag. What makes
+    carrying it forward defensible now is the "remembered" marker on the
+    field (below): a wrong answer you can see and correct is not the same
+    failure as a wrong answer offered silently.
+  - **A value never dies.** The newest-first scan stops at the first
+    non-null value per field, so clearing a field today does not stop it
+    being found further back in the history tomorrow. Deliberate — design
+    §3.1 — and the piece of this most likely to read as a bug to someone who
+    did not agree to it going in.
+  - Settings' "Remembered for next time" list now reads `rememberedCore`
+    from the database and labels its rows from `schema.core`;
+    `AppStrings.stickyLabel`, a hand-written four-name list, is deleted.
+    `machine` no longer appears there — it is a method field, with no single
+    core-wide value once memory is per-method.
+  - The form marks every pre-filled value: "remembered" for a carried value,
+    "from your text" for a parsed one ("diingat" / "dari teks kamu"), cleared
+    the instant the field is edited.
+- **The score retry is a real button now**, not a lie — see the two new
+  rows in the bug ledger below.
+
+v0.4.1 carries:
 - reminder notification title and body now follow the active language setting (`AppStrings`) and reschedule on language switch
 
 v0.4.0 carries everything that had accumulated on `develop` since v0.3.0:
@@ -58,6 +123,12 @@ passed every test and were dead on the device.
 - **The brew timestamp** — verified against the deployed Worker with curl,
   never on a phone. The phone sends its own clock, so a timezone mistake would
   only show there.
+- **Remembered fields and the score retry** — everything on
+  `feature/sticky-defaults-and-score-retry` has only run in `flutter test`.
+  Two things specifically only a device can answer: whether a form pre-filled
+  with forty remembered values reads as usable or merely overwhelming, and
+  whether a helper line under every control makes the form unreadable. The
+  retry itself has never been driven against a real failing score.
 
 There is a checklist for all of this, in the order it should be run, at
 `docs/DEVICE_TESTS.md`.
@@ -66,6 +137,20 @@ There is a checklist for all of this, in the order it should be run, at
 
 ## Open threads
 
+- **Every new machine will fail `flutter build apk` until Flutter is pointed
+  at a JDK Gradle can parse, and nothing in the repository does that for
+  you.** The build worked here on 2026-08-17 only after
+  `flutter config --jdk-dir "$(/usr/libexec/java_home -v 17)"`, which writes
+  to Flutter's own config, not to any tracked file — so a fresh clone, a new
+  laptop or a CI runner that picks up Android Studio's bundled JDK meets the
+  same failure with a message that names no cause. See the bug ledger for
+  what it looks like. Whether to pin this in the repo — a `JAVA_HOME` in
+  `gradle.properties`, or a check in `tool/check.sh` — is undecided.
+- **An APK in `build/app/outputs/flutter-apk/` is not evidence of anything
+  until you read its timestamp.** A failed `flutter build apk` empties the
+  directory; a successful one leaves artifacts that outlive the branch they
+  were built from. Stale APKs from an earlier session were nearly mistaken
+  for a working build here.
 - **Kopi talua has no photograph.** Neither Wikimedia Commons nor Openverse
   has a freely licensed one; the only near-matches are `teh talua`, which is
   the tea. Needs a photograph the user takes.
@@ -102,6 +187,7 @@ the point of the list: it is a record of what a green suite does not prove.
 | An untouched switch reported nothing rather than `false` | The test that claimed to cover it tapped the switch twice, returning it to its original state | Booleans seeded `false`, and the form reports on first build |
 | `ExpansionTile` keyed by `PageStorageKey` inside a `ListView` | Nothing in a widget test reads a scroll offset | `ValueKey` instead |
 | Release build failed only at `assembleRelease` | Desugaring is not needed for debug | `coreLibraryDesugaring` enabled |
+| Rating a brew from the log did nothing visible — the stars stayed as they were until you left the screen and came back, so the tap read as having missed | `_rating` drew from `widget.entry.myRating`, which cannot change while the screen is open; the test tapped a star and asserted the callback fired, which it did. Nothing asserted what was on screen afterwards | The state holds `_stars` and the tap sets it before saving, as `ScoreReveal` always has. Three tests now assert the icons, including a rating revised *downwards* |
 | HyperOS refuses every first-time install | Not a code problem at all | Turn on "Install via USB" |
 
 ### Found by reading output instead of assuming
@@ -118,6 +204,9 @@ the point of the list: it is a record of what a green suite does not prove.
 | The gate printed "PASS" over a tree that could not compile | `check.sh` ran vitest, which transpiles without typechecking | `tsc --noEmit` added to the gate, and proven to fail |
 | The espresso guide advised better distribution for channelling | Guide text and rubric text were never compared | Guide aligned with `r3`; targets already come from `brew_schema.json` |
 | Reminder notification fired in English regardless of language | Title and body were hardcoded constants in ReminderService and reschedule() wasn't called on language change | Read title and body from `AppStrings` and reschedule on language switch |
+| `AppStrings.scoreFailed` read "Not scored yet — tap to retry" and was rendered in `score_reveal.dart`, `entry_detail_screen.dart` and `full_log_screen.dart` — none of the three had a tap handler | A widget test asserting the string is on screen does not need a handler for the string to render; the only working retry was a differently-named button two navigations away | String reworded to a plain status; the action lives in real buttons, gated to `ScoreStatus.failed` |
+| A failed score discarded its `KopiError` entirely, so an overloaded Gemini read exactly like being offline or hitting the daily limit | Worker tests use a fake Gemini, so the failure branch ran with `ScoreFailed()` and no test asked what the kind was, only that scoring had failed | `scoreMessageFor(KopiError)` maps every kind to a real message; the reveal and detail screen show it |
+| `flutter build apk` failed in under a second with `25.0.2` as the entire message — read as a build-tools or NDK version, and blamed on the absent keystore. It is **the Java version**: Flutter overrides `JAVA_HOME` with Android Studio's bundled JDK 25, and Gradle 8.14 throws `IllegalArgumentException: 25.0.2` parsing it | No test builds an APK, and `./gradlew assembleRelease` succeeded from a shell holding Java 17 — so the two disagreed and the Gradle project looked sound while Flutter looked broken. Both were true | `flutter config --jdk-dir "$(/usr/libexec/java_home -v 17)"`. Setting `JAVA_HOME` does nothing — Flutter prefers Android Studio's JDK over the environment. Undo with `flutter config --jdk-dir ""` |
 
 ### Process failures worth not repeating
 
