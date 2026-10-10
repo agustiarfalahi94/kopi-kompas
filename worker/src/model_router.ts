@@ -1,9 +1,10 @@
 const API = 'https://generativelanguage.googleapis.com/v1beta/models';
 const CACHE_MS = 60 * 60 * 1000;
 interface ListedModel { name?: string; supportedGenerationMethods?: string[] }
-const catalogs = new WeakMap<typeof fetch, Map<string, {
+interface CatalogEntry {
   expires: number; models: Promise<ListedModel[]>;
-}>>();
+}
+const catalogs = new WeakMap<typeof fetch, Map<string, CatalogEntry>>();
 
 async function timedFetch(
   fetchImpl: typeof fetch, url: string, init: RequestInit, timeout: number,
@@ -21,11 +22,11 @@ async function timedFetch(
 
 async function compatibleModels(
   apiKey: string, preferred: string, fetchImpl: typeof fetch, deadline: number,
-  refresh = false,
-): Promise<string[]> {
+  refresh?: CatalogEntry,
+): Promise<{ names: string[]; catalog?: CatalogEntry }> {
   let cache = catalogs.get(fetchImpl);
   if (!cache) { cache = new Map(); catalogs.set(fetchImpl, cache); }
-  if (refresh) cache.delete(apiKey);
+  if (refresh && cache.get(apiKey) === refresh) cache.delete(apiKey);
   let entry = cache.get(apiKey);
   if (!entry || entry.expires <= Date.now()) {
     const load = async () => {
@@ -53,7 +54,7 @@ async function compatibleModels(
   try { listed = await entry.models; }
   catch {
     if (cache.get(apiKey) === entry) cache.delete(apiKey);
-    return [];
+    return { names: [] };
   }
   const lite = preferred.includes('flash-lite');
   const eligible = listed.flatMap(model => {
@@ -70,7 +71,10 @@ async function compatibleModels(
     }
     return 0;
   });
-  return [...new Set(eligible.map(model => model.name))].filter(name => name !== preferred);
+  return {
+    names: [...new Set(eligible.map(model => model.name))].filter(name => name !== preferred),
+    catalog: entry,
+  };
 }
 
 export async function generateWithFallback(options: {
@@ -102,7 +106,8 @@ export async function generateWithFallback(options: {
   let response = await send(model);
   if (response.status !== 404 && response.status !== 503) return { response, model };
 
-  let alternatives = await compatibleModels(options.apiKey, preferred, options.fetchImpl, deadline);
+  let discovery = await compatibleModels(options.apiKey, preferred, options.fetchImpl, deadline);
+  let alternatives = discovery.names;
   const tried = new Set([preferred]);
   let refreshed = false;
   for (let attempt = 1; attempt < 3; attempt++) {
@@ -116,7 +121,9 @@ export async function generateWithFallback(options: {
     if (response.status !== 404 && response.status !== 503) break;
     if (response.status === 404 && !refreshed && attempt < 2) {
       refreshed = true;
-      alternatives = await compatibleModels(options.apiKey, preferred, options.fetchImpl, deadline, true);
+      const update = await compatibleModels(options.apiKey, preferred, options.fetchImpl, deadline, discovery.catalog);
+      alternatives = [...new Set([...update.names, ...alternatives])];
+      discovery = update;
     }
   }
   return { response, model };

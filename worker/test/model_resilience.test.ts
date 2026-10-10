@@ -22,6 +22,40 @@ const catalog = () => json({ models: [
 ] });
 
 describe('Gemini model resilience', () => {
+  it('retains working alternatives when a retirement refresh fails', async () => {
+    let retired = false;
+    const fetchImpl = vi.fn(async (url: string) => {
+      if (url.includes('?pageSize=')) return retired ? json({}, 503) : json({ models:
+        ['gemini-3.8-flash', 'gemini-3.6-flash'].map(name => ({
+          name: `models/${name}`, supportedGenerationMethods: ['generateContent'],
+        })),
+      });
+      if (url.includes('latest:') || (retired && url.includes('3.8-flash:'))) return json({}, 404);
+      return answer(retired ? 'gemini-3.6-flash' : 'gemini-3.8-flash');
+    });
+    await callGemini({ ...opts, fetchImpl: fetchImpl as any });
+    retired = true;
+    expect(await callGemini({ ...opts, fetchImpl: fetchImpl as any }))
+      .toMatchObject({ ok: true, model: 'gemini-3.6-flash' });
+  });
+
+  it('shares refreshes when concurrent calls encounter the same retirement', async () => {
+    let retired = false;
+    const fetchImpl = vi.fn(async (url: string) => {
+      if (url.includes('?pageSize=')) return json({ models: [{
+        name: `models/${retired ? 'gemini-3.9-flash' : 'gemini-3.8-flash'}`,
+        supportedGenerationMethods: ['generateContent'],
+      }] });
+      if (url.includes('latest:') || (retired && url.includes('3.8-flash:'))) return json({}, 404);
+      return answer();
+    });
+    await callGemini({ ...opts, fetchImpl: fetchImpl as any });
+    retired = true;
+    const results = await Promise.all(Array.from({ length: 12 }, () =>
+      callGemini({ ...opts, fetchImpl: fetchImpl as any })));
+    expect(results.every(result => result.ok)).toBe(true);
+    expect(fetchImpl.mock.calls.filter(([url]) => url.includes('?pageSize='))).toHaveLength(2);
+  });
   it('refreshes a retired cached candidate and tries its new replacement within the cap', async () => {
     let retired = false;
     const fetchImpl = vi.fn(async (url: string) => {
