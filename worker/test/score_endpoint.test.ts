@@ -40,6 +40,24 @@ const ESPRESSO = {
 };
 
 describe('POST /score', () => {
+  it('makes unrecorded scoring fields explicit while retaining recorded false', async () => {
+    const f = geminiReturning({ score: 100, reasons: ['unrecorded factors ignored'] });
+    const res = await handleRequest(scoreReq({
+      brewMethod: 'espresso', doseGrams: 18,
+      methodData: { yieldGrams: 36, brewTimeSeconds: 28, puckPrepWdt: false },
+    }), env(), deps(f));
+    expect(res.status).toBe(200);
+    const [url, init] = (f as any).mock.calls[0];
+    expect(url).toContain('/gemini-flash-latest:generateContent');
+    const sent = JSON.parse(JSON.parse(init.body).contents[0].parts[0].text);
+    expect(sent.roastLevel).toBeNull();
+    expect(sent.doseGrams).toBe(18);
+    expect(sent.methodData).toMatchObject({
+      yieldGrams: 36, brewTimeSeconds: 28, puckPrepWdt: false,
+      puckPrepDistribution: null, puckPrepTamp: null, basketType: null,
+    });
+    expect(sent.methodData).not.toHaveProperty('bloomWaterGrams');
+  });
   it('stores the actual resolved version rather than the moving alias', async () => {
     const fetchImpl = vi.fn(async () => new Response(JSON.stringify({
       modelVersion: 'gemini-3.8-flash',

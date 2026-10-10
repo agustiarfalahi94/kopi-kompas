@@ -165,11 +165,17 @@ async function handleScore(
   }
 
   const model = env.GEMINI_SCORE_MODEL ?? DEFAULT_SCORE_MODEL;
+  const scoringEntry = {
+    ...entry,
+    ...Object.fromEntries(Object.keys(brewSchema.core).map(field => [field, entry[field] ?? null])),
+    methodData: Object.fromEntries(Object.keys(brewSchema.methods[method].fields)
+      .map(field => [field, entry.methodData?.[field] ?? null])),
+  };
   const result = await callGemini<any>({
     apiKey: env.GEMINI_API_KEY,
     model,
     systemInstruction: scoreInstruction(method, toLocale(payload.locale)),
-    userText: JSON.stringify(entry),
+    userText: JSON.stringify(scoringEntry),
     responseSchema: buildScoreResponseSchema(),
     fetchImpl: deps.fetchImpl,
   });

@@ -13,11 +13,18 @@ Last updated: 2026-10-10, preparing v0.4.2 and the Gemini resilience fix.
 
 - Live diagnosis on 2026-10-10: `/score` received Google's `503` high-demand
   response; `/parse` succeeded. Model retirement was not established.
+- Full Flash also exhausted the 40-second budget in repeated GitHub live
+  scoring checks despite passing local checks. A Lite scoring experiment
+  passed availability checks but made a rubric error on an in-range Chemex
+  brew; it was rejected as the scoring default. Intermittent provider stalls
+  remain possible and must not be hidden by a passing unit suite.
 - Parsing and scoring use rolling Lite/Flash aliases with compatible stable
   fallback for `404`/`503` and generation timeouts. The catalog cache lasts one hour and each call has
   at most three generation attempts. Quota/authentication errors remain visible.
 - Scores preserve the response's `modelVersion` when provided. Rubric `r3`
   and existing stored scores are unchanged. See `worker/README.md` for operations.
+- Unknown scoring fields are explicitly `null`; recorded `false` and `0`
+  stay distinct. Core/method field names come from the shared schema.
 - GitHub Actions performs a weekly synthetic parse/score check and can be run
   manually after a deployment. Model updates happen in the Worker; old APKs
   benefit without reinstalling.

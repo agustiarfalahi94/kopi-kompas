@@ -349,7 +349,8 @@ An LLM is not deterministic. The same espresso submitted twice can score 78
 and 86, and since a logbook exists largely to compare your own shots over
 time, that noise is the real cost of this decision. Four things bound it:
 
-- **Temperature 0** on the scoring call.
+- **Temperature 0** was the original scoring choice; v0.4.2 removes this
+  deprecated sampling control. Current model policy is in `worker/README.md`.
 - **A fixed written rubric** in the Worker — explicit target ranges and
   weights per method, so the model applies a stated standard rather than its
   own taste. The rubric is versioned (`r1`, `r2`, …), and **the version must

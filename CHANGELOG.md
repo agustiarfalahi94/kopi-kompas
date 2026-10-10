@@ -13,6 +13,9 @@
   when available, falling back to the requested model if it is absent.
 - Removed deprecated sampling parameters from requests for current Gemini
   model compatibility. Quota/authentication errors do not trigger model rotation.
+- Unrecorded scoring fields are explicitly `null`, rather than omitted, so
+  unknown booleans are distinct from recorded `false`. Existing rubric weights,
+  target bands, and historical scores are unchanged.
 
 ### Added
 
@@ -39,6 +42,10 @@
 
 ### Verification
 
+- Full Flash still timed out in some live checks. A Lite scoring experiment
+  improved availability but made a rubric error in a Chemex evaluation, so
+  full Flash remains the default. Model/fallback changes do not guarantee
+  provider availability or exact score calibration.
 - Regression widget tests exercise the actual shared form used by new/edit
   entries, including leap-year validation and remembered-date preservation.
 - Android-device verification is still pending; see
