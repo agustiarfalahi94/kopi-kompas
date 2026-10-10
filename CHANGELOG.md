@@ -28,7 +28,8 @@
 - Added real log/navigation photo regressions, EN/ID light/dark large-text
   layout checks, keyboard entry access and compact-image sizing checks.
 - Added EN/ID score-request policy checks for the reported espresso and `r4`
-  provenance. Updated README, Worker guidance, agent rules, state/spec notes
+  provenance, plus all-six-method guards against contradictory taste/channeling
+  instructions. Updated README, Worker guidance, agent rules, state/spec notes
   and device checks. Physical-phone and live model behaviour need separate
   verification; prompt tests are not a guarantee of model compliance.
 

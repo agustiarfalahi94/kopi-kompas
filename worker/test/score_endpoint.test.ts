@@ -40,6 +40,17 @@ const ESPRESSO = {
 };
 
 describe('POST /score', () => {
+  it.each(['espresso', 'coneDripper', 'flatBottomDripper', 'chemex', 'batchBrewer', 'aeropress'])
+    ('keeps %s recipe comparisons consistent with the no-invented-taste policy', async (brewMethod) => {
+      const f = geminiReturning({ score: 85, reasons: ['Recipe comparison'] });
+      const response = await handleRequest(scoreReq({ brewMethod, doseGrams: 15 }), env(), deps(f));
+      expect(response.status).toBe(200);
+      const request = JSON.parse((f as any).mock.calls[0][1].body);
+      const policy = request.systemInstruction.parts[0].text;
+      expect(policy).toContain('Do not invent sourness, bitterness or channeling');
+      expect(policy).not.toMatch(/which channels|Under 45 is thin|over 180 is heavy and bitter|means the grind was too coarse|extracts evenly[^]*points at pour technique/);
+      expect((await response.json() as any).rubric).toBe('r4');
+    });
   it.each(['en', 'id'])('sends a cautious extraction policy for the 15g/25g/30s shot (%s)', async (locale) => {
     const f = geminiReturning({ score: 85, reasons: ['Recipe comparison'] });
     const response = await handleRequest(scoreReq({
