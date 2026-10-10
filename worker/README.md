@@ -116,6 +116,18 @@ scores retain their original model and rubric. Do not rewrite old scores when
 models change. Requests omit deprecated sampling parameters and combine only
 non-thinking text parts into the JSON answer.
 
+Scoring inputs include every core and method-specific schema field, using
+`null` for unrecorded values and retaining explicit `false`/`0`. This makes the
+existing rubric's missing-value rule explicit instead of leaving an omitted
+boolean open to interpretation. The rubric weights and target bands are unchanged.
+
+On 2026-10-10 full Flash passed local scoring checks but repeatedly exhausted
+the request budget in GitHub's live checks. A Lite scoring experiment passed
+availability checks but gave an incorrect rubric explanation for an in-range
+Chemex brew. Full Flash therefore remains the scoring default; reducing
+timeouts alone was insufficient to justify the switch. Neither model choice
+nor fallback guarantees provider availability or perfectly calibrated scores.
+
 The weekly **Gemini health** workflow runs synthetic `/parse` and `/score`
 requests. Run it manually after deployment, or use `node tool/gemini_health.mjs`.
 A successful generation and valid schema are required; a reachable Worker alone
