@@ -89,8 +89,10 @@ missed.
 
 ## Choosing the model
 
-`GEMINI_PARSE_MODEL` defaults to `gemini-flash-lite-latest` and
-`GEMINI_SCORE_MODEL` to `gemini-flash-latest`. Both are server variables in
+`GEMINI_PARSE_MODEL` and `GEMINI_SCORE_MODEL` both default to
+`gemini-flash-lite-latest`. Full Flash passed some local scoring checks but
+repeatedly exhausted the request budget in GitHub's live checks on 2026-10-10;
+Lite passed those checks. Both are server variables in
 `wrangler.toml`; existing APKs do not need a rebuild when Google changes the
 model behind an alias. An explicit model can still be set for rollback.
 
@@ -115,6 +117,11 @@ fallback when that metadata is missing. Rubric `r3` is unchanged: historical
 scores retain their original model and rubric. Do not rewrite old scores when
 models change. Requests omit deprecated sampling parameters and combine only
 non-thinking text parts into the JSON answer.
+
+Scoring inputs include every core and method-specific schema field, using
+`null` for unrecorded values and retaining explicit `false`/`0`. This makes the
+existing rubric's missing-value rule explicit instead of leaving an omitted
+boolean open to interpretation. The rubric weights and target bands are unchanged.
 
 The weekly **Gemini health** workflow runs synthetic `/parse` and `/score`
 requests. Run it manually after deployment, or use `node tool/gemini_health.mjs`.

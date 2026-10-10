@@ -5,7 +5,9 @@
 ### Fixed
 
 - Scoring recovered from Gemini model overload (observed upstream `503`).
-  Parsing and scoring now follow the Flash-Lite and Flash rolling aliases;
+  Parsing and scoring now follow the Flash-Lite rolling alias. Full Flash
+  repeatedly exhausted the request budget in GitHub live scoring checks;
+  Lite passed the same checks. Both model variables remain configurable.
   missing/overloaded/timed-out models trigger bounded discovery of compatible stable
   models in the same family, with up to three generation attempts in total.
 - JSON output joins all non-thinking answer parts instead of assuming the
@@ -13,6 +15,9 @@
   when available, falling back to the requested model if it is absent.
 - Removed deprecated sampling parameters from requests for current Gemini
   model compatibility. Quota/authentication errors do not trigger model rotation.
+- Unrecorded scoring fields are explicitly `null`, rather than omitted, so
+  unknown booleans are distinct from recorded `false`. Existing rubric weights,
+  target bands, and historical scores are unchanged.
 
 ### Added
 
