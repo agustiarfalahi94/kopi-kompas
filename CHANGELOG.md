@@ -1,6 +1,29 @@
 # Changelog
 
-## Unreleased
+## [0.4.2] — 2026-10-10
+
+### Fixed
+
+- Scoring recovered from Gemini model overload (observed upstream `503`).
+  Parsing and scoring now follow the Flash-Lite and Flash rolling aliases;
+  missing/overloaded/timed-out models trigger bounded discovery of compatible stable
+  models in the same family, with up to three generation attempts in total.
+- JSON output joins all non-thinking answer parts instead of assuming the
+  first part is the answer. Scores record Google's resolved `modelVersion`
+  when available, falling back to the requested model if it is absent.
+- Removed deprecated sampling parameters from requests for current Gemini
+  model compatibility. Quota/authentication errors do not trigger model rotation.
+
+### Added
+
+- Weekly live parsing/scoring smoke checks in GitHub Actions, also runnable
+  manually. These use synthetic coffee data and the deployed Worker; no Gemini
+  credential is needed in GitHub.
+
+### Included from develop
+
+- Remembered fields now come from SQLite history, with source markers in the
+  form. Score failures offer a working retry button and failure explanation.
 
 ### Changed
 
@@ -20,8 +43,8 @@
   entries, including leap-year validation and remembered-date preservation.
 - Android-device verification is still pending; see
   [device check 37](docs/DEVICE_TESTS.md#roast-date-input).
-- Local APK packaging is unverified: Flutter's configured Java path is stale;
-  using the installed Java 17 directly reaches Flutter compilation, but
-  packaging stops because this checkout lacks `google-services.json`.
+- The Roast Date APK was built and signature-verified locally on 2026-09-16,
+  using the existing ignored Firebase configuration and shared release key.
+  GitHub's tag workflow builds the versioned release APKs.
 
 Earlier release history is available in [GitHub Releases](https://github.com/agustiarfalahi94/kopi-kompas/releases).

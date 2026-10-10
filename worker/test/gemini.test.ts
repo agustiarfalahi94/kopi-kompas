@@ -21,7 +21,7 @@ describe('callGemini', () => {
   it('returns the parsed JSON from the first candidate', async () => {
     const fetchImpl = reply(candidate('{"brewMethod":"espresso"}'));
     const res = await callGemini({ ...base, fetchImpl: fetchImpl as any });
-    expect(res).toEqual({ ok: true, value: { brewMethod: 'espresso' } });
+    expect(res).toEqual({ ok: true, value: { brewMethod: 'espresso' }, model: base.model });
   });
 
   it('sends the key in a header, never in the URL', async () => {
@@ -33,12 +33,12 @@ describe('callGemini', () => {
       .toBe('test-key');
   });
 
-  it('asks for JSON output at temperature 0', async () => {
+  it('asks for JSON output without deprecated sampling parameters', async () => {
     const fetchImpl = reply(candidate('{}'));
     await callGemini({ ...base, fetchImpl: fetchImpl as any });
     const body = JSON.parse((fetchImpl as any).mock.calls[0][1].body);
     expect(body.generationConfig.responseMimeType).toBe('application/json');
-    expect(body.generationConfig.temperature).toBe(0);
+    expect(body.generationConfig).not.toHaveProperty('temperature');
     expect(body.generationConfig.responseSchema).toEqual({ type: 'object' });
   });
 

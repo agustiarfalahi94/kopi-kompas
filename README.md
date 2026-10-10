@@ -5,7 +5,7 @@ structured fields, the app shows you everything it holds so you can fill in
 what it missed, and the finished entry is scored out of 100 against a written
 rubric — with the reasons shown next to the number.
 
-Android-first, Flutter, `com.inkpebble.kopi_kompas`, v0.4.1+6.
+Android-first, Flutter, `com.inkpebble.kopi_kompas`, v0.4.2+7.
 English and Bahasa Indonesia.
 
 ## What it does
@@ -71,6 +71,15 @@ that fails is never a save that fails.
 **In Cloudflare, never in this repository and never in the APK.** The app
 ships a Worker URL, which is not a secret; the Gemini key it stands in front
 of is, and it is a Worker secret. See `worker/README.md`.
+
+The Worker follows Google's `gemini-flash-lite-latest` alias for parsing and
+`gemini-flash-latest` for scoring. A missing, overloaded, or timed-out model triggers up
+to two compatible stable-model alternatives discovered from Google. Each score
+keeps the resolved `modelVersion` when Google reports it, alongside rubric `r3`.
+Existing APKs receive these server changes immediately. Quota, authentication,
+and API-breaking changes still need attention; aliases cannot guarantee uptime.
+The weekly **Gemini health** workflow checks live parsing and scoring and reports
+failures in GitHub Actions. See [model operations](worker/README.md#choosing-the-model).
 
 ## Architecture & Security
 

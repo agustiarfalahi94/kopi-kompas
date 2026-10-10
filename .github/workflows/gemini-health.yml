@@ -1,0 +1,20 @@
+name: Gemini health
+on:
+  schedule:
+    - cron: '30 4 * * 0'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Check live Gemini parsing and scoring
+        env:
+          KOPI_ENDPOINT: ${{ vars.KOPI_ENDPOINT }}
+        run: node tool/gemini_health.mjs
