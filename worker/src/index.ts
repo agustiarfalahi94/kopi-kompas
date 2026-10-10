@@ -23,17 +23,9 @@ export interface Deps {
 
 const MAX_TEXT = 2000;
 
-// Two models on purpose. Parsing is mechanical extraction and a lite model
-// does it well; scoring applies a rubric and wants the fuller model. The free
-// tier meters each model separately, so splitting the two endpoints also
-// doubles the daily allowance instead of spending one pool on both.
-//
-// Both pinned, never an alias like `gemini-flash-latest`. Every score records
-// the model that produced it, so an old score stays interpretable; an alias
-// would keep writing one name while the model underneath changed, defeating
-// exactly the provenance that column exists for.
-const DEFAULT_PARSE_MODEL = 'gemini-3.5-flash-lite';
-const DEFAULT_SCORE_MODEL = 'gemini-3.5-flash';
+// Resolve aliases server-side and store Google's modelVersion with each score.
+const DEFAULT_PARSE_MODEL = 'gemini-flash-lite-latest';
+const DEFAULT_SCORE_MODEL = 'gemini-flash-latest';
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -200,13 +192,14 @@ async function handleScore(
     (r: unknown): r is string => typeof r === 'string' && r.length > 0,
   );
 
-  return json({ score, reasons, rubric: RUBRIC_VERSION, model });
+  return json({ score, reasons, rubric: RUBRIC_VERSION, model: result.model });
 }
 
+const upstreamFetch = globalThis.fetch.bind(globalThis);
 export default {
   fetch(req: Request, env: Env): Promise<Response> {
     return handleRequest(req, env, {
-      fetchImpl: globalThis.fetch.bind(globalThis),
+      fetchImpl: upstreamFetch,
       now: () => Date.now(),
     });
   },

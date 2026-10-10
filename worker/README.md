@@ -89,19 +89,45 @@ missed.
 
 ## Choosing the model
 
-Set in `wrangler.toml` as the `GEMINI_MODEL` var, defaulting in code to
-`gemini-3.6-flash`.
+`GEMINI_PARSE_MODEL` defaults to `gemini-flash-lite-latest` and
+`GEMINI_SCORE_MODEL` to `gemini-flash-latest`. Both are server variables in
+`wrangler.toml`; existing APKs do not need a rebuild when Google changes the
+model behind an alias. An explicit model can still be set for rollback.
 
-**Always pin a concrete version. Never use an alias like
-`gemini-flash-latest`.** Every score the app stores records the model that
-produced it, so an old score stays interpretable. An alias would keep writing
-one name while the model underneath changed, which defeats the provenance that
-column exists for.
+Google's [latest aliases](https://ai.google.dev/gemini-api/docs/models#latest)
+can move to stable, preview, or experimental releases. If a request returns
+`404` or `503`, or the generation times out, the Worker reads Google's Models API and tries at most two
+different stable text-generation models in the same Flash/Lite family, newest
+numeric version first. Preview, image, audio, live, and unrelated model families
+are excluded from fallback. The catalog is cached for an hour per key and Worker
+instance. Catalog membership does not guarantee access; a rejected fallback
+uses the same bounded retry budget. No rotation occurs on quota, authentication,
+bad requests, blocked output, or malformed answers. Each generation has a
+15-second deadline and the complete retry/catalog budget is 40 seconds, below
+the app's 45-second request timeout. A timed-out attempt may still use provider
+quota, so the three-attempt cap applies to these failures too.
 
-Note that `ListModels` lies by omission: `gemini-2.5-flash` is still listed but
-returns `404 — no longer available to new users` for keys created recently. If
-you get a 404 from `/parse`, the error body now carries Gemini's own message;
-read it before assuming the URL is wrong.
+Scores keep the response's `modelVersion`, with the requested model as a
+fallback when that metadata is missing. Rubric `r3` is unchanged: historical
+scores retain their original model and rubric. Do not rewrite old scores when
+models change. Requests omit deprecated sampling parameters and combine only
+non-thinking text parts into the JSON answer.
+
+The weekly **Gemini health** workflow runs synthetic `/parse` and `/score`
+requests. Run it manually after deployment, or use `node tool/gemini_health.mjs`.
+A successful generation and valid schema are required; a reachable Worker alone
+is insufficient. GitHub Actions reports failures according to your account's
+notification settings. This check uses two generation requests per run.
+
+Aliases and fallback reduce manual model maintenance, but cannot repair expired
+keys, quota exhaustion, changed safety rules, or incompatible API changes.
+Review [Google's migration guide](https://ai.google.dev/gemini-api/docs/generate-content/latest-model)
+and [deprecations](https://ai.google.dev/gemini-api/docs/deprecations) for those.
+
+Deploy verified code with `npm run deploy`. To roll back a model change, set
+the two model variables to a known working version and redeploy, or use
+`npx wrangler rollback` to restore the preceding Worker deployment. An APK
+release and a Worker deployment are separate steps.
 
 ## Design notes
 
