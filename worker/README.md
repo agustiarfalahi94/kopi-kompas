@@ -73,8 +73,8 @@ curl -sS https://kopi-kompas.<subdomain>.workers.dev/parse \
 ## Changing the rubric
 
 The scoring rubric lives in `src/prompts.ts` as `TARGETS`, keyed by method,
-and is versioned by `RUBRIC_VERSION`. **Bump the version whenever the numbers
-change.** Every score the app stores records the rubric that produced it, and
+and is versioned by `RUBRIC_VERSION`. **Bump the version whenever numerical
+targets or explanation policy change.** Every stored score records the rubric that produced it, and
 comparing an `r1` score to an `r3` score is comparing two different
 measurements. Leaving the version alone makes past scores silently wrong
 rather than merely old.
@@ -111,7 +111,10 @@ the app's 45-second request timeout. A timed-out attempt may still use provider
 quota, so the three-attempt cap applies to these failures too.
 
 Scores keep the response's `modelVersion`, with the requested model as a
-fallback when that metadata is missing. Rubric `r3` is unchanged: historical
+fallback when that metadata is missing. Current rubric `r4` distinguishes
+recipe-target comparisons from measured extraction: dose, yield, ratio and
+time alone cannot establish under- or over-extraction. Numerical weights and
+bands are unchanged from `r3`. Historical
 scores retain their original model and rubric. Do not rewrite old scores when
 models change. Requests omit deprecated sampling parameters and combine only
 non-thinking text parts into the JSON answer.
@@ -120,6 +123,16 @@ Scoring inputs include every core and method-specific schema field, using
 `null` for unrecorded values and retaining explicit `false`/`0`. This makes the
 existing rubric's missing-value rule explicit instead of leaving an omitted
 boolean open to interpretation. The rubric weights and target bands are unchanged.
+
+The 15g-dose, 25g-yield, 30-second normale case is a 1:1.67 ratio (below
+the 1.8–2.2 recipe target), with time inside 25–32 seconds. The prompt must
+not invent a time deduction or an extraction/taste diagnosis for that case.
+EN/ID endpoint regressions inspect the actual outgoing prompt and the `r4`
+response provenance. They do not prove Gemini always follows the policy.
+All-six-method outgoing-prompt guards also reject inherited categorical
+bitterness/channeling instructions that would contradict the r4 policy.
+Review live explanations after deployment and model changes. Old stored
+reasons are not rewritten; editing/rescoring uses the deployed rubric.
 
 On 2026-10-10 full Flash passed local scoring checks but repeatedly exhausted
 the request budget in GitHub's live checks. A Lite scoring experiment passed

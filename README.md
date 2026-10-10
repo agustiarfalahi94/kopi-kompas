@@ -5,7 +5,7 @@ structured fields, the app shows you everything it holds so you can fill in
 what it missed, and the finished entry is scored out of 100 against a written
 rubric — with the reasons shown next to the number.
 
-Android-first, Flutter, `com.inkpebble.kopi_kompas`, v0.4.2+7.
+Android-first, Flutter, `com.inkpebble.kopi_kompas`, v0.4.3+8.
 English and Bahasa Indonesia.
 
 ## What it does
@@ -34,6 +34,12 @@ number you cannot disagree with, and this one will sometimes be wrong. Rate it
 yourself 1–5 afterwards; over months, that is the only way to find out whether
 the rubric matches your palate.
 
+Scores compare a recorded recipe with the rubric's targets; they do not measure
+extraction or taste. For example, 15g in and 25g out in 30 seconds is a 1:1.67
+ratio, below the normale ratio target, with time inside its target band. That
+alone does not establish under- or over-extraction. Rubric `r4` makes this
+distinction explicit without changing the numerical weights or bands.
+
 **16 brew methods in 5 categories.** Espresso · Filter coffee (cone dripper,
 flat-bottom dripper, Chemex, batch brewer) · Immersion (French press, cold
 brew, Turkish) · Hybrid (AeroPress, smart dripper, siphon) · Indonesian (kopi
@@ -52,6 +58,11 @@ columns for a reason.
 what the fields hold, the method's own name, and the words you originally
 wrote — so "gula aren" finds the brew you mentioned it in even though no field
 stores it. The filter stays applied while you open a brew and come back.
+
+The home log and full log show compact method photos; entry details show a
+larger view. These are the existing credited reference photos, not photos of
+your own brew. Author and licence stay beside each image; methods without a
+licensed photo remain text-only. Photos keep their full aspect ratio.
 
 **A how-to guide for every method.** Bilingual, with gear at three price
 tiers, a troubleshooting table and a photograph for fifteen of the sixteen.
@@ -77,7 +88,8 @@ The Worker follows Google's `gemini-flash-lite-latest` alias for parsing and
 the rubric's distinction between an unknown value and a recorded `false`.
 A missing, overloaded, or timed-out model triggers up
 to two compatible stable-model alternatives discovered from Google. Each score
-keeps the resolved `modelVersion` when Google reports it, alongside rubric `r3`.
+keeps the resolved `modelVersion` when Google reports it, alongside rubric `r4`.
+Stored scores and reasons keep their original rubric until explicitly rescored.
 Existing APKs receive these server changes immediately. Quota, authentication,
 and API-breaking changes still need attention; aliases cannot guarantee uptime.
 Full Flash still timed out intermittently in live checks. A Lite scoring
