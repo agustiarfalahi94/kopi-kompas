@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../data/brew_schema.dart';
+import '../data/guide_photo.dart';
 import '../models/brew_entry.dart';
 import '../services/brew_database.dart';
 import '../services/log_filter.dart';
 import '../strings.dart';
 import '../theme.dart';
 import '../widgets/log_filter_bar.dart';
+import '../widgets/guide_photo_card.dart';
 import 'entry_detail_screen.dart' show detailRows;
 import 'home_screen.dart' show displayLabel;
 
@@ -24,10 +26,16 @@ import 'home_screen.dart' show displayLabel;
 /// Deleted entries are absent. They live in Settings, because this is a
 /// record of brewing rather than of edits.
 class FullLogScreen extends StatefulWidget {
-  const FullLogScreen({super.key, required this.db, required this.schema});
+  const FullLogScreen({
+    super.key,
+    required this.db,
+    required this.schema,
+    this.photos = const GuidePhotos({}),
+  });
 
   final BrewDatabase db;
   final BrewSchema schema;
+  final GuidePhotos photos;
 
   @override
   State<FullLogScreen> createState() => _FullLogScreenState();
@@ -95,8 +103,9 @@ class _FullLogScreenState extends State<FullLogScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          spacing: 16,
+          runSpacing: 4,
           children: [
             Text(
               displayLabel(widget.schema, e),
@@ -106,6 +115,8 @@ class _FullLogScreenState extends State<FullLogScreen> {
           ],
         ),
         const SizedBox(height: 8),
+        if (widget.photos.forMethod(e.brewMethod) case final photo?)
+          GuidePhotoCard(photo: photo, compact: true),
         // No colour on the number here: the archive does not rank, it records.
         Text(switch (e.scoreStatus) {
           ScoreStatus.scored =>

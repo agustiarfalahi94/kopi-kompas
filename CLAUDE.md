@@ -3,7 +3,7 @@
 ## Start here
 
 **Kopi Kompas** — a Flutter coffee-brewing logbook, `com.inkpebble.kopi_kompas`,
-v0.4.2+7. Android-first. 16 brew methods in 5 categories; 6 of them scored.
+v0.4.3+8. Android-first. 16 brew methods in 5 categories; 6 of them scored.
 
 Read: this file → **`docs/STATE.md`** (what is true right now: what is
 unmerged, what has never run on a phone, and every bug already paid for once)
@@ -59,6 +59,13 @@ flutter build apk --release --split-per-abi
 ```
 
 ## Constraints
+
+- Scores compare recipe targets, not measured extraction or taste. Rubric
+  `r4` must not infer under-/over-extraction from dose, yield, ratio or time
+  alone. Keep historical score provenance; explanation changes need a rubric
+  version too, even when weights stay unchanged.
+- Log/detail method photos reuse the licensed guide catalog. Keep the credit
+  attached, use uncropped images and preserve the text-only missing-photo path.
 
 - **The Gemini API key is a Cloudflare Worker secret.** Never in the
   repository, never in a commit, never in the APK. The app ships a URL, which

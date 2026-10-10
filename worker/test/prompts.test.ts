@@ -117,10 +117,10 @@ describe('buildScoreResponseSchema', () => {
 
 describe('rubric version', () => {
   // Pinned so a scoring change cannot land without moving the version. An
-  // r2 score and an r3 score of the same shot are not comparable, and a
+  // historical score and a new explanation must remain distinguishable; a
   // stored score records which produced it.
-  it('is r3, because espresso puck prep now depends on the basket', () =>
-    expect(RUBRIC_VERSION).toBe('r3'));
+  it('is r4, separating recipe targets from extraction claims', () =>
+    expect(RUBRIC_VERSION).toBe('r4'));
 });
 
 describe('espresso puck preparation by basket type', () => {

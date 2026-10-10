@@ -6,7 +6,31 @@
 
 - Recorded the published v0.4.2 release, final live Gemini check and verified
   ARM64 APK in the state document. No application or Worker code changes;
-  the released app remains v0.4.2+7.
+  these documentation corrections did not alter the v0.4.2+7 build.
+
+## [0.4.3] — 2026-10-11
+
+### Fixed
+
+- Existing licensed method photos now appear in the home log, full log and
+  entry details, with author/licence credits and no cropping. Methods without
+  a photo remain text-only; full-log headers wrap at large text sizes.
+- Returning from the full log refreshes Home without returning a Future from
+  its state-update callback; disposed screens no longer attempt that refresh.
+- Rubric `r4` separates recipe-target comparisons from extraction diagnoses.
+  Dose, yield, ratio and time alone must not be called under-/over-extraction.
+  The 15g/25g/30s normale example has an in-range time and a below-target ratio.
+  Weights and target bands are unchanged; stored scores/reasons retain their
+  original rubric and are not automatically rewritten.
+
+### Tests and documentation
+
+- Added real log/navigation photo regressions, EN/ID light/dark large-text
+  layout checks, keyboard entry access and compact-image sizing checks.
+- Added EN/ID score-request policy checks for the reported espresso and `r4`
+  provenance. Updated README, Worker guidance, agent rules, state/spec notes
+  and device checks. Physical-phone and live model behaviour need separate
+  verification; prompt tests are not a guarantee of model compliance.
 
 ## [0.4.2] — 2026-10-10
 

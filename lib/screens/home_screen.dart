@@ -12,6 +12,7 @@ import '../services/log_filter.dart';
 import '../services/reminder_service.dart';
 import '../strings.dart';
 import '../widgets/log_filter_bar.dart';
+import '../widgets/guide_photo_card.dart';
 import 'edit_entry_screen.dart';
 import 'entry_detail_screen.dart';
 import 'full_log_screen.dart';
@@ -90,7 +91,10 @@ class _HomeScreenState extends State<HomeScreen> {
   LogFilter _filter = const LogFilter();
 
   void _reload() {
-    setState(() => _entries = widget.db.liveEntries());
+    if (!mounted) return;
+    setState(() {
+      _entries = widget.db.liveEntries();
+    });
     // Anything that changes today's entries changes when the next nudge is
     // due, so this runs after every save, delete, restore and edit.
     widget.reminder.reschedule();
@@ -127,6 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => EntryDetailScreen(
           schema: widget.schema,
           entry: e,
+          photos: widget.photos,
           onEdit: () async {
             final changed = await navigator.push<bool>(
               MaterialPageRoute(
@@ -189,8 +194,13 @@ class _HomeScreenState extends State<HomeScreen> {
         IconButton(
           tooltip: AppStrings.fullLogTitle,
           icon: const Icon(Icons.article_outlined),
-          onPressed: () =>
-              _open(FullLogScreen(db: widget.db, schema: widget.schema)),
+          onPressed: () => _open(
+            FullLogScreen(
+              db: widget.db,
+              schema: widget.schema,
+              photos: widget.photos,
+            ),
+          ),
         ),
         IconButton(
           tooltip: AppStrings.guidesTitle,
@@ -269,12 +279,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return ListTile(
       onTap: () => _openDetail(e),
       title: Text(displayLabel(widget.schema, e)),
-      subtitle: Text(
-        [
-          if (e.beanOrigin != null) e.beanOrigin!,
-          if (e.myRating != null) '★' * e.myRating!,
-          stamp,
-        ].join(' · '),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            [
+              if (e.beanOrigin != null) e.beanOrigin!,
+              if (e.myRating != null) '★' * e.myRating!,
+              stamp,
+            ].join(' · '),
+          ),
+          if (widget.photos.forMethod(e.brewMethod) case final photo?)
+            GuidePhotoCard(photo: photo, compact: true),
+        ],
       ),
       trailing: switch (e.scoreStatus) {
         ScoreStatus.scored => Text(

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../data/brew_schema.dart';
+import '../data/guide_photo.dart';
 import '../models/brew_entry.dart';
 import '../strings.dart';
 import '../theme.dart';
+import '../widgets/guide_photo_card.dart';
 import 'home_screen.dart' show displayLabel;
 
 typedef DetailRow = ({FieldSpec spec, Object? value});
@@ -51,10 +53,12 @@ class EntryDetailScreen extends StatefulWidget {
     required this.onDelete,
     required this.onRescore,
     required this.onRate,
+    this.photos = const GuidePhotos({}),
   });
 
   final BrewSchema schema;
   final BrewEntry entry;
+  final GuidePhotos photos;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
@@ -139,6 +143,9 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (widget.photos.forMethod(widget.entry.brewMethod)
+              case final photo?)
+            GuidePhotoCard(photo: photo, maxHeight: 240),
           Center(child: _score(theme)),
           for (final reason in widget.entry.scoreReasons)
             Padding(

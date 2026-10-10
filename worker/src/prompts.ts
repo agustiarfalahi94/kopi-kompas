@@ -10,7 +10,9 @@ import { brewSchema, METHODS, type BrewMethod } from './schema';
 /// the bed, so WDT and distribution have almost nothing to act on — r2
 /// deducted for skipping them anyway, and marked down every shot pulled on
 /// the basket most beginners own.
-export const RUBRIC_VERSION = 'r3';
+/// r4 separates recipe-range comparisons from extraction claims. Targets and
+/// weights stay the same; earlier saved explanations retain their provenance.
+export const RUBRIC_VERSION = 'r4';
 
 export type Locale = 'en' | 'id';
 
@@ -122,12 +124,18 @@ const TARGETS: Record<string, string[]> = {
   espresso: [
     'Ratio (yieldGrams / doseGrams), weight 30. **The target band depends on',
     '  shotStyle**: ristretto 1.0 to 1.5, normale 1.8 to 2.2, lungo 2.8 to',
-    '  3.5. Judge against the band for the style recorded — a 1.2 ratio is',
-    '  correct for a ristretto and badly under-extracted for a normale. If',
+    '  3.5. Judge against the band for the style recorded: a 1.2 ratio is',
+    '  in the ristretto band but below the normale recipe target. This',
+    '  difference does not establish the shot\'s extraction. If',
     '  shotStyle is null, assume normale and say so.',
     'Brew time (brewTimeSeconds), weight 20. Target 25 to 32 seconds.',
-    '  Judge it together with the ratio: 20 seconds at 1:2 means the grind',
-    '  ran fast, which is a real fault; 36 seconds at 1:1.5 is choked.',
+    '  Compare the recorded time with this recipe target, alongside dose',
+    '  and shotStyle. A fast shot can have several causes, including grind',
+    '  and channeling; a slow shot is not proof of over-extraction or a',
+    '  choked puck. Do not diagnose grind or flow from the clock alone.',
+    '  Example: 15g dose, 25g yield, 30s, normale gives a ratio of about',
+    '  1:1.67, below the normale target, with time inside its target. Do',
+    '  not deduct for that time or label this shot under- or over-extracted.',
     '**Puck preparation is weighted by basketType. Read it first.**',
     '',
     'If basketType is nonPressurised, or is null — weight 20. puckPrepWdt,',
@@ -231,6 +239,12 @@ export function scoreInstruction(
     ...targets.map((t) => `- ${t}`),
     '',
     'Rules:',
+    '- These are recipe targets, not a measurement of extraction or taste.',
+    '  You cannot determine under-extraction or over-extraction from dose,',
+    '  yield, ratio and brew time alone. Describe a target mismatch rather',
+    '  than asserting that the coffee is under- or over-extracted. If the',
+    '  brewer recorded taste, treat it as a reported observation and qualify',
+    '  possible causes. Do not invent sourness, bitterness or channeling.',
     '- If a field is null, the brewer did not record it. Do not deduct for',
     '  it. Ignore that factor and say in the reasons that it was not',
     '  recorded.',
@@ -238,7 +252,7 @@ export function scoreInstruction(
     '- The final score is an integer from 0 to 100.',
     '- Give one short reason per factor you considered, in the order above.',
     '  Each reason states the value, how it compares to the target, and the',
-    '  effect. Do not pad, do not encourage, do not add advice that is not',
+    '  score deduction. Do not pad, do not encourage, do not add advice that is not',
     '  a consequence of a number in the rubric.',
     locale === 'id'
       ? '- Write every reason in Indonesian.'
