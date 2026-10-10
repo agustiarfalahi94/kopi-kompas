@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Documentation
+
+- Recorded the published v0.4.2 release, final live Gemini check and verified
+  ARM64 APK in the state document. No application or Worker code changes;
+  the released app remains v0.4.2+7.
+
 ## [0.4.2] — 2026-10-10
 
 ### Fixed
