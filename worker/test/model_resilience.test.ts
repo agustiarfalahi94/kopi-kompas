@@ -22,6 +22,41 @@ const catalog = () => json({ models: [
 ] });
 
 describe('Gemini model resilience', () => {
+  it('refreshes a retired cached candidate and tries its new replacement within the cap', async () => {
+    let retired = false;
+    const fetchImpl = vi.fn(async (url: string) => {
+      if (url.includes('?pageSize=')) return json({ models: [{
+        name: `models/${retired ? 'gemini-3.9-flash' : 'gemini-3.8-flash'}`,
+        supportedGenerationMethods: ['generateContent'],
+      }] });
+      if (url.includes('latest:') || (retired && url.includes('3.8-flash:'))) return json({}, 404);
+      return answer(retired ? 'gemini-3.9-flash' : 'gemini-3.8-flash');
+    });
+    await callGemini({ ...opts, fetchImpl: fetchImpl as any });
+    retired = true;
+    const result = await callGemini({ ...opts, fetchImpl: fetchImpl as any });
+    expect(result).toMatchObject({ ok: true, model: 'gemini-3.9-flash' });
+    expect(fetchImpl.mock.calls.filter(([url]) => url.includes('?pageSize='))).toHaveLength(2);
+  });
+
+  it('shares catalog discovery across concurrent calls', async () => {
+    const fetchImpl = vi.fn(async (url: string) => url.includes('?pageSize=')
+      ? catalog() : url.includes('latest:') ? json({}, 404) : answer());
+    const results = await Promise.all(Array.from({ length: 12 }, () =>
+      callGemini({ ...opts, fetchImpl: fetchImpl as any })));
+    expect(results.every(result => result.ok)).toBe(true);
+    expect(fetchImpl.mock.calls.filter(([url]) => url.includes('?pageSize='))).toHaveLength(1);
+  });
+
+  it('does not cache a failed discovery', async () => {
+    let failed = true;
+    const fetchImpl = vi.fn(async (url: string) => url.includes('?pageSize=')
+      ? failed ? json({}, 503) : catalog()
+      : url.includes('latest:') ? json({}, 404) : answer());
+    expect((await callGemini({ ...opts, fetchImpl: fetchImpl as any })).ok).toBe(false);
+    failed = false;
+    expect((await callGemini({ ...opts, fetchImpl: fetchImpl as any })).ok).toBe(true);
+  });
   it('falls back when the preferred model times out before headers', async () => {
     const fetchImpl = vi.fn()
       .mockRejectedValueOnce(new DOMException('timed out', 'AbortError'))

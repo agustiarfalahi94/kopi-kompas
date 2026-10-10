@@ -17,7 +17,8 @@ const score = await post('score', { entry: {
 } });
 if (!Number.isInteger(score.score) || score.score < 0 || score.score > 100 ||
   !Array.isArray(score.reasons) || !score.reasons.every(reason => typeof reason === 'string') ||
-  typeof score.model !== 'string' || typeof score.rubric !== 'string') {
+  typeof score.model !== 'string' || !score.model.trim() ||
+  typeof score.rubric !== 'string' || !score.rubric.trim()) {
   throw new Error('Score response failed schema/provenance checks');
 }
 console.log(`Parsing and scoring passed; model=${score.model}, rubric=${score.rubric}`);

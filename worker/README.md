@@ -100,7 +100,10 @@ can move to stable, preview, or experimental releases. If a request returns
 different stable text-generation models in the same Flash/Lite family, newest
 numeric version first. Preview, image, audio, live, and unrelated model families
 are excluded from fallback. The catalog is cached for an hour per key and Worker
-instance. Catalog membership does not guarantee access; a rejected fallback
+instance, with concurrent lookups shared and one forced refresh on a fallback
+`404`. An alias and a concrete ID can refer to the same model; without response
+metadata a fallback may retry that underlying model, still within the cap.
+Catalog membership does not guarantee access; a rejected fallback
 uses the same bounded retry budget. No rotation occurs on quota, authentication,
 bad requests, blocked output, or malformed answers. Each generation has a
 15-second deadline and the complete retry/catalog budget is 40 seconds, below
