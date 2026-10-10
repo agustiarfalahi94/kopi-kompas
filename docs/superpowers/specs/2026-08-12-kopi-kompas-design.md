@@ -204,7 +204,12 @@ both → 400 unparseable request
 `/score` is called only for the six scored methods; the app does not spend a
 request on a method it will display as unscored.
 
-The Worker calls Gemini 3.6 Flash with `responseMimeType: "application/json"`
+Since v0.4.2 the Worker uses rolling Flash-Lite/Flash aliases with bounded
+stable-model fallback for unavailable or overloaded models. The returned
+`modelVersion` is stored with each score; the original version-pin decision is
+superseded. See `worker/README.md` for the current policy.
+
+The Worker calls Gemini with `responseMimeType: "application/json"`
 and an explicit `responseSchema`, so JSON shape is enforced by the API rather
 than requested politely in a prompt. It rate-limits per `installId` — a uuid
 generated on first launch, stored locally, meaningless off-device — to bound

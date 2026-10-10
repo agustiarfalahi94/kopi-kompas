@@ -40,6 +40,16 @@ const ESPRESSO = {
 };
 
 describe('POST /score', () => {
+  it('stores the actual resolved version rather than the moving alias', async () => {
+    const fetchImpl = vi.fn(async () => new Response(JSON.stringify({
+      modelVersion: 'gemini-3.8-flash',
+      candidates: [{ content: { parts: [{ text: '{"score":88,"reasons":["on target"]}' }] } }],
+    })));
+    const response = await handleRequest(scoreReq(ESPRESSO), env(), deps(fetchImpl));
+    const body = await response.json() as any;
+    expect(body.model).toBe('gemini-3.8-flash');
+    expect(body.rubric).toBe('r3');
+  });
   it('returns the score with its rubric and model', async () => {
     const f = geminiReturning({ score: 88, reasons: ['Ratio 2.0:1 — on target'] });
     const res = await handleRequest(scoreReq(ESPRESSO), env(), deps(f));
@@ -47,7 +57,7 @@ describe('POST /score', () => {
     const body = await res.json() as any;
     expect(body.score).toBe(88);
     expect(body.reasons).toEqual(['Ratio 2.0:1 — on target']);
-    expect(body.model).toBe('gemini-3.5-flash');
+    expect(body.model).toBe('gemini-flash-latest');
     expect(body.rubric).toBe('r3');
   });
 

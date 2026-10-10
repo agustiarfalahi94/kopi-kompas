@@ -7,10 +7,24 @@ have already been paid for once.
 
 Keep it current. A stale state file is worse than none, because it is believed.
 
-Last updated: 2026-09-16, after the Roast Date input change on
-`codex/roast-date-input` (awaiting PR integration).
+Last updated: 2026-10-10, preparing v0.4.2 and the Gemini resilience fix.
 
-## Latest change: Roast Date input (unreleased)
+## Gemini model availability — v0.4.2
+
+- Live diagnosis on 2026-10-10: `/score` received Google's `503` high-demand
+  response; `/parse` succeeded. Model retirement was not established.
+- Parsing and scoring use rolling Lite/Flash aliases with compatible stable
+  fallback for `404`/`503` and generation timeouts. The catalog cache lasts one hour and each call has
+  at most three generation attempts. Quota/authentication errors remain visible.
+- Scores preserve the response's `modelVersion` when provided. Rubric `r3`
+  and existing stored scores are unchanged. See `worker/README.md` for operations.
+- GitHub Actions performs a weekly synthetic parse/score check and can be run
+  manually after a deployment. Model updates happen in the Worker; old APKs
+  benefit without reinstalling.
+- Release/build/deployment results are recorded in GitHub Releases, Actions,
+  and Cloudflare deployment history; the version below describes this source.
+
+## Roast Date input — included in v0.4.2
 
 - The shared new/edit form inserts hyphens after year/month and caps committed
   input at eight digits (`YYYY-MM-DD`). Paste, backspace, cursor/selection edits,
@@ -23,10 +37,9 @@ Last updated: 2026-09-16, after the Roast Date input change on
   AI-parsed date. Other field types keep their existing null-merge behaviour.
 - Android-device behaviour is **unverified**: no Android device is connected.
   Run [device check 37](DEVICE_TESTS.md#roast-date-input) on the updated build.
-- Local APK packaging is **unverified**. Flutter is configured to an absent
-  Java `17.0.20` directory; installed Java is `17.0.20.1`. Running Gradle with
-  that installed Java compiles Flutter, then packaging fails because this
-  checkout lacks `google-services.json`. No global configuration was changed.
+- Local Roast Date APK packaging and the release signature were verified on
+  2026-09-16 after restoring existing ignored Firebase/signing files and using
+  the installed Java 17 directly. No global Flutter configuration was changed.
 - The older release/branch notes below are the 2026-08-17 handover, not a new
   verification of their merge or device-test status.
 
@@ -36,15 +49,15 @@ Last updated: 2026-09-16, after the Roast Date input change on
 
 | | |
 |---|---|
-| Version | `0.4.1+6` — see `pubspec.yaml`, which is the arbiter |
-| Latest GitHub release | **v0.4.1**, cut 2026-08-14; `main` and `develop` are level |
-| Working branch | `develop` |
+| Version | `0.4.2+7` — see `pubspec.yaml`, which is the arbiter |
+| Release target | **v0.4.2**; see GitHub Releases/Actions for publication status |
+| Integration | Feature branches → `develop` → `main`; release via `v*` tag |
 | Worker deployed | rubric `r3`, verified live |
 | App tests | run `./tool/check.sh` for the real number; never quote one from here |
 
-**Unmerged: `feature/sticky-defaults-and-score-retry`, off `develop`.** Two
-pieces, both only run in `flutter test` — see "Never verified on a phone"
-below.
+**Merged into `main` on 2026-09-16:** remembered fields and score retry,
+alongside the Roast Date fix (PRs #2 and #3). Device behaviour remains
+unverified where listed under "Never verified on a phone" below.
 
 - **Remembered fields now come from SQLite, not SharedPreferences.**
   `stickyFor(schema, method, history)` and `rememberedCore(history)`, in
