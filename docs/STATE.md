@@ -7,7 +7,7 @@ have already been paid for once.
 
 Keep it current. A stale state file is worse than none, because it is believed.
 
-Last updated: 2026-10-10, preparing v0.4.2 and the Gemini resilience fix.
+Last updated: 2026-10-10, v0.4.2 published and the Gemini resilience fix deployed.
 
 ## Gemini model availability — v0.4.2
 
@@ -30,6 +30,11 @@ Last updated: 2026-10-10, preparing v0.4.2 and the Gemini resilience fix.
   benefit without reinstalling.
 - Release/build/deployment results are recorded in GitHub Releases, Actions,
   and Cloudflare deployment history; the version below describes this source.
+- The final full Flash configuration passed the
+  [live GitHub parsing/scoring check](https://github.com/agustiarfalahi94/kopi-kompas/actions/runs/38030777191).
+  The signed [v0.4.2 release](https://github.com/agustiarfalahi94/kopi-kompas/releases/tag/v0.4.2)
+  is published; its ARM64 APK's manifest, release signature and GitHub asset
+  checksum were verified. Physical-phone testing remains unverified.
 
 ## Roast Date input — included in v0.4.2
 
@@ -57,7 +62,7 @@ Last updated: 2026-10-10, preparing v0.4.2 and the Gemini resilience fix.
 | | |
 |---|---|
 | Version | `0.4.2+7` — see `pubspec.yaml`, which is the arbiter |
-| Release target | **v0.4.2**; see GitHub Releases/Actions for publication status |
+| Published release | [v0.4.2](https://github.com/agustiarfalahi94/kopi-kompas/releases/tag/v0.4.2); signed APKs available |
 | Integration | Feature branches → `develop` → `main`; release via `v*` tag |
 | Worker deployed | rubric `r3`, verified live |
 | App tests | run `./tool/check.sh` for the real number; never quote one from here |
