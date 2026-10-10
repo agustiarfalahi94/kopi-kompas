@@ -5,9 +5,7 @@
 ### Fixed
 
 - Scoring recovered from Gemini model overload (observed upstream `503`).
-  Parsing and scoring now follow the Flash-Lite rolling alias. Full Flash
-  repeatedly exhausted the request budget in GitHub live scoring checks;
-  Lite passed the same checks. Both model variables remain configurable.
+  Parsing and scoring now follow the Flash-Lite and Flash rolling aliases;
   missing/overloaded/timed-out models trigger bounded discovery of compatible stable
   models in the same family, with up to three generation attempts in total.
 - JSON output joins all non-thinking answer parts instead of assuming the
@@ -44,6 +42,10 @@
 
 ### Verification
 
+- Full Flash still timed out in some live checks. A Lite scoring experiment
+  improved availability but made a rubric error in a Chemex evaluation, so
+  full Flash remains the default. Model/fallback changes do not guarantee
+  provider availability or exact score calibration.
 - Regression widget tests exercise the actual shared form used by new/edit
   entries, including leap-year validation and remembered-date preservation.
 - Android-device verification is still pending; see

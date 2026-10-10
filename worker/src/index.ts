@@ -25,7 +25,7 @@ const MAX_TEXT = 2000;
 
 // Resolve aliases server-side and store Google's modelVersion with each score.
 const DEFAULT_PARSE_MODEL = 'gemini-flash-lite-latest';
-const DEFAULT_SCORE_MODEL = 'gemini-flash-lite-latest';
+const DEFAULT_SCORE_MODEL = 'gemini-flash-latest';
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

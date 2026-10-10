@@ -204,7 +204,7 @@ both → 400 unparseable request
 `/score` is called only for the six scored methods; the app does not spend a
 request on a method it will display as unscored.
 
-Since v0.4.2 both endpoints use the rolling Flash-Lite alias with bounded
+Since v0.4.2 the Worker uses rolling Flash-Lite/Flash aliases with bounded
 stable-model fallback for unavailable or overloaded models. The returned
 `modelVersion` is stored with each score; the original version-pin decision is
 superseded. See `worker/README.md` for the current policy.

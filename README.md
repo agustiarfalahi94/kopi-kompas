@@ -72,15 +72,16 @@ that fails is never a save that fails.
 ships a Worker URL, which is not a secret; the Gemini key it stands in front
 of is, and it is a Worker secret. See `worker/README.md`.
 
-The Worker follows Google's `gemini-flash-lite-latest` alias for both parsing
-and scoring. Full Flash repeatedly stalled in live scoring checks; Lite passed
-the same checks. Unrecorded scoring fields are explicitly `null`, preserving
+The Worker follows Google's `gemini-flash-lite-latest` alias for parsing and
+`gemini-flash-latest` for scoring. Unrecorded scoring fields are explicitly `null`, preserving
 the rubric's distinction between an unknown value and a recorded `false`.
 A missing, overloaded, or timed-out model triggers up
 to two compatible stable-model alternatives discovered from Google. Each score
 keeps the resolved `modelVersion` when Google reports it, alongside rubric `r3`.
 Existing APKs receive these server changes immediately. Quota, authentication,
 and API-breaking changes still need attention; aliases cannot guarantee uptime.
+Full Flash still timed out intermittently in live checks. A Lite scoring
+experiment responded but made a rubric error, so it is not the scoring default.
 The weekly **Gemini health** workflow checks live parsing and scoring and reports
 failures in GitHub Actions. See [model operations](worker/README.md#choosing-the-model).
 

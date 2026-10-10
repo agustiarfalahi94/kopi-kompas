@@ -89,10 +89,8 @@ missed.
 
 ## Choosing the model
 
-`GEMINI_PARSE_MODEL` and `GEMINI_SCORE_MODEL` both default to
-`gemini-flash-lite-latest`. Full Flash passed some local scoring checks but
-repeatedly exhausted the request budget in GitHub's live checks on 2026-10-10;
-Lite passed those checks. Both are server variables in
+`GEMINI_PARSE_MODEL` defaults to `gemini-flash-lite-latest` and
+`GEMINI_SCORE_MODEL` to `gemini-flash-latest`. Both are server variables in
 `wrangler.toml`; existing APKs do not need a rebuild when Google changes the
 model behind an alias. An explicit model can still be set for rollback.
 
@@ -122,6 +120,13 @@ Scoring inputs include every core and method-specific schema field, using
 `null` for unrecorded values and retaining explicit `false`/`0`. This makes the
 existing rubric's missing-value rule explicit instead of leaving an omitted
 boolean open to interpretation. The rubric weights and target bands are unchanged.
+
+On 2026-10-10 full Flash passed local scoring checks but repeatedly exhausted
+the request budget in GitHub's live checks. A Lite scoring experiment passed
+availability checks but gave an incorrect rubric explanation for an in-range
+Chemex brew. Full Flash therefore remains the scoring default; reducing
+timeouts alone was insufficient to justify the switch. Neither model choice
+nor fallback guarantees provider availability or perfectly calibrated scores.
 
 The weekly **Gemini health** workflow runs synthetic `/parse` and `/score`
 requests. Run it manually after deployment, or use `node tool/gemini_health.mjs`.

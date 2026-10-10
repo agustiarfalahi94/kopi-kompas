@@ -20,4 +20,4 @@ id = "e442b227afa64ce0998353fa48e928fa"
 # compatible stable text models; the response modelVersion preserves provenance.
 [vars]
 GEMINI_PARSE_MODEL = "gemini-flash-lite-latest"
-GEMINI_SCORE_MODEL = "gemini-flash-lite-latest"
+GEMINI_SCORE_MODEL = "gemini-flash-latest"

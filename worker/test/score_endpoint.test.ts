@@ -40,7 +40,7 @@ const ESPRESSO = {
 };
 
 describe('POST /score', () => {
-  it('uses the responsive Lite family and makes unrecorded scoring fields explicit', async () => {
+  it('makes unrecorded scoring fields explicit while retaining recorded false', async () => {
     const f = geminiReturning({ score: 100, reasons: ['unrecorded factors ignored'] });
     const res = await handleRequest(scoreReq({
       brewMethod: 'espresso', doseGrams: 18,
@@ -48,7 +48,7 @@ describe('POST /score', () => {
     }), env(), deps(f));
     expect(res.status).toBe(200);
     const [url, init] = (f as any).mock.calls[0];
-    expect(url).toContain('/gemini-flash-lite-latest:generateContent');
+    expect(url).toContain('/gemini-flash-latest:generateContent');
     const sent = JSON.parse(JSON.parse(init.body).contents[0].parts[0].text);
     expect(sent.roastLevel).toBeNull();
     expect(sent.doseGrams).toBe(18);
@@ -75,7 +75,7 @@ describe('POST /score', () => {
     const body = await res.json() as any;
     expect(body.score).toBe(88);
     expect(body.reasons).toEqual(['Ratio 2.0:1 — on target']);
-    expect(body.model).toBe('gemini-flash-lite-latest');
+    expect(body.model).toBe('gemini-flash-latest');
     expect(body.rubric).toBe('r3');
   });
 
