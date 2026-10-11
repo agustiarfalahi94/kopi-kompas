@@ -7,6 +7,12 @@
 - Recorded the published v0.4.2 release, final live Gemini check and verified
   ARM64 APK in the state document. No application or Worker code changes;
   these documentation corrections did not alter the v0.4.2+7 build.
+- Recorded the v0.4.3 main merge and `r4` deployment, with the October 11 live
+  scoring high-demand/timeout failures explicitly retained in the state and
+  Worker guidance. These operational notes do not change the tagged build.
+- Recorded successful v0.4.3 signed release packaging and verified ARM64 APK
+  identity, version, release certificate and GitHub checksum. Historical
+  successful v0.4.2 live checks are not presented as a current scoring pass.
 
 ## [0.4.3] — 2026-10-11
 
