@@ -53,4 +53,41 @@ void main() {
     );
     expect(find.text(p.shortCredit), findsOneWidget);
   });
+
+  testWidgets('a compact photo still respects a smaller caller ceiling', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: GuidePhotoCard(
+            photo: photos.forMethod('aeropress')!,
+            compact: true,
+            maxHeight: 32,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.getSize(find.byType(Image)).height, lessThanOrEqualTo(32));
+  });
+  testWidgets('a missing asset leaves its credit and no image error', (
+    tester,
+  ) async {
+    const missing = GuidePhoto(
+      method: 'missing-test-photo',
+      title: 'Missing test photo',
+      author: 'Test author',
+      licence: 'CC0',
+      source: 'https://example.invalid',
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: GuidePhotoCard(photo: missing, compact: true)),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Test author · CC0'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

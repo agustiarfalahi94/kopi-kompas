@@ -7,7 +7,23 @@ have already been paid for once.
 
 Keep it current. A stale state file is worse than none, because it is believed.
 
-Last updated: 2026-10-10, v0.4.2 published and the Gemini resilience fix deployed.
+Last updated: 2026-10-11, v0.4.3 candidate; v0.4.2 remains the published release.
+
+## Log photos and extraction language — v0.4.3 candidate
+
+- Home/full logs and entry details receive the existing licensed photo catalog.
+  Images are illustrative method references, uncropped and credited. Kopi talua
+  has no bundled photo and stays text-only; no new assets or licences.
+- Rubric `r4` changes explanation policy, not weights or target bands. A
+  15g-dose/25g-yield/30s normale is below the recipe ratio target with in-range
+  time, not proof of under- or over-extraction. Stored `r2`/`r3` scores and
+  reasons retain their provenance; no bulk rescore or database migration.
+- Automated coverage includes actual Home → details/full-log routes and EN/ID,
+  light/dark, 360px width with 2× text. Full-log headers now wrap rather than
+  overflow. A widget run does not verify an installed Android build.
+- Candidate is not yet merged/released; `r4` is not yet deployed. Live Gemini
+  policy compliance, signed packaging and physical-phone checks remain separate.
+  See device checks 38–39. The v0.4.2 evidence below is historical.
 
 ## Gemini model availability — v0.4.2
 
@@ -61,7 +77,7 @@ Last updated: 2026-10-10, v0.4.2 published and the Gemini resilience fix deploye
 
 | | |
 |---|---|
-| Version | `0.4.2+7` — see `pubspec.yaml`, which is the arbiter |
+| Version | `0.4.3+8` candidate — see `pubspec.yaml`, which is the arbiter |
 | Published release | [v0.4.2](https://github.com/agustiarfalahi94/kopi-kompas/releases/tag/v0.4.2); signed APKs available |
 | Integration | Feature branches → `develop` → `main`; release via `v*` tag |
 | Worker deployed | rubric `r3`, verified live |
@@ -187,7 +203,7 @@ There is a checklist for all of this, in the order it should be run, at
   saring, joss, talua, khop, ibrik, siphon, French press, cold brew and smart
   dripper were written from general knowledge with no rubric anchoring them.
   The user has already found two problems in that text.
-- **Old scores are `r2`, new ones `r3`.** Every row records which produced it,
+- **Stored scores may be `r2` or `r3`; the candidate uses `r4`.** Every row records which produced it,
   so nothing is silently wrong, but a pressurised-basket shot scored before
   2026-08-13 is not comparable to one scored after. There is no bulk rescore.
 - **Commits up to and including the `v0.4.0` tag carry `your@email.com`.** The

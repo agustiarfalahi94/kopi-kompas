@@ -665,3 +665,12 @@ Commons and Openverse under CC0, CC BY or CC BY-SA. `kopiTalua` has none —
 no archive holds a freely licensed one. See `ASSET_CREDITS.md`; attribution is
 a licence condition, so the credit is welded into the widget that draws the
 photo and there is no code path that shows one without it.
+
+**Log photos and explanation policy, v0.4.3 (2026-10-11).** User-approved
+extension: reuse that catalog in the home/full log and entry details, with
+compact uncropped thumbnails in lists and a larger detail image. Keep credits
+attached, existing styling and the no-photo fallback; these are method
+references, not user uploads. Rubric `r4` supersedes any earlier categorical
+extraction guidance: recipe targets are not measurements of taste or extraction.
+Dose/yield/ratio/time alone cannot prove under-/over-extraction. Numerical
+weights/bands stay unchanged and historical scores retain their provenance.

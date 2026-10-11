@@ -10,7 +10,9 @@ import { brewSchema, METHODS, type BrewMethod } from './schema';
 /// the bed, so WDT and distribution have almost nothing to act on — r2
 /// deducted for skipping them anyway, and marked down every shot pulled on
 /// the basket most beginners own.
-export const RUBRIC_VERSION = 'r3';
+/// r4 separates recipe-range comparisons from extraction claims. Targets and
+/// weights stay the same; earlier saved explanations retain their provenance.
+export const RUBRIC_VERSION = 'r4';
 
 export type Locale = 'en' | 'id';
 
@@ -122,12 +124,18 @@ const TARGETS: Record<string, string[]> = {
   espresso: [
     'Ratio (yieldGrams / doseGrams), weight 30. **The target band depends on',
     '  shotStyle**: ristretto 1.0 to 1.5, normale 1.8 to 2.2, lungo 2.8 to',
-    '  3.5. Judge against the band for the style recorded — a 1.2 ratio is',
-    '  correct for a ristretto and badly under-extracted for a normale. If',
+    '  3.5. Judge against the band for the style recorded: a 1.2 ratio is',
+    '  in the ristretto band but below the normale recipe target. This',
+    '  difference does not establish the shot\'s extraction. If',
     '  shotStyle is null, assume normale and say so.',
     'Brew time (brewTimeSeconds), weight 20. Target 25 to 32 seconds.',
-    '  Judge it together with the ratio: 20 seconds at 1:2 means the grind',
-    '  ran fast, which is a real fault; 36 seconds at 1:1.5 is choked.',
+    '  Compare the recorded time with this recipe target, alongside dose',
+    '  and shotStyle. A fast shot can have several causes, including grind',
+    '  and channeling; a slow shot is not proof of over-extraction or a',
+    '  choked puck. Do not diagnose grind or flow from the clock alone.',
+    '  Example: 15g dose, 25g yield, 30s, normale gives a ratio of about',
+    '  1:1.67, below the normale target, with time inside its target. Do',
+    '  not deduct for that time or label this shot under- or over-extracted.',
     '**Puck preparation is weighted by basketType. Read it first.**',
     '',
     'If basketType is nonPressurised, or is null — weight 20. puckPrepWdt,',
@@ -151,9 +159,10 @@ const TARGETS: Record<string, string[]> = {
     '  roast; light roast tolerates the upper end, dark roast the lower.',
     'Machine setup (pre-infusion, pressure, basket), weight 10.',
     '  preInfusionSeconds 3 to 10 where recorded;',
-    '  pressureBars 6 to 9. A basketSizeGrams far above doseGrams means an',
-    '  under-dosed basket, which channels — 18 g in a 22 g basket is a real',
-    '  fault, 18 g in an 18 g basket is correct. On a pressurised basket',
+    '  pressureBars 6 to 9. A basketSizeGrams far above doseGrams is a',
+    '  recipe/setup mismatch: 18 g in a 22 g basket is below its nominal',
+    '  capacity, 18 g in an 18 g basket matches it. This does not establish',
+    '  channeling. On a pressurised basket',
     '  this matters less: judge it, but do not call it a large fault.',
     '  basketDiameterMm is the portafilter it fits and is never a fault.',
     'Coherence, weight 10. Do the dose, basket and machine make sense',
@@ -171,9 +180,10 @@ const TARGETS: Record<string, string[]> = {
     'Total brew time (totalBrewTimeSeconds), weight 25. Target 180 to 240',
     '  seconds for a 15 g dose. **Adjust for the brewer**: a Kalita Wave has',
     '  three small holes that restrict flow, so it runs long by design;',
-    '  Orea and April drain faster and should sit nearer 180. The flat bed',
-    '  extracts evenly, so an uneven-tasting brew points at pour technique',
-    '  rather than at the dripper.',
+    '  Orea and April drain faster and should sit nearer 180. A flat bed',
+    '  does not by itself establish even extraction. If the brewer reports',
+    '  uneven taste, pour technique or grind are possible causes, not a',
+    '  confirmed diagnosis.',
   ]),
 
   chemex: FILTER_SKELETON([
@@ -201,12 +211,13 @@ const TARGETS: Record<string, string[]> = {
     '  12 to 16 for a concentrate meant to be diluted, 14 to 17 drunk',
     '  straight. Judge from notes which was intended if it is stated.',
     'Steep time (steepTimeSeconds), weight 30. Target 60 to 120 seconds.',
-    '  Under 45 is thin, over 180 is heavy and bitter.',
+    '  Under 45 or over 180 is well outside the recipe target. Describe',
+    '  the time difference, not an inferred body, taste or extraction.',
     'Water temperature (waterTempC), weight 20. Target 80 to 92. The',
     '  Aeropress is forgiving here, so deduct gently.',
     'Plunge (plungeTimeSeconds), weight 15. Target 20 to 30 seconds. A',
-    '  plunge under 10 seconds means the grind was too coarse or the',
-    '  pressure too high.',
+    '  plunge under 10 seconds is below the recipe target; it does not',
+    '  establish grind size or pressure by itself.',
     'Technique, weight 5. Inverted or upright are both legitimate; agitation',
     '  of none or a swirl is normal. Neither is a fault on its own.',
   ],
@@ -231,6 +242,12 @@ export function scoreInstruction(
     ...targets.map((t) => `- ${t}`),
     '',
     'Rules:',
+    '- These are recipe targets, not a measurement of extraction or taste.',
+    '  You cannot determine under-extraction or over-extraction from dose,',
+    '  yield, ratio and brew time alone. Describe a target mismatch rather',
+    '  than asserting that the coffee is under- or over-extracted. If the',
+    '  brewer recorded taste, treat it as a reported observation and qualify',
+    '  possible causes. Do not invent sourness, bitterness or channeling.',
     '- If a field is null, the brewer did not record it. Do not deduct for',
     '  it. Ignore that factor and say in the reasons that it was not',
     '  recorded.',
@@ -238,7 +255,7 @@ export function scoreInstruction(
     '- The final score is an integer from 0 to 100.',
     '- Give one short reason per factor you considered, in the order above.',
     '  Each reason states the value, how it compares to the target, and the',
-    '  effect. Do not pad, do not encourage, do not add advice that is not',
+    '  score deduction. Do not pad, do not encourage, do not add advice that is not',
     '  a consequence of a number in the rubric.',
     locale === 'id'
       ? '- Write every reason in Indonesian.'

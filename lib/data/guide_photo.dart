@@ -40,9 +40,8 @@ class GuidePhoto {
 
 /// Every guide photograph, keyed by method.
 ///
-/// Deliberately incomplete: cold brew, kopi saring and kopi talua have no
-/// usable image on Commons, and a guide shows no photograph rather than the
-/// wrong drink. Callers must handle a null.
+/// Deliberately incomplete: kopi talua has no bundled licensed photograph.
+/// Callers must handle a null rather than show a different drink.
 class GuidePhotos {
   const GuidePhotos(this._byMethod);
 

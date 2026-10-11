@@ -20,11 +20,11 @@ function geminiReturning(payload: unknown) {
 
 const deps = (fetchImpl: any) => ({ fetchImpl, now: () => Date.now() });
 
-function scoreReq(entry: unknown) {
+function scoreReq(entry: unknown, locale = 'en') {
   return new Request('https://w.dev/score', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ entry, locale: 'en', installId: 'install-a' }),
+    body: JSON.stringify({ entry, locale, installId: 'install-a' }),
   });
 }
 
@@ -40,6 +40,36 @@ const ESPRESSO = {
 };
 
 describe('POST /score', () => {
+  it.each(['espresso', 'coneDripper', 'flatBottomDripper', 'chemex', 'batchBrewer', 'aeropress'])
+    ('keeps %s recipe comparisons consistent with the no-invented-taste policy', async (brewMethod) => {
+      const f = geminiReturning({ score: 85, reasons: ['Recipe comparison'] });
+      const response = await handleRequest(scoreReq({ brewMethod, doseGrams: 15 }), env(), deps(f));
+      expect(response.status).toBe(200);
+      const request = JSON.parse((f as any).mock.calls[0][1].body);
+      const policy = request.systemInstruction.parts[0].text;
+      expect(policy).toContain('Do not invent sourness, bitterness or channeling');
+      expect(policy).not.toMatch(/which channels|Under 45 is thin|over 180 is heavy and bitter|means the grind was too coarse|extracts evenly[^]*points at pour technique/);
+      expect((await response.json() as any).rubric).toBe('r4');
+    });
+  it.each(['en', 'id'])('sends a cautious extraction policy for the 15g/25g/30s shot (%s)', async (locale) => {
+    const f = geminiReturning({ score: 85, reasons: ['Recipe comparison'] });
+    const response = await handleRequest(scoreReq({
+      brewMethod: 'espresso', doseGrams: 15,
+      methodData: { shotStyle: 'normale', yieldGrams: 25, brewTimeSeconds: 30 },
+    }, locale), env(), deps(f));
+    expect(response.status).toBe(200);
+    const request = JSON.parse((f as any).mock.calls[0][1].body);
+    const entry = JSON.parse(request.contents[0].parts[0].text);
+    expect(entry.doseGrams).toBe(15);
+    expect(entry.methodData).toMatchObject({
+      shotStyle: 'normale', yieldGrams: 25, brewTimeSeconds: 30,
+    });
+    const policy = request.systemInstruction.parts[0].text;
+    expect(policy).not.toMatch(/badly under-extracted|means the grind[^]*too coarse|a choked shot/);
+    expect(policy).toMatch(/cannot determine under-extraction or over-extraction/);
+    expect(policy).toMatch(/recipe targets[^]*not a measurement of extraction/);
+    expect((await response.json() as any).rubric).toBe('r4');
+  });
   it('makes unrecorded scoring fields explicit while retaining recorded false', async () => {
     const f = geminiReturning({ score: 100, reasons: ['unrecorded factors ignored'] });
     const res = await handleRequest(scoreReq({
@@ -66,7 +96,7 @@ describe('POST /score', () => {
     const response = await handleRequest(scoreReq(ESPRESSO), env(), deps(fetchImpl));
     const body = await response.json() as any;
     expect(body.model).toBe('gemini-3.8-flash');
-    expect(body.rubric).toBe('r3');
+    expect(body.rubric).toBe('r4');
   });
   it('returns the score with its rubric and model', async () => {
     const f = geminiReturning({ score: 88, reasons: ['Ratio 2.0:1 — on target'] });
@@ -76,7 +106,7 @@ describe('POST /score', () => {
     expect(body.score).toBe(88);
     expect(body.reasons).toEqual(['Ratio 2.0:1 — on target']);
     expect(body.model).toBe('gemini-flash-latest');
-    expect(body.rubric).toBe('r3');
+    expect(body.rubric).toBe('r4');
   });
 
   it('sends the rubric for the entry\'s own method', async () => {

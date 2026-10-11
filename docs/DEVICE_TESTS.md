@@ -61,7 +61,9 @@ Expect: A dialog: old number struck through, arrow, new number, and the reasons.
 **10. An old brew warns you the rules moved**  
 Do: Edit a brew that was scored before today, and save.  
 Expect: The dialog adds a line saying the scoring rules also changed, so part of the difference isn't your edit.  
-Why: Old entries are r2, new ones r3. On a pressurised basket that difference alone is worth about fourteen points.
+Why: Stored entries can retain r2/r3 while new scores use the deployed rubric.
+The r2→r3 basket change affected numerical scoring; r4 changes explanation
+policy, not numerical weights. Do not assume a fixed score difference.
 
 **11. Changing only the time doesn't re-score**  
 Do: Edit a brew, change only Brewed at, save.  
@@ -205,6 +207,33 @@ or block saving.
 Status: Unverified on an Android device; automated widget tests cover these
 input and reporting paths, but not the physical keyboard or APK.
 
+
+## Log photos and extraction explanations
+
+**38. Reference photos and credits stay visible**
+
+Do: Open Home, Full log and a brew's details in both themes and languages.
+Repeat with a large system font. Check espresso and a tall-photo method;
+also open kopi talua. Tap a brew and return to the filtered log.
+
+Expect: Uncropped reference photos with readable author/licence credits,
+no clipped header or lost navigation. Kopi talua remains text-only. These
+photos illustrate methods, not the user's actual drink.
+
+Status: Automated widget/navigation/layout checks; unverified on a phone.
+
+**39. Recipe comparison is not an extraction diagnosis**
+
+Do: Score a normale with 15g dose, 25g yield and 30 seconds, in EN and ID.
+Inspect the explanation and provenance; open an older saved brew too.
+
+Expect: New scores report r4. Ratio is 1:1.67, below the normale recipe target;
+30 seconds is in the time band. No invented time fault or categorical
+under-/over-extraction/taste claim from those values alone. Old stored reasons
+and rubric remain unchanged unless you explicitly edit/rescore the brew.
+
+Status: Outgoing prompt/provenance tested automatically; live generation and
+physical-device checks are separate, not guaranteed by a unit-test pass.
 
 ## The one that wipes the phone — do this last
 
