@@ -7,9 +7,9 @@ have already been paid for once.
 
 Keep it current. A stale state file is worse than none, because it is believed.
 
-Last updated: 2026-10-11, v0.4.3 candidate; v0.4.2 remains the published release.
+Last updated: 2026-10-11, v0.4.3 published; signed GitHub ARM64 APK verified.
 
-## Log photos and extraction language — v0.4.3 candidate
+## Log photos and extraction language — v0.4.3
 
 - Home/full logs and entry details receive the existing licensed photo catalog.
   Images are illustrative method references, uncropped and credited. Kopi talua
@@ -21,9 +21,27 @@ Last updated: 2026-10-11, v0.4.3 candidate; v0.4.2 remains the published release
 - Automated coverage includes actual Home → details/full-log routes and EN/ID,
   light/dark, 360px width with 2× text. Full-log headers now wrap rather than
   overflow. A widget run does not verify an installed Android build.
-- Candidate is not yet merged/released; `r4` is not yet deployed. Live Gemini
-  policy compliance, signed packaging and physical-phone checks remain separate.
-  See device checks 38–39. The v0.4.2 evidence below is historical.
+- Merged through [PR #10](https://github.com/agustiarfalahi94/kopi-kompas/pull/10)
+  and [PR #11](https://github.com/agustiarfalahi94/kopi-kompas/pull/11), with
+  independent review and both PR checks passing. The `v0.4.3` tag points to
+  main commit `d491d1b030fb0627a372cd64a477d33a42f2f7b7`.
+- Worker `r4` deployed successfully, deployment
+  `d3681cc4-81cb-4910-ae0e-3543a100eaa9`. Model aliases, secrets and numeric
+  scoring weights were not changed in this deployment.
+- October 11 [live health check](https://github.com/agustiarfalahi94/kopi-kompas/actions/runs/38112815948):
+  parse succeeded, scoring returned a generation timeout. EN/ID espresso and
+  EN AeroPress checks also returned upstream high-demand/timeouts. Live `r4`
+  explanation compliance remains unverified during this provider issue;
+  prompt tests do not establish provider availability.
+- [Tag workflow](https://github.com/agustiarfalahi94/kopi-kompas/actions/runs/38112966868)
+  passed verification and signed packaging. The [v0.4.3 release](https://github.com/agustiarfalahi94/kopi-kompas/releases/tag/v0.4.3)
+  is published. Downloaded ARM64 APK: package `com.inkpebble.kopi_kompas`,
+  version `0.4.3`, source build `8`; ABI-split Android versionCode `2008`
+  advances from v0.4.2 ARM64's `2007`. Signature matches the existing release
+  certificate. File SHA-256 matches GitHub's asset digest:
+  `3ec985ed2630a3f3bb33edc810ca7af3d5dfd7b6e7480f398cd68a7531bbf5b7`.
+- Physical-phone checks remain unverified. See device checks 38–39. The
+  v0.4.2 evidence below is historical, not today's live scoring result.
 
 ## Gemini model availability — v0.4.2
 
@@ -77,10 +95,10 @@ Last updated: 2026-10-11, v0.4.3 candidate; v0.4.2 remains the published release
 
 | | |
 |---|---|
-| Version | `0.4.3+8` candidate — see `pubspec.yaml`, which is the arbiter |
-| Published release | [v0.4.2](https://github.com/agustiarfalahi94/kopi-kompas/releases/tag/v0.4.2); signed APKs available |
+| Version | `0.4.3+8` — see `pubspec.yaml`, which is the arbiter |
+| Published release | [v0.4.3](https://github.com/agustiarfalahi94/kopi-kompas/releases/tag/v0.4.3); signed ARM64 APK metadata, certificate and GitHub digest verified |
 | Integration | Feature branches → `develop` → `main`; release via `v*` tag |
-| Worker deployed | rubric `r3`, verified live |
+| Worker deployed | rubric `r4`; deployment verified, live scoring currently returns provider high-demand/timeouts |
 | App tests | run `./tool/check.sh` for the real number; never quote one from here |
 
 **Merged into `main` on 2026-09-16:** remembered fields and score retry,
@@ -203,7 +221,7 @@ There is a checklist for all of this, in the order it should be run, at
   saring, joss, talua, khop, ibrik, siphon, French press, cold brew and smart
   dripper were written from general knowledge with no rubric anchoring them.
   The user has already found two problems in that text.
-- **Stored scores may be `r2` or `r3`; the candidate uses `r4`.** Every row records which produced it,
+- **Stored scores may be `r2` or `r3`; new scores use deployed `r4`.** Every row records which produced it,
   so nothing is silently wrong, but a pressurised-basket shot scored before
   2026-08-13 is not comparable to one scored after. There is no bulk rescore.
 - **Commits up to and including the `v0.4.0` tag carry `your@email.com`.** The

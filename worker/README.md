@@ -141,6 +141,14 @@ Chemex brew. Full Flash therefore remains the scoring default; reducing
 timeouts alone was insufficient to justify the switch. Neither model choice
 nor fallback guarantees provider availability or perfectly calibrated scores.
 
+After the October 11 `r4` deployment, parsing succeeded in
+[the live health run](https://github.com/agustiarfalahi94/kopi-kompas/actions/runs/38112815948),
+but scoring timed out. Separate EN/ID espresso and EN AeroPress requests also
+returned generation timeouts or Google's explicit high-demand `503`. Live
+explanation compliance could not be verified during that service issue. No
+model switch or additional unbounded retries were made; the tested policy and
+the provider's availability are separate checks.
+
 The weekly **Gemini health** workflow runs synthetic `/parse` and `/score`
 requests. Run it manually after deployment, or use `node tool/gemini_health.mjs`.
 A successful generation and valid schema are required; a reachable Worker alone
